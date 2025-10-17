@@ -9,11 +9,9 @@ Moveは、ネイティブMoveコードのように見え、感じられる操作
 
 最初の構文メソッドである`index`は、インデックス操作に使用されるべき関数に注釈を付けることで、`m[i,j]`としてマトリックス要素にアクセスするなど、データ型のカスタムインデックスアクセサーとして使用できる操作のグループを定義することを可能にします。さらに、これらの定義は型ごとに特注であり、あなたの型を使用する任意のプログラマーに対して暗黙的に利用可能です。
 
-## Overview and Summary
+## 概要と要約
 
-To start, consider a `Matrix` type that uses a vector of vectors to represent its values. You can
-write a small library using `index` syntax annotations on the `borrow` and `borrow_mut` functions as
-follows:
+まず、ベクトルのベクトルを使用して値を表現する`Matrix`型を考えてみましょう。`borrow`と`borrow_mut`関数に`index`構文注釈を使用して、以下のような小さなライブラリを書くことができます：
 
 ```move
 module matrix::matrix;
@@ -35,7 +33,7 @@ public fun make_matrix<T>(v: vector<vector<T>>):  Matrix<T> {
 }
 ```
 
-Now anyone using this `Matrix` type has access to index syntax for it:
+これで、この`Matrix`型を使用する誰でも、そのインデックス構文にアクセスできます：
 
 ```move
 let mut m = matrix::make_matrix(vector[
@@ -60,18 +58,16 @@ while (i < 3) {
 }
 ```
 
-## Usage
+## 使用方法
 
-As the example indicates, if you define a datatype and an associated index syntax method, anyone can
-invoke that method by writing index syntax on a value of that type:
+例が示すように、データ型とそれに関連するインデックス構文メソッドを定義すると、誰でもその型の値に対してインデックス構文を書くことでそのメソッドを呼び出すことができます：
 
 ```move
 let mat = matrix::make_matrix(...);
 let m_0_0 = mat[0, 0];
 ```
 
-During compilation, the compiler translates these into the appropriate function invocations based on
-the position and mutable usage of the expression:
+コンパイル中、コンパイラは式の位置と可変使用に基づいて、これらを適切な関数呼び出しに変換します：
 
 ```move
 let mut mat = matrix::make_matrix(...);
@@ -86,7 +82,7 @@ let m_0_0 = &mut mat[0, 0];
 // translates to `matrix::borrow_mut(&mut mat, 0, 0)`
 ```
 
-You can also intermix index expressions with field accesses:
+インデックス式とフィールドアクセスを混在させることもできます：
 
 ```move
 public struct V { v: vector<u64> }
@@ -99,12 +95,9 @@ fun borrow_first(input: &Vs): &u64 {
 }
 ````
 
-### Index Functions Take Flexible Arguments
+### インデックス関数は柔軟な引数を取る
 
-Note that, aside from the definition and type limitations described in the rest of this chapter,
-Move places no restrictions on the values your index syntax method takes as parameters. This allows
-you to implement intricate programmatic behavior when defining index syntax, such as a data
-structure that takes a default value if the index is out of bounds:
+この章の残りの部分で説明されている定義と型の制限を除いて、Moveはインデックス構文メソッドがパラメータとして取る値に制限を設けていないことに注意してください。これにより、インデックス構文を定義する際に、インデックスが範囲外の場合にデフォルト値を取るデータ構造など、複雑なプログラム動作を実装できます：
 
 ```move
 #[syntax(index)]
@@ -122,7 +115,7 @@ public fun borrow_or_set<Key: copy, Value: drop>(
 }
 ```
 
-Now, when you index into `MTable`, you must also provide a default value:
+これで、`MTable`にインデックスする際は、デフォルト値も提供する必要があります：
 
 ```move
 let string_key: String = ...;
@@ -130,67 +123,53 @@ let mut table: MTable<String, u64> = m_table::make_table();
 let entry: &mut u64 = &mut table[string_key, 0];
 ```
 
-This sort of extensible power allows you to write precise index interfaces for your types,
-concretely enforcing bespoke behavior.
+この種の拡張可能な機能により、型に対して正確なインデックスインターフェースを書き、カスタム動作を具体的に強制できます。
 
-## Defining Index Syntax Functions
+## インデックス構文関数の定義
 
-This powerful syntax form allows all of your user-defined datatypes to behave in this way, assuming
-your definitions adhere to the following rules:
+この強力な構文形式により、すべてのユーザー定義データ型がこのように動作することができます。ただし、定義が以下のルールに従う必要があります：
 
-1. The `#[syntax(index)]` attribute is added to the designated functions defined in the same module
-   as the subject type.
-1. The designated functions have `public` visibility.
-1. The functions take a reference type as its subject type (its first argument) and returns a
-   matching references type (`mut` if the subject was `mut`).
-1. Each type has only a single mutable and single immutable definition.
-1. Immutable and mutable versions have type agreement:
-   - The subject types match, differing only in mutability.
-   - The return types match the mutability of their subject types.
-   - Type parameters, if present, have identical constraints between both versions.
-   - All parameters beyond the subject type are identical.
+1. `#[syntax(index)]`属性は、対象型と同じモジュールで定義された指定された関数に追加されます。
+1. 指定された関数は`public`の可視性を持ちます。
+1. 関数は参照型を対象型（最初の引数）として取り、一致する参照型を返します（対象が`mut`の場合は`mut`）。
+1. 各型には単一の可変定義と単一の不変定義のみがあります。
+1. 不変版と可変版は型の一致があります：
+   - 対象型は一致し、可変性のみが異なります。
+   - 戻り値の型は対象型の可変性と一致します。
+   - 型パラメータがある場合、両バージョン間で同一の制約を持ちます。
+   - 対象型を超えるすべてのパラメータは同一です。
 
-The following content and additional examples describe these rules in greater detail.
+以下の内容と追加の例では、これらのルールについてより詳しく説明します。
 
-### Declaration
+### 宣言
 
-To declare an index syntax method, add the `#[syntax(index)]` attribute above the relevant function
-definition in the same module as the subject type's definition. This signals to the compiler that
-the function is an index accessor for the specified type.
+インデックス構文メソッドを宣言するには、対象型の定義と同じモジュール内の関連する関数定義の上に`#[syntax(index)]`属性を追加します。これにより、コンパイラにその関数が指定された型のインデックスアクセサーであることを知らせます。
 
-#### Immutable Accessor
+#### 不変アクセサー
 
-The immutable index syntax method is defined for read-only access. It takes an immutable reference
-of the subject type and returns an immutable reference to the element type. The `borrow` function
-defined in `std::vector` is an example of this:
+不変インデックス構文メソッドは読み取り専用アクセス用に定義されます。対象型の不変参照を取り、要素型への不変参照を返します。`std::vector`で定義された`borrow`関数がこの例です：
 
 ```move
 #[syntax(index)]
 public native fun borrow<Element>(v: &vector<Element>, i: u64): &Element;
 ```
 
-#### Mutable Accessor
+#### 可変アクセサー
 
-The mutable index syntax method is the dual of the immutable one, allowing for both read and write
-operations. It takes a mutable reference of the subject type and returns a mutable reference to the
-element type. The `borrow_mut` function defined in `std::vector` is an example of this:
+可変インデックス構文メソッドは不変版の双対で、読み取りと書き込みの両方の操作を可能にします。対象型の可変参照を取り、要素型への可変参照を返します。`std::vector`で定義された`borrow_mut`関数がこの例です：
 
 ```move
 #[syntax(index)]
 public native fun borrow_mut<Element>(v: &mut vector<Element>, i: u64): &mut Element;
 ```
 
-#### Visibility
+#### 可視性
 
-To ensure that indexing functions are available anywhere the type is used, all index syntax methods
-must have public visibility. This ensures ergonomic usage of indexing across modules and packages in
-Move.
+インデックス関数が型が使用されるどこでも利用可能であることを保証するため、すべてのインデックス構文メソッドはpublicの可視性を持たなければなりません。これにより、Moveのモジュールとパッケージ全体でインデックス機能の使いやすさが保証されます。
 
-#### No Duplicates
+#### 重複なし
 
-In addition to the above requirements, we restrict each subject base type to defining a single index
-syntax method for immutable references and a single index syntax method for mutable references. For
-example, you cannot define a specialized version for a polymorphic type:
+上記の要件に加えて、各対象基本型は不変参照用の単一のインデックス構文メソッドと可変参照用の単一のインデックス構文メソッドの定義に制限されます。例えば、多態型の特化版を定義することはできません：
 
 ```move
 #[syntax(index)]
@@ -202,16 +181,13 @@ public fun borrow_matrix<T>(s: &Matrix<T>, i: u64, j: u64): &T { ... }
     // for its immutable index syntax method
 ```
 
-This ensures that you can always tell which method is being invoked, without the need to inspect
-type instantiation.
+これにより、型のインスタンス化を調べる必要なく、常にどのメソッドが呼び出されているかを知ることができます。
 
-### Type Constraints
+### 型制約
 
-By default, an index syntax method has the following type constraints:
+デフォルトでは、インデックス構文メソッドには以下の型制約があります：
 
-**Its subject type (first argument) must be a reference to a single type defined in the same module
-as the marked function.** This means that you cannot define index syntax methods for tuples, type
-parameters, or values:
+**その対象型（最初の引数）は、マークされた関数と同じモジュールで定義された単一の型への参照でなければなりません。** これは、タプル、型パラメータ、または値に対してインデックス構文メソッドを定義できないことを意味します：
 
 ```move
 #[syntax(index)]
@@ -227,11 +203,7 @@ public fun borrow_value(x: Matrix<u64>, ...): &u64 { ... }
     // ERROR because x is not a reference
 ```
 
-**The subject type must match mutability with the return type.** This restriction allows you to
-clarify the expected behavior when borrowing an indexed expression as `&vec[i]` versus
-`&mut vec[i]`. The Move compiler uses the mutability marker to determine which borrow form to call
-to produce a reference of the appropriate mutability. As a result, we disallow index syntax methods
-whose subject and return mutability differ:
+**対象型は戻り値の型と可変性が一致しなければなりません。** この制限により、`&vec[i]`と`&mut vec[i]`としてインデックス式を借用する際の期待される動作を明確にできます。Moveコンパイラは可変性マーカーを使用して、適切な可変性の参照を生成するためにどの借用形式を呼び出すかを決定します。その結果、対象と戻り値の可変性が異なるインデックス構文メソッドは許可されません：
 
 ```move
 #[syntax(index)]
@@ -240,22 +212,19 @@ public fun borrow_imm(x: &mut Matrix<u64>, ...): &u64 { ... }
     // expected a mutable reference '&mut' return type
 ```
 
-### Type Compatibility
+### 型互換性
 
-When defining an immutable and mutable index syntax method pair, they are subject to a number of
-compatibility constraints:
+不変と可変のインデックス構文メソッドペアを定義する際、それらは多くの互換性制約の対象となります：
 
-1. They must take the same number of type parameters, those type parameters must have the same
-   constraints.
-1. Type parameters must be used the same _by position_, not name.
-1. Their subject types must match exactly except for the mutability.
-1. Their return types must match exactly except for the mutability.
-1. All other parameter types must match exactly.
+1. 同じ数の型パラメータを取り、それらの型パラメータは同じ制約を持たなければなりません。
+1. 型パラメータは名前ではなく、位置によって同じように使用されなければなりません。
+1. 対象型は可変性を除いて完全に一致しなければなりません。
+1. 戻り値の型は可変性を除いて完全に一致しなければなりません。
+1. 他のすべてのパラメータ型は完全に一致しなければなりません。
 
-These constraints are to ensure that index syntax behaves identically regardless of being in a
-mutable or immutable position.
+これらの制約は、インデックス構文が可変位置または不変位置にあるかに関係なく、同じように動作することを保証するためのものです。
 
-To illustrate some of these errors, recall the previous `Matrix` definition:
+これらのエラーのいくつかを説明するために、前の`Matrix`定義を思い出してください：
 
 ```move
 #[syntax(index)]

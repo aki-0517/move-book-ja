@@ -35,11 +35,7 @@ macro fun map<$T, $U>($v: vector<$T>, $f: |$T| -> $U): vector<$U> {
 }
 ```
 
-The `$` is there to indicate that the parameters (both type and value parameters) do not behave like
-their normal, non-macro counterparts. For type parameters, they can be instantiated with any type
-(even a reference type `&` or `&mut`), and they will satisfy any constraint. Similarly for
-parameters, they will not be evaluated eagerly, and instead the argument expression will be
-substituted at each usage.
+`$`は、パラメータ（型パラメータと値パラメータの両方）が通常の非マクロの対応物とは異なる動作をすることを示すためにあります。型パラメータの場合、任意の型（参照型`&`や`&mut`を含む）でインスタンス化でき、任意の制約を満たします。同様に、パラメータは熱心に評価されるのではなく、代わりに引数式が各使用箇所で置換されます。
 
 ## ラムダ
 
@@ -51,11 +47,11 @@ As seen in the example above (`$f: |$T| -> $U`), lambda types are defined with t
 |<type>,*| (-> <type>)?
 ```
 
-A few examples
+いくつかの例：
 
 ```move
-|u64, u64| -> u128 // a lambda that takes two u64s and returns a u128
-|&mut vector<u8>| -> &mut u8 // a lambda that takes a &mut vector<u8> and returns a &mut u8
+|u64, u64| -> u128 // 2つのu64を取り、u128を返すラムダ
+|&mut vector<u8>| -> &mut u8 // &mut vector<u8>を取り、&mut u8を返すラムダ
 ```
 
 戻り値の型が注釈されていない場合、デフォルトでユニット`()`です。
@@ -90,36 +86,36 @@ let doubled: vector<u64> = map!(v, |x: u64| 2 * x); // 戻り値の型注釈は�
 let bytes: vector<vector<u8>> = map!(v, |x: u64| -> vector<u8> { std::bcs::to_bytes(&x) });
 ```
 
-### Capturing
+### キャプチャ
 
-Lambda expressions can also refer to variables in the scope where the lambda is defined. This is
-sometimes called "capturing".
+ラムダ式は、ラムダが定義されたスコープ内の変数を参照することもできます。これは
+「キャプチャ」と呼ばれることがあります。
 
 ```move
 let res = foo();
 let incremented = map!(vector[1, 2, 3], |x| x + res);
 ```
 
-Any variable can be captured, including mutable and immutable references.
+可変参照と不変参照を含む任意の変数をキャプチャできます。
 
 See the [Examples](#iterating-over-a-vector) section for more complicated usages.
 
-### Limitations
+### 制限
 
-Currently, lambdas can only be used directly in the call of a `macro` function. They cannot be bound
-to a variable. For example, the following is code will produce an error:
+現在、ラムダは`macro`関数の呼び出しで直接使用することしかできません。変数に
+バインドすることはできません。例えば、以下のコードはエラーを生成します：
 
 ```move
 let f = |x| 2 * x;
-//      ^^^^^^^^^ Error! Lambdas must be used directly in 'macro' calls
+//      ^^^^^^^^^ エラー！ラムダは'macro'呼び出しで直接使用する必要があります
 let doubled: vector<u64> = map!(vector[1, 2, 3], f);
 ```
 
-## Typing
+## 型付け
 
-Like normal functions, `macro` functions are typed--the types of the parameters and return value
-must be annotated. However, the body of the function is not type checked until the macro is
-expanded. This means that not all usages of a given macro may be valid. For example
+通常の関数と同様に、`macro`関数は型付けされています -- パラメータと戻り値の型は
+注釈する必要があります。しかし、関数の本体はマクロが展開されるまで型チェックされません。
+これは、与えられたマクロのすべての使用が有効であるとは限らないことを意味します。例えば
 
 ```move
 macro fun add_one<$T>($x: $T): $T {
@@ -127,10 +123,10 @@ macro fun add_one<$T>($x: $T): $T {
 }
 ```
 
-The above macro will not type check if `$T` is not a primitive integer type.
+上記のマクロは、`$T`がプリミティブ整数型でない場合、型チェックされません。
 
-This can be particularly useful in conjunction with [method syntax](./../method-syntax), where the
-function is not resolved until after the macro is expanded.
+これは[メソッド構文](./../method-syntax)と組み合わせて特に有用で、マクロが展開されるまで
+関数が解決されません。
 
 ```move
 macro fun call_foo<$T, $U>($x: $T): &$U {
@@ -142,15 +138,15 @@ This macro will only expand successfully if `$T` has a method `foo` that returns
 As described in the [hygiene](#hygiene) section, `foo` will be resolved based on the scope where
 `call_foo` was defined--not where it was expanded.
 
-### Type Parameters
+### 型パラメータ
 
-Type parameters can be instantiated with any type, including reference types `&` and `&mut`. They
-can also be instantiated with [tuple types](./../primitive-types/tuples), though the utility of this
-is limited currently since tuples cannot be bound to a variable.
+型パラメータは、参照型`&`や`&mut`を含む任意の型でインスタンス化できます。また、
+[タプル型](./../primitive-types/tuples)でインスタンス化することもできますが、タプルを変数に
+バインドできないため、現在この有用性は限られています。
 
-This relaxation forces the constraints of a type parameter to be satisfied at the call site in a way
-that does not normally occur. It is generally recommended however to add all necessary constraints
-to a type parameter. For example
+この緩和により、型パラメータの制約が通常発生しない方法で呼び出しサイトで満たされることを
+強制します。しかし、型パラメータに必要なすべての制約を追加することを一般的に推奨します。
+例えば
 
 ```move
 public struct NoAbilities()
@@ -160,15 +156,15 @@ macro fun make_box<$T>($x: $T): CopyBox<$T> {
 }
 ```
 
-This macro will expand only if `$T` is instantiated with a type with the `copy` ability.
+このマクロは、`$T`が`copy`能力を持つ型でインスタンス化された場合にのみ展開されます。
 
 ```move
 make_box!(1); // Valid!
 make_box!(NoAbilities()); // Error! 'NoAbilities' does not have the copy ability
 ```
 
-The suggested declaration of `make_box` would be to add the `copy` constraint to the type parameter.
-This then communicates to the caller that the type must have the `copy` ability.
+`make_box`の推奨宣言は、型パラメータに`copy`制約を追加することです。
+これにより、呼び出し元に型が`copy`能力を持たなければならないことを伝えます。
 
 ```move
 macro fun make_box<$T: copy>($x: $T): CopyBox<$T> {
@@ -176,10 +172,10 @@ macro fun make_box<$T: copy>($x: $T): CopyBox<$T> {
 }
 ```
 
-One might reasonably ask then, why have this relaxation if the recommendation is not to use it? The
-constraints on type parameters simply cannot be enforced in all cases because the bodies are not
-checked until expansion. In the following example, the `copy` constraint on `$T` is not necessary in
-the signature, but is necessary in the body.
+では、推奨が使用しないことであるなら、なぜこの緩和があるのかと合理的に尋ねるかもしれません。
+型パラメータの制約は、本体が展開されるまでチェックされないため、すべてのケースで
+強制することは単純にできません。以下の例では、`$T`の`copy`制約は署名では必要ありませんが、
+本体では必要です。
 
 ```move
 macro fun read_ref<$T>($r: &$T): $T {
@@ -187,17 +183,17 @@ macro fun read_ref<$T>($r: &$T): $T {
 }
 ```
 
-If however, you want to have an extremely relaxed type signature, it is instead recommended to use
-the [`_` type](#_-type).
+しかし、非常に緩い型署名を持ちたい場合は、代わりに[`_`型](#_-type)を使用することを
+推奨します。
 
-### `_` Type
+### `_`型
 
-Normally, the [`_` placeholder type](./../generics#_-type) is used in expressions to allow for
-partial annotations of type arguments. However, with `macro` functions, the `_` type can be used in
-place of type parameters to relax the signature for any type. This should increase the ergonomics of
-declaring "generic" `macro` functions.
+通常、[`_`プレースホルダー型](./../generics#_-type)は式で使用され、型引数の部分的な
+注釈を可能にします。しかし、`macro`関数では、`_`型を型パラメータの代わりに使用して、
+任意の型に対して署名を緩和できます。これにより、「ジェネリック」`macro`関数の宣言の
+エルゴノミクスが向上するはずです。
 
-For example, we could take any combination of integers and add them together.
+例えば、任意の整数の組み合わせを取り、それらを加算できます。
 
 ```move
 macro fun add($x: _, $y: _, $z: _): u256 {
@@ -205,7 +201,7 @@ macro fun add($x: _, $y: _, $z: _): u256 {
 }
 ```
 
-Additionally, the `_` type can be instantiated _multiple_ times with different types. For example
+さらに、`_`型は異なる型で_複数回_インスタンス化できます。例えば
 
 ```move
 public struct Box<T> has copy, drop, store { value: T }
@@ -214,8 +210,8 @@ macro fun create_two($f: |_| -> Box<_>): (Box<u8>, Box<u16>) {
 }
 ```
 
-If we declared the function with type parameters instead, the types would have to unify to a common
-type, which is not possible in this case.
+代わりに型パラメータで関数を宣言した場合、型は共通の型に統一される必要がありますが、
+この場合は不可能です。
 
 ```move
 macro fun create_two<$T>($f: |$T| -> Box<$T>): (Box<u8>, Box<u16>) {
@@ -229,23 +225,23 @@ let (a, b) = create_two!(|value| Box { value });
 In this case, `$T` must be instantiated with a single type, but inference finds that `$T` must be
 bound to both `u8` and `u16`.
 
-There is a tradeoff however, as the `_` type conveys less meaning and intention for the caller.
-Consider `map` macro from above re-declared with `_` instead of `$T` and `$U`.
+しかし、`_`型は呼び出し元にとって意味と意図をより少なく伝えるため、トレードオフがあります。
+上記の`map`マクロを`$T`と`$U`の代わりに`_`で再宣言することを考えてみてください。
 
 ```move
 macro fun map($v: vector<_>, $f: |_| -> _): vector<_> {
 ```
 
-There is no longer any indication of behavior of `$f` at the type level. The caller must gain
-understanding from comments or the body of the macro.
+型レベルで`$f`の動作を示すものはもはやありません。呼び出し元はコメントやマクロの本体から
+理解を得る必要があります。
 
-## Expansion and Substitution
+## 展開と置換
 
-The body of the `macro` is substituted into the call site at compile time. Each parameter is
-replaced by the _expression_, not the value, of its argument. For lambdas, additional local
-variables can have values bound within the context of the `macro` body.
+`macro`の本体はコンパイル時に呼び出しサイトに置換されます。各パラメータは
+引数の_式_（値ではなく）で置換されます。ラムダの場合、追加のローカル変数は
+`macro`本体のコンテキスト内で値がバインドされることがあります。
 
-Taking a very simple example
+非常に簡単な例を取ってみましょう
 
 ```move
 macro fun apply($f: |u64| -> u64, $x: u64): u64 {
@@ -253,13 +249,13 @@ macro fun apply($f: |u64| -> u64, $x: u64): u64 {
 }
 ```
 
-With the call site
+呼び出しサイトで
 
 ```move
 let incremented = apply!(|x| x + 1, 5);
 ```
 
-This will roughly be expanded to
+これはおおよそ以下のように展開されます：
 
 ```move
 let incremented = {
@@ -268,8 +264,8 @@ let incremented = {
 };
 ```
 
-Again, the value of `x` is not substituted, but the expression `5` is. This might mean that an
-argument is evaluated multiple times, or not at all, depending on the body of the `macro`.
+再び、`x`の値は置換されませんが、式`5`は置換されます。これは、`macro`の本体に応じて、
+引数が複数回評価されるか、全く評価されない可能性があることを意味します。
 
 ```move
 macro fun dup($f: |u64, u64| -> u64, $x: u64): u64 {
@@ -291,10 +287,10 @@ let sum = {
 };
 ```
 
-Note that `foo()` will be called twice. Which would not happen if `dup` were a normal function.
+`foo()`が2回呼び出されることに注意してください。これは`dup`が通常の関数であった場合には
+発生しません。
 
-It is often recommended to create predictable evaluation behavior by binding arguments to local
-variables.
+引数をローカル変数にバインドすることで予測可能な評価動作を作成することがしばしば推奨されます。
 
 ```move
 macro fun dup($f: |u64, u64| -> u64, $x: u64): u64 {
@@ -303,7 +299,7 @@ macro fun dup($f: |u64, u64| -> u64, $x: u64): u64 {
 }
 ```
 
-Now that same call site will expand to
+今度は同じ呼び出しサイトが以下のように展開されます：
 
 ```move
 let sum = {
@@ -316,20 +312,18 @@ let sum = {
 };
 ```
 
-### Hygiene
+### ハイジーン
 
-In the example above, the `dup` macro had a local variable `a` that was used to bind the argument
-`$x`. You might ask, what would happen if the variable was instead named `x`? Would that conflict
-with the `x` in the lambda?
+上記の例では、`dup`マクロには引数`$x`をバインドするために使用されたローカル変数`a`がありました。
+変数が代わりに`x`と名付けられた場合、何が起こるでしょうか？ラムダの`x`と競合するでしょうか？
 
-The short answer is, no. `macro` functions are
-[hygienic](https://en.wikipedia.org/wiki/Hygienic_macro), meaning that the expansion of `macro`s and
-lambdas will not accidentally capture variables from another scope.
+短い答えは、いいえです。`macro`関数は[ハイジーン](https://en.wikipedia.org/wiki/Hygienic_macro)で、
+`macro`とラムダの展開が他のスコープから変数を誤ってキャプチャしないことを意味します。
 
-The compiler does this by associating a unique number with each scope. When the `macro` is expanded,
-the macro body gets its own scope. Additionally, the arguments are re-scoped on each usage.
+コンパイラは各スコープに一意の番号を関連付けることでこれを行います。`macro`が展開されると、
+マクロ本体は独自のスコープを取得します。さらに、引数は各使用で再スコープされます。
 
-Modifying the `dup` macro to use `x` instead of `a`
+`dup`マクロを`a`の代わりに`x`を使用するように修正
 
 ```move
 macro fun dup($f: |u64, u64| -> u64, $x: u64): u64 {
@@ -338,7 +332,7 @@ macro fun dup($f: |u64, u64| -> u64, $x: u64): u64 {
 }
 ```
 
-The expansion of the call site
+呼び出しサイトの展開
 
 ```move
 // let sum = dup!(|x, y| x + y, foo());
@@ -352,10 +346,9 @@ let sum = {
 };
 ```
 
-This is an approximation of the compiler's internal representation, some details are omitted for the
-simplicity of this example.
+これはコンパイラの内部表現の近似で、この例の簡潔さのためにいくつかの詳細は省略されています。
 
-And each usage of an argument is re-scoped so that the different usages do not conflict.
+そして、引数の各使用は再スコープされるため、異なる使用が競合しません。
 
 ```move
 macro fun apply_twice($f: |u64| -> u64, $x: u64): u64 {
@@ -383,8 +376,8 @@ let result = {
 };
 ```
 
-Similar to variable hygiene, [method resolution](./../method-syntax) is also scoped to the macro
-definition. For example
+変数のハイジーンと同様に、[メソッド解決](./../method-syntax)もマクロ定義にスコープされます。
+例えば
 
 ```move
 public struct S { f: u64, g: u64 }
@@ -403,23 +396,22 @@ macro fun call_foo($s: &S): u64 {
 }
 ```
 
-The method call `foo` will in this case always resolve to the function `f`, even if `call_foo` is
-used in a scope where `foo` is bound to a different function, such as `g`.
+この場合、メソッド呼び出し`foo`は常に関数`f`に解決され、`call_foo`が`foo`が`g`などの
+異なる関数にバインドされたスコープで使用された場合でもそうです。
 
 ```move
 fun example(s: &S): u64 {
     use fun g as foo;
-    call_foo!(s) // expands to 'f(s)', not 'g(s)'
+    call_foo!(s) // 'g(s)'ではなく'f(s)'に展開される
 }
 ```
 
-Due to this though, unused `use fun` declarations might not get warnings in modules with `macro`
-functions.
+このため、未使用の`use fun`宣言は`macro`関数を含むモジュールで警告を受けない可能性があります。
 
-### Control Flow
+### 制御フロー
 
-Similar to variable hygiene, control flow constructs are also always scoped to where they are
-defined, not to where they are expanded.
+変数のハイジーンと同様に、制御フロー構文も常に定義された場所にスコープされ、
+展開された場所ではありません。
 
 ```move
 macro fun maybe_div($x: u64, $y: u64): u64 {
@@ -430,13 +422,13 @@ macro fun maybe_div($x: u64, $y: u64): u64 {
 }
 ```
 
-At the call site, `return` will always return from the `macro` body, not from the caller.
+呼び出しサイトでは、`return`は常に`macro`本体から返され、呼び出し元からではありません。
 
 ```move
 let result: vector<u64> = vector[maybe_div!(10, 0)];
 ```
 
-Will expand to
+これは以下のように展開されます：
 
 ```move
 let result: vector<u64> = vector['a: {
@@ -447,11 +439,12 @@ let result: vector<u64> = vector['a: {
 }];
 ```
 
-Where `return 'a 0` will return to the block `'a: { ... }` and not to the caller's body. See the
-section on [labeled control flow](./../control-flow/labeled-control-flow) for more details.
+ここで`return 'a 0`はブロック`'a: { ... }`に返され、呼び出し元の本体には返されません。
+詳細については[ラベル付き制御フロー](./../control-flow/labeled-control-flow)のセクションを
+参照してください。
 
-Similarly, `return` in a lambda will return from the lambda, not from the `macro` body and not from
-the outer function.
+同様に、ラムダ内の`return`はラムダから返され、`macro`本体からではなく、外側の関数からも
+返されません。
 
 ```move
 macro fun apply($f: |u64| -> u64, $x: u64): u64 {
@@ -459,13 +452,13 @@ macro fun apply($f: |u64| -> u64, $x: u64): u64 {
 }
 ```
 
-and
+そして
 
 ```move
 let result = apply!(|x| { if (x == 0) return 0; x + 1 }, 100);
 ```
 
-will expand to
+は以下のように展開されます：
 
 ```move
 let result = {
@@ -477,8 +470,8 @@ let result = {
 };
 ```
 
-In addition to returning from the lambda, a label can be used to return to the outer function. In
-the `vector::any` macro, a `return` with a label is used to return from the entire `macro` early
+ラムダから返すことに加えて、ラベルを使用して外側の関数に返すことができます。
+`vector::any`マクロでは、ラベル付きの`return`を使用して`macro`全体から早期に返します
 
 ```move
 public macro fun any<$T>($v: &vector<$T>, $f: |&$T| -> bool): bool {
@@ -490,15 +483,14 @@ public macro fun any<$T>($v: &vector<$T>, $f: |&$T| -> bool): bool {
 }
 ```
 
-The `return 'any true` exits from the "loop" early when the condition is met. Otherwise, the macro
-"returns" `false`.
+`return 'any true`は条件が満たされたときに「ループ」から早期に終了します。そうでなければ、
+マクロは`false`を「返します」。
 
-### Method Syntax
+### メソッド構文
 
-When applicable, `macro` functions can be called using [method syntax](./../method-syntax). When
-using method syntax, the evaluation of the arguments will change in that the first argument (the
-"receiver" of the method) will be evaluated outside of the macro expansion. This example is
-contrived, but will concisely demonstrate the behavior.
+適用可能な場合、`macro`関数は[メソッド構文](./../method-syntax)を使用して呼び出すことができます。
+メソッド構文を使用する場合、引数の評価が変更され、最初の引数（メソッドの「レシーバー」）が
+マクロ展開の外で評価されます。この例は人工的ですが、動作を簡潔に示します。
 
 ```move
 public struct S() has copy, drop;
@@ -509,31 +501,30 @@ public macro fun maybe_s($s: S, $cond: bool): S {
 }
 ```
 
-Even though `foo()` will abort, its return type can be used to start a method call.
+`foo()`がabortするにもかかわらず、その戻り値の型を使用してメソッド呼び出しを開始できます。
 
-`$s` will not be evaluated if `$cond` is `false`, and under a normal non-method call, an argument of
-`foo()` would not be evaluated and would not abort. The following example demonstrates `$s` not
-being evaluated with an argument of `foo()`.
+`$cond`が`false`の場合、`$s`は評価されず、通常の非メソッド呼び出しでは、`foo()`の引数は
+評価されず、abortしません。以下の例は、`$s`が`foo()`の引数で評価されないことを示しています。
 
 ```move
-maybe_s!(foo(), false) // does not abort
+maybe_s!(foo(), false) // abortしません
 ```
 
-It becomes more clear as to why it does not abort when looking at the expanded form
+展開された形式を見ると、なぜabortしないのかがより明確になります
 
 ```move
 if (false) foo()
 else S()
 ```
 
-However, when using method syntax, the first argument is evaluated before the macro is expanded. So
-the same argument of `foo()` for `$s` will now be evaluated and will abort.
+しかし、メソッド構文を使用する場合、最初の引数はマクロが展開される前に評価されます。
+したがって、`$s`の`foo()`の同じ引数が今度は評価され、abortします。
 
 ```move
-foo().maybe_s!(false) // aborts
+foo().maybe_s!(false) // abortします
 ```
 
-We can see this more clearly when looking the expanded form
+展開された形式を見ると、これをより明確に確認できます
 
 ```move
 let tmp = foo(); // aborts
@@ -541,13 +532,13 @@ if (false) tmp
 else S()
 ```
 
-Conceptually, the receiver for a method call is bound to a temporary variable before the macro is
-expanded, which forces the evaluation and thus the abort.
+概念的には、メソッド呼び出しのレシーバーはマクロが展開される前に一時変数にバインドされ、
+これが評価を強制し、したがってabortを引き起こします。
 
-### Parameter Limitations
+### パラメータの制限
 
-The parameters of a `macro` function must always be used as expressions. They cannot be used in
-situations where the argument might be re-interpreted. For example, the following is not allowed
+`macro`関数のパラメータは常に式として使用される必要があります。引数が再解釈される可能性がある
+状況では使用できません。例えば、以下は許可されません
 
 ```move
 macro fun no($x: _): _ {
@@ -555,9 +546,8 @@ macro fun no($x: _): _ {
 }
 ```
 
-The reason is that if the argument `$x` was not a reference, it would be borrowed first, which would
-could re-interpret the argument. To get around this limitation, you should bind the argument to a
-local variable.
+理由は、引数`$x`が参照でない場合、最初に借用され、これが引数を再解釈する可能性があるためです。
+この制限を回避するには、引数をローカル変数にバインドする必要があります。
 
 ```move
 macro fun yes($x: _): _ {
@@ -566,9 +556,9 @@ macro fun yes($x: _): _ {
 }
 ```
 
-## Examples
+## 例
 
-### Lazy arguments: assert_eq
+### 遅延引数: assert_eq
 
 ```move
 macro fun assert_eq<$T>($left: $T, $right: $T, $code: u64) {
@@ -584,23 +574,23 @@ macro fun assert_eq<$T>($left: $T, $right: $T, $code: u64) {
 }
 ```
 
-In this case the argument to `$code` is not evaluated unless the assertion fails.
+この場合、アサーションが失敗しない限り、`$code`への引数は評価されません。
 
 ```move
-assert_eq!(vector[true, false], vector[true, false], 1 / 0); // division by zero is not evaluated
+assert_eq!(vector[true, false], vector[true, false], 1 / 0); // ゼロ除算は評価されません
 ```
 
-### Any integer square root
+### 任意の整数平方根
 
-This macro calculates the integer square root for any integer type, besides `u256`.
+このマクロは、`u256`以外の任意の整数型の整数平方根を計算します。
 
-`$T` is the type of the input and `$bitsize` is the number of bits in that type, for example `u8`
-has 8 bits. `$U` should be set to the next larger integer type, for example `u16` for `u8`.
+`$T`は入力の型で、`$bitsize`はその型のビット数です。例えば`u8`は8ビットです。
+`$U`は次のより大きな整数型に設定する必要があります。例えば`u8`の場合は`u16`です。
 
-In this `macro`, the type of the integer literals are `1` and `0` are annotated, e.g. `(1: $U)`
-allowing for the type of the literal to differ with each call. Similarly, `as` can be used with the
-type parameters `$T` and `$U`. This macro will then only successfully expand if `$T` and `$U` are
-instantiated with the integer types.
+この`macro`では、整数リテラル`1`と`0`の型が注釈されています（例：`(1: $U)`）。
+これにより、リテラルの型が各呼び出しで異なることが可能になります。同様に、`as`を
+型パラメータ`$T`と`$U`と一緒に使用できます。このマクロは、`$T`と`$U`が整数型で
+インスタンス化された場合にのみ正常に展開されます。
 
 ```move
 macro fun num_sqrt<$T, $U>($x: $T, $bitsize: u8): $T {
@@ -623,9 +613,9 @@ macro fun num_sqrt<$T, $U>($x: $T, $bitsize: u8): $T {
 }
 ```
 
-### Iterating over a vector
+### ベクターの反復
 
-The two `macro`s iterate over a vector, immutably and mutably respectively.
+2つの`macro`は、それぞれ不変と可変でベクターを反復します。
 
 ```move
 macro fun for_imm<$T>($v: &vector<$T>, $f: |&$T|) {
@@ -649,7 +639,7 @@ macro fun for_mut<$T>($v: &mut vector<$T>, $f: |&mut $T|) {
 }
 ```
 
-A few examples of usage
+使用例
 
 ```move
 fun imm_examples(v: &vector<u64>) {
@@ -684,9 +674,9 @@ fun mut_examples(v: &mut vector<u64>) {
 }
 ```
 
-### Non-loop lambda usage
+### 非ループラムダの使用
 
-Lambdas do not need to be used in loops, and are often useful for conditionally applying code.
+ラムダはループで使用する必要はなく、条件付きでコードを適用するのにしばしば有用です。
 
 ```move
 macro fun inspect<$T>($opt: &Option<$T>, $f: |&$T|) {
@@ -711,7 +701,7 @@ macro fun map<$T, $U>($opt: Option<$T>, $f: |$T| -> $U): Option<$U> {
 }
 ```
 
-And some examples of usage
+そして使用例
 
 ```move
 fun examples(opt: Option<u64>) {

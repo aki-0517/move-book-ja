@@ -9,39 +9,31 @@ description: ''
 
 要するに、この構文は`use`でエイリアスを作成する必要がなく、関数の最初の引数を明示的に借用する必要がなく、関数を呼び出すことを容易にするために存在します。さらに、これは関数呼び出しに必要なボイラープレートの量を減らし、関数呼び出しをチェーンすることを容易にするため、コードをより読みやすくすることができます。
 
-## Syntax
+## 構文
 
-The syntax for calling a method is as follows:
+メソッドを呼び出す構文は以下の通りです：
 
 ```text
 <expression> . <identifier> <[type_arguments],*> ( <arguments> )
 ```
 
-For example
+例
 
 ```move
 coin.value();
 *nums.borrow_mut(i) = 5;
 ```
 
-## Method Resolution
+## メソッド解決
 
-When a method is called, the compiler will statically determine which function is called based on
-the type of the receiver (the argument on the left-hand side of the `.`). The compiler maintains a
-mapping from type and method name to the module and function name that should be called. This
-mapping is created form the `use fun` aliases that are currently in scope, and from the appropriate
-functions in the receiver type's defining module. In all cases, the receiver type is the first
-argument to the function, whether by-value or by-reference.
+メソッドが呼び出されると、コンパイラはレシーバー（`.`の左側の引数）の型に基づいて、どの関数が呼び出されるかを静的に決定します。コンパイラは、型とメソッド名から呼び出されるべきモジュールと関数名へのマッピングを維持します。このマッピングは、現在スコープ内の`use fun`エイリアスと、レシーバー型の定義モジュールの適切な関数から作成されます。すべての場合において、レシーバー型は関数の最初の引数であり、値渡しまたは参照渡しのいずれかです。
 
-In this section, when we say a method "resolves" to a function, we mean that the compiler will
-statically replace the method with a normal [function](./functions) call. For example if we have
-`x.foo(e)` with `foo` resolving to `a::m::foo`, the compiler will replace `x.foo(e)` with
-`a::m::foo(x, e)`, potentially [automatically borrowing](#automatic-borrowing) `x`.
+このセクションでは、メソッドが関数に「解決」されると言うとき、コンパイラがメソッドを通常の[関数](./functions)呼び出しで静的に置き換えることを意味します。例えば、`x.foo(e)`で`foo`が`a::m::foo`に解決される場合、コンパイラは`x.foo(e)`を`a::m::foo(x, e)`に置き換え、必要に応じて`x`を[自動借用](#automatic-borrowing)します。
 
 ### Functions in the Defining Module
 
 In a type’s defining module, the compiler will automatically create a method alias for any function
-declaration for its types when the type is the first argument in the function. For example,
+型が関数の最初の引数である場合の型の宣言。例えば、
 
 ```move
 module a::m;
@@ -51,31 +43,28 @@ public fun foo(x: &X) { ... }
 public fun bar(flag: bool, x: &X) { ... }
 ```
 
-The function `foo` can be called as a method on a value of type `X`. However, not the first argument
-(and one is not created for `bool` since `bool` is not defined in that module). For example,
+関数`foo`は、型`X`の値に対してメソッドとして呼び出すことができます。しかし、最初の引数ではない（`bool`はそのモジュールで定義されていないため、`bool`用のものは作成されません）。例えば、
 
 ```move
 fun example(x: a::m::X) {
-    x.foo(); // valid
-    // x.bar(true); ERROR!
+    x.foo(); // 有効
+    // x.bar(true); エラー！
 }
 ```
 
-### `use fun` Aliases
+### `use fun`エイリアス
 
-Like a traditional [`use`](uses), a `use fun` statement creates an alias local to its current
-scope. This could be for the current module or the current expression block. However, the alias is
-associated to a type.
+従来の[`use`](uses)と同様に、`use fun`ステートメントは現在のスコープにローカルなエイリアスを作成します。これは現在のモジュールまたは現在の式ブロック用である可能性があります。しかし、エイリアスは型に関連付けられます。
 
-The syntax for a `use fun` statement is as follows:
+`use fun`ステートメントの構文は以下の通りです：
 
 ```move
 use fun <function> as <type>.<method alias>;
 ```
 
-This creates an alias for the `<function>`, which the `<type>` can receive as `<method alias>`.
+これは`<function>`のエイリアスを作成し、`<type>`は`<method alias>`として受け取ることができます。
 
-For example
+例
 
 ```move
 module a::cup;
@@ -96,7 +85,7 @@ public fun cup_swap<T: drop>(c: &mut Cup<T>, t: T) {
 }
 ```
 
-We can now create `use fun` aliases to these functions
+これらの関数に対して`use fun`エイリアスを作成できます
 
 ```move
 module b::example;
@@ -106,14 +95,13 @@ use fun a::cup::cup_value as Cup.value;
 use fun a::cup::cup_swap as Cup.set;
 
 fun example(c: &mut Cup<u64>) {
-    let _ = c.borrow(); // resolves to a::cup::cup_borrow
-    let v = c.value(); // resolves to a::cup::cup_value
-    c.set(v * 2); // resolves to a::cup::cup_swap
+    let _ = c.borrow(); // a::cup::cup_borrowに解決
+    let v = c.value(); // a::cup::cup_valueに解決
+    c.set(v * 2); // a::cup::cup_swapに解決
 }
 ```
 
-Note that the `<function>` in the `use fun` does not have to be a fully resolved path, and an alias
-can be used instead, so the declarations in the above example could equivalently be written as
+`use fun`の`<function>`は完全に解決されたパスである必要はなく、代わりにエイリアスを使用できることに注意してください。したがって、上記の例の宣言は以下のように同等に書くことができます
 
 ```move
 use a::cup::{Self, cup_swap};
@@ -123,9 +111,7 @@ use fun cup::cup_value as Cup.value;
 use fun cup_swap as Cup.set;
 ```
 
-While these examples are cute for renaming the functions in the current module, the feature is
-perhaps more useful for declaring methods on types from other modules. For example, if we wanted to
-add a new utility to `Cup`, we could do so with a `use fun` alias and still use method syntax
+これらの例は現在のモジュールの関数をリネームするのに便利ですが、この機能は他のモジュールの型にメソッドを宣言するのにより有用かもしれません。例えば、`Cup`に新しいユーティリティを追加したい場合、`use fun`エイリアスを使用してメソッド構文を引き続き使用できます
 
 ```move
 module b::example;
@@ -136,18 +122,16 @@ fun double(c: &Cup<u64>): Cup<u64> {
 }
 ```
 
-Normally, we would be stuck having to call it as `double(&c)` because `b::example` did not define
-`Cup`, but instead we can use a `use fun` alias
+通常、`b::example`が`Cup`を定義していないため、`double(&c)`として呼び出す必要がありますが、代わりに`use fun`エイリアスを使用できます
 
 ```move
 fun double_double(c: Cup<u64>): (Cup<u64>, Cup<u64>) {
     use fun b::example::double as Cup.dub;
-    (c.dub(), c.dub()) // resolves to b::example::double in both calls
+    (c.dub(), c.dub()) // 両方の呼び出しでb::example::doubleに解決
 }
 ```
 
-While `use fun` can be made in any scope, the target `<function>` of the `use fun` must have a first
-argument that is the same as the `<type>`.
+`use fun`は任意のスコープで作成できますが、`use fun`の対象`<function>`は`<type>`と同じ最初の引数を持たなければなりません。
 
 ```move
 public struct X() has copy, drop, store;
@@ -155,12 +139,12 @@ public struct X() has copy, drop, store;
 fun new(): X { X() }
 fun flag(flag: bool): u8 { if (flag) 1 else 0 }
 
-use fun new as X.new; // ERROR!
-use fun flag as X.flag; // ERROR!
-// Neither `new` nor `flag` has first argument of type `X`
+use fun new as X.new; // エラー！
+use fun flag as X.flag; // エラー！
+// `new`も`flag`も型`X`の最初の引数を持たない
 ```
 
-But any first argument of the `<type>` can be used, including references and mutable references
+しかし、`<type>`の任意の最初の引数を使用でき、参照と可変参照も含まれます
 
 ```move
 public struct X() has copy, drop, store;
@@ -169,14 +153,13 @@ public fun by_val(_: X) {}
 public fun by_ref(_: &X) {}
 public fun by_mut(_: &mut X) {}
 
-// All 3 valid, in any scope
+// すべて有効、任意のスコープで
 use fun by_val as X.v;
 use fun by_ref as X.r;
 use fun by_mut as X.m;
 ```
 
-Note for generics, the methods are associated for _all_ instances of the generic type. You cannot
-overload the method to resolve to different functions depending on the instantiation.
+ジェネリクスについては、メソッドはジェネリック型の_すべての_インスタンスに関連付けられることに注意してください。インスタンス化に応じて異なる関数に解決するようにメソッドをオーバーロードすることはできません。
 
 ```move
 public struct Cup<T>(T) has copy, drop, store;
@@ -185,9 +168,9 @@ public fun value<T: copy>(c: &Cup<T>): T {
     c.0
 }
 
-use fun value as Cup<bool>.flag; // ERROR!
-use fun value as Cup<u64>.num; // ERROR!
-// In both cases, `use fun` aliases cannot be generic, they must work for all instances of the type
+use fun value as Cup<bool>.flag; // エラー！
+use fun value as Cup<u64>.num; // エラー！
+// どちらの場合も、`use fun`エイリアスはジェネリックにできず、型のすべてのインスタンスで動作する必要があります
 ```
 
 ### `public use fun` Aliases

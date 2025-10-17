@@ -50,8 +50,7 @@ let y = if (maximum >= 10) maximum;
 // highlight-error-end
 ```
 
-Commonly, `if` expressions are used in conjunction with
-[expression blocks](./../variables#expression-blocks).
+一般的に、`if`式は[式ブロック](./../variables#expression-blocks)と組み合わせて使用されます。
 
 ```move
 let maximum = if (x > y) x else y;

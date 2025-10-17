@@ -87,26 +87,22 @@ fun abort_no_code() {
 3. 定数名のモジュールの識別子テーブルへのインデックスのセンチネル値`0xffff`。
 4. モジュールの定数テーブル内の定数値のインデックスのセンチネル値`0xffff`。
 
-In hex, if `assert_false(3)` is called, it will abort with a `u64` abort code as follows:
+16進数では、`assert_false(3)`が呼び出された場合、以下の`u64` abortコードでabortします：
 
 ```
 0x8000_0004_ffff_ffff
   ^       ^    ^    ^
   |       |    |    |
   |       |    |    |
-  |       |    |    +-- Constant value index = 0xffff (sentinel value)
-  |       |    +-- Constant name index = 0xffff (sentinel value)
-  |       +-- Line number = 4 (link of the assertion)
-  +-- Tag bit = 0b1000_0000_0000_0000
+  |       |    |    +-- 定数値インデックス = 0xffff (センチネル値)
+  |       |    +-- 定数名インデックス = 0xffff (センチネル値)
+  |       +-- 行番号 = 4 (アサーションの行)
+  +-- タグビット = 0b1000_0000_0000_0000
 ```
 
-## Clever Errors and Macros
+## Clever Errorsとマクロ
 
-The line number information in clever abort codes are derived from the source file at the location
-where the abort occurs. In particular, for a function this will be the line number within in the
-function, however for macros, this will be the location where the macro is invoked. This can be
-quite useful when writing macros as it provides a way for users to use macros that may raise abort
-conditions and still get useful error messages.
+clever abortコードの行番号情報は、abortが発生した場所のソースファイルから導出されます。特に、関数の場合は関数内の行番号になりますが、マクロの場合はマクロが呼び出された場所の行番号になります。これは、abort条件を発生させる可能性のあるマクロをユーザーが使用し、それでも有用なエラーメッセージを得られる方法を提供するため、マクロを書く際に非常に有用です。
 
 ```move
 module 0x42::macro_exporter;
@@ -120,15 +116,15 @@ public macro fun abort_always() {
 }
 
 public fun assert_false_fun() {
-    assert!(false); // Will always abort with the line number of this invocation
+    assert!(false); // 常にこの呼び出しの行番号でabortします
 }
 
 public fun abort_always_fun() {
-    abort // Will always abort with the line number of this invocation
+    abort // 常にこの呼び出しの行番号でabortします
 }
 ```
 
-Then in a module that uses these macros:
+そして、これらのマクロを使用するモジュールでは：
 
 ```move
 module 0x42::user_module;
@@ -141,25 +137,25 @@ use 0x42::macro_exporter::{
 };
 
 fun invoke_assert_false() {
-    assert_false!(); // Will abort with the line number of this invocation
+    assert_false!(); // この呼び出しの行番号でabortします
 }
 
 fun invoke_abort_always() {
-    abort_always!(); // Will abort with the line number of this invocation
+    abort_always!(); // この呼び出しの行番号でabortします
 }
 
 fun invoke_assert_false_fun() {
-    assert_false_fun(); // Will abort with the line number of the assertion in `assert_false_fun`
+    assert_false_fun(); // `assert_false_fun`内のアサーションの行番号でabortします
 }
 
 fun invoke_abort_always_fun() {
-    abort_always_fun(); // Will abort with the line number of the `abort` in `abort_always_fun`
+    abort_always_fun(); // `abort_always_fun`内の`abort`の行番号でabortします
 }
 ```
 
-## Inflating Clever Abort Codes
+## Clever Abortコードの展開
 
-Precisely, the layout of a clever abort code is as follows:
+正確には、clever abortコードのレイアウトは以下の通りです：
 
 ```
 
@@ -169,47 +165,44 @@ Precisely, the layout of a clever abort code is as follows:
 
 ```
 
-Note that the Move abort will come with some additional information -- importantly in our case the
-module where the error occurred. This is important because the identifier index, and constant index
-are relative to the module's identifier and constant tables (if not set the sentinel values).
+Move abortには追加の情報が含まれることに注意してください -- 重要なのは、エラーが発生したモジュールです。これは、識別子インデックスと定数インデックスがモジュールの識別子テーブルと定数テーブル（センチネル値が設定されていない場合）に相対的であるため重要です。
 
-> To decode a clever abort code, you will need to know the module where the error occurred if either
-> the identifier index or constant index are not set to the sentinel value of `0xffff`.
+> clever abortコードをデコードするには、識別子インデックスまたは定数インデックスのいずれかがセンチネル値`0xffff`に設定されていない場合、エラーが発生したモジュールを知る必要があります。
 
-In pseudo-code, you can decode a clever abort code as follows:
+疑似コードでは、clever abortコードを以下のようにデコードできます：
 
 ```rust
-// Information available in the MoveAbort
+// MoveAbortで利用可能な情報
 let clever_abort_code: u64 = ...;
 let (package_id, module_name): (PackageStorageId, ModuleName) = ...;
 
 let is_clever_abort = (clever_abort_code & 0x8000_0000_0000_0000) != 0;
 
 if is_clever_abort {
-    // Get line number, identifier index, and constant index
-    // Identifier and constant index are sentinel values if set to '0xffff'
+    // 行番号、識別子インデックス、定数インデックスを取得
+    // 識別子インデックスと定数インデックスは'0xffff'に設定されている場合はセンチネル値
     let line_number = ((clever_abort_code & 0x0000_ffff_0000_0000) >> 32) as u16;
     let identifier_index = ((clever_abort_code & 0x0000_0000_ffff_0000) >> 16) as u16;
     let constant_index = ((clever_abort_code & 0x0000_0000_0000_ffff)) as u16;
 
-    // Print the line error message
+    // 行エラーメッセージを出力
     print!("Error from '{}::{}' (line {})", package_id, module_name, line_number);
 
-    // No need to print anything or load the module if both are sentinel values
+    // 両方がセンチネル値の場合は何も出力したりモジュールを読み込む必要はありません
     if identifier_index == 0xffff && constant_index == 0xffff {
         return;
     }
 
-    // Only needed if constant name and value are not 0xffff
+    // 定数名と値が0xffffでない場合にのみ必要
     let module: CompiledModule = fetch_module(package_id, module_name);
 
-    // Print the constant name (if any)
+    // 定数名を出力（ある場合）
     if identifier_index != 0xffff {
         let constant_name = module.get_identifier_at_table_index(identifier_index);
         print!(", '{}'", constant_name);
     }
 
-    // Print the constant value (if any)
+    // 定数値を出力（ある場合）
     if constant_index != 0xffff {
         let constant_value = module
             .get_constant_at_table_index(constant_index)

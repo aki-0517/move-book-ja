@@ -16,22 +16,18 @@ Moveは6つの符号なし整数型をサポートします：`u8`、`u16`、`u3
 | Unsigned 128-bit integer, `u128` | 0 to 2<sup>128</sup> - 1 |
 | Unsigned 256-bit integer, `u256` | 0 to 2<sup>256</sup> - 1 |
 
-## Literals
+## リテラル
 
-Literal values for these types are specified either as a sequence of digits (e.g.,`112`) or as hex
-literals, e.g., `0xFF`. The type of the literal can optionally be added as a suffix, e.g., `112u8`.
-If the type is not specified, the compiler will try to infer the type from the context where the
-literal is used. If the type cannot be inferred, it is assumed to be `u64`.
+これらの型のリテラル値は、数字のシーケンス（例：`112`）または16進リテラル（例：`0xFF`）として指定されます。リテラルの型は、オプションでサフィックスとして追加できます（例：`112u8`）。型が指定されていない場合、コンパイラはリテラルが使用されるコンテキストから型を推論しようとします。型を推論できない場合、`u64`と仮定されます。
 
-Number literals can be separated by underscores for grouping and readability. (e.g.,`1_234_5678`,
-`1_000u128`, `0xAB_CD_12_35`).
+数値リテラルは、グループ化と可読性のためにアンダースコアで区切ることができます（例：`1_234_5678`、`1_000u128`、`0xAB_CD_12_35`）。
 
-If a literal is too large for its specified (or inferred) size range, an error is reported.
+リテラルが指定された（または推論された）サイズ範囲に対して大きすぎる場合、エラーが報告されます。
 
-### Examples
+### 例
 
 ```move
-// literals with explicit annotations;
+// 明示的な注釈付きリテラル
 let explicit_u8 = 1u8;
 let explicit_u16 = 1u16;
 let explicit_u32 = 1u32;
@@ -40,7 +36,7 @@ let explicit_u128 = 3u128;
 let explicit_u256 = 1u256;
 let explicit_u64_underscored = 154_322_973u64;
 
-// literals with simple inference
+// シンプルな推論付きリテラル
 let simple_u8: u8 = 1;
 let simple_u16: u16 = 1;
 let simple_u32: u32 = 1;
@@ -48,21 +44,21 @@ let simple_u64: u64 = 2;
 let simple_u128: u128 = 3;
 let simple_u256: u256 = 1;
 
-// literals with more complex inference
-let complex_u8 = 1; // inferred: u8
-// right hand argument to shift must be u8
+// より複雑な推論付きリテラル
+let complex_u8 = 1; // 推論: u8
+// シフトの右側引数はu8でなければならない
 let _unused = 10 << complex_u8;
 
 let x: u8 = 38;
-let complex_u8 = 2; // inferred: u8
-// arguments to `+` must have the same type
+let complex_u8 = 2; // 推論: u8
+// `+`の引数は同じ型でなければならない
 let _unused = x + complex_u8;
 
-let complex_u128 = 133_876; // inferred: u128
-// inferred from function argument type
+let complex_u128 = 133_876; // 推論: u128
+// 関数引数の型から推論
 function_that_takes_u128(complex_u128);
 
-// literals can be written in hex
+// リテラルは16進数で書くことができる
 let hex_u8: u8 = 0x1;
 let hex_u16: u16 = 0x1BAE;
 let hex_u32: u32 = 0xDEAD80;
@@ -71,99 +67,84 @@ let hex_u128: u128 = 0xDEADBEEF;
 let hex_u256: u256 = 0x1123_456A_BCDE_F;
 ```
 
-## Operations
+## 操作
 
-### Arithmetic
+### 算術演算
 
-Each of these types supports the same set of checked arithmetic operations. For all of these
-operations, both arguments (the left and right side operands) _must_ be of the same type. If you
-need to operate over values of different types, you will need to first perform a [cast](#casting).
-Similarly, if you expect the result of the operation to be too large for the integer type, perform a
-[cast](#casting) to a larger size before performing the operation.
+これらの型はすべて、同じチェック付き算術演算セットをサポートしています。これらの演算すべてにおいて、両方の引数（左側と右側のオペランド）は_同じ型_でなければなりません。異なる型の値に対して演算を行う必要がある場合は、まず[キャスト](#casting)を実行する必要があります。同様に、演算の結果が整数型に対して大きすぎると予想される場合は、演算を実行する前に[キャスト](#casting)をより大きなサイズに実行してください。
 
-All arithmetic operations abort instead of behaving in a way that mathematical integers would not
-(e.g., overflow, underflow, divide-by-zero).
+すべての算術演算は、数学的整数が行わない動作（例：オーバーフロー、アンダーフロー、ゼロ除算）をする代わりにアボートします。
 
-| Syntax | Operation           | Aborts If                                |
+| 構文 | 演算           | アボート条件                                |
 | ------ | ------------------- | ---------------------------------------- |
-| `+`    | addition            | Result is too large for the integer type |
-| `-`    | subtraction         | Result is less than zero                 |
-| `*`    | multiplication      | Result is too large for the integer type |
-| `%`    | modular division    | The divisor is `0`                       |
-| `/`    | truncating division | The divisor is `0`                       |
+| `+`    | 加算            | 結果が整数型に対して大きすぎる |
+| `-`    | 減算         | 結果がゼロ未満                 |
+| `*`    | 乗算      | 結果が整数型に対して大きすぎる |
+| `%`    | モジュラー除算    | 除数が`0`                       |
+| `/`    | 切り捨て除算 | 除数が`0`                       |
 
-### Bitwise
+### ビット演算
 
-The integer types support the following bitwise operations that treat each number as a series of
-individual bits, either 0 or 1, instead of as numerical integer values.
+整数型は、数値の整数値としてではなく、各数値を0または1の個別ビットのシリーズとして扱う以下のビット演算をサポートします。
 
-Bitwise operations do not abort.
+ビット演算はアボートしません。
 
-| Syntax              | Operation   | Description                                           |
+| 構文              | 演算   | 説明                                           |
 | ------------------- | ----------- | ----------------------------------------------------- |
-| `&`                 | bitwise and | Performs a boolean and for each bit pairwise          |
-| <code>&#124;</code> | bitwise or  | Performs a boolean or for each bit pairwise           |
-| `^`                 | bitwise xor | Performs a boolean exclusive or for each bit pairwise |
+| `&`                 | ビットAND | 各ビットペアに対してブールANDを実行          |
+| <code>&#124;</code> | ビットOR  | 各ビットペアに対してブールORを実行           |
+| `^`                 | ビットXOR | 各ビットペアに対してブール排他的ORを実行 |
 
-### Bit Shifts
+### ビットシフト
 
-Similar to the bitwise operations, each integer type supports bit shifts. But unlike the other
-operations, the right hand side operand (how many bits to shift by) must _always_ be a `u8` and need
-not match the left side operand (the number you are shifting).
+ビット演算と同様に、各整数型はビットシフトをサポートします。しかし、他の演算とは異なり、右側のオペランド（シフトするビット数）は_常に_`u8`でなければならず、左側のオペランド（シフトする数）と一致する必要はありません。
 
-Bit shifts can abort if the number of bits to shift by is greater than or equal to `8`, `16`, `32`,
-`64`, `128` or `256` for `u8`, `u16`, `u32`, `u64`, `u128` and `u256` respectively.
+シフトするビット数が`u8`、`u16`、`u32`、`u64`、`u128`、`u256`に対してそれぞれ`8`、`16`、`32`、`64`、`128`、`256`以上の場合、ビットシフトはアボートする可能性があります。
 
-| Syntax | Operation   | Aborts if                                                               |
+| 構文 | 演算   | アボート条件                                                               |
 | ------ | ----------- | ----------------------------------------------------------------------- |
-| `<<`   | shift left  | Number of bits to shift by is greater than the size of the integer type |
-| `>>`   | shift right | Number of bits to shift by is greater than the size of the integer type |
+| `<<`   | 左シフト  | シフトするビット数が整数型のサイズより大きい |
+| `>>`   | 右シフト | シフトするビット数が整数型のサイズより大きい |
 
-### Comparisons
+### 比較
 
-Integer types are the _only_ types in Move that can use the comparison operators. Both arguments
-need to be of the same type. If you need to compare integers of different types, you must
-[cast](#casting) one of them first.
+整数型は、Moveで比較演算子を使用できる_唯一の_型です。両方の引数は同じ型である必要があります。異なる型の整数を比較する必要がある場合は、まずそのうちの1つを[キャスト](#casting)する必要があります。
 
-Comparison operations do not abort.
+比較演算はアボートしません。
 
-| Syntax | Operation                |
+| 構文 | 演算                |
 | ------ | ------------------------ |
-| `<`    | less than                |
-| `>`    | greater than             |
-| `<=`   | less than or equal to    |
-| `>=`   | greater than or equal to |
+| `<`    | より小さい                |
+| `>`    | より大きい             |
+| `<=`   | 以下    |
+| `>=`   | 以上 |
 
-### Equality
+### 等価性
 
-Like all types with [`drop`](./../abilities), all integer types support the ["equal"](./../equality)
-and ["not equal"](./../equality) operations. Both arguments need to be of the same type. If you need
-to compare integers of different types, you must [cast](#casting) one of them first.
+[`drop`](./../abilities)を持つすべての型と同様に、すべての整数型は["等しい"](./../equality)と["等しくない"](./../equality)の演算をサポートします。両方の引数は同じ型である必要があります。異なる型の整数を比較する必要がある場合は、まずそのうちの1つを[キャスト](#casting)する必要があります。
 
-Equality operations do not abort.
+等価性演算はアボートしません。
 
-| Syntax | Operation |
+| 構文 | 演算 |
 | ------ | --------- |
-| `==`   | equal     |
-| `!=`   | not equal |
+| `==`   | 等しい     |
+| `!=`   | 等しくない |
 
-For more details see the section on [equality](./../equality)
+詳細については、[等価性](./../equality)のセクションを参照してください
 
-## Casting
+## キャスト
 
-Integer types of one size can be cast to integer types of another size. Integers are the only types
-in Move that support casting.
+1つのサイズの整数型は、別のサイズの整数型にキャストできます。整数は、Moveでキャストをサポートする唯一の型です。
 
-Casts _do not_ truncate. Casting aborts if the result is too large for the specified type.
+キャストは_切り捨てません_。結果が指定された型に対して大きすぎる場合、キャストはアボートします。
 
-| Syntax     | Operation                                            | Aborts if                              |
+| 構文     | 演算                                            | アボート条件                              |
 | ---------- | ---------------------------------------------------- | -------------------------------------- |
-| `(e as T)` | Cast integer expression `e` into an integer type `T` | `e` is too large to represent as a `T` |
+| `(e as T)` | 整数式`e`を整数型`T`にキャスト | `e`が`T`として表現するには大きすぎる |
 
-Here, the type of `e` must be `8`, `16`, `32`, `64`, `128` or `256` and `T` must be `u8`, `u16`,
-`u32`, `u64`, `u128`, or `u256`.
+ここで、`e`の型は`8`、`16`、`32`、`64`、`128`、または`256`でなければならず、`T`は`u8`、`u16`、`u32`、`u64`、`u128`、または`u256`でなければなりません。
 
-For example:
+例：
 
 - `(x as u8)`
 - `(y as u16)`
@@ -172,8 +153,6 @@ For example:
 - `(1 + 3 as u128)`
 - `(4/2 + 12345 as u256)`
 
-## Ownership
+## 所有権
 
-As with the other scalar values built-in to the language, integer values are implicitly copyable,
-meaning they can be copied without an explicit instruction such as
-[`copy`](./../variables#move-and-copy).
+言語に組み込まれた他のスカラー値と同様に、整数値は暗黙的にコピー可能です。これは、[`copy`](./../variables#move-and-copy)などの明示的な命令なしにコピーできることを意味します。

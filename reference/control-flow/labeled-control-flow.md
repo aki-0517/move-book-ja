@@ -7,22 +7,16 @@ description: ''
 
 Moveは、ループとコードブロックの両方を書く際にラベル付き制御フローをサポートし、ループの`break`と`continue`、ブロックからの`return`を可能にします（これはマクロの存在下で特に有用です）。
 
-## Loops
+## ループ
 
-Loops allow you to define and transfer control to specific labels in a function. For example, we can
-nest two loops and use `break` and `continue` with those labels to precisely specify control flow.
-You can prefix any `loop` or `while` form with a `'label:` form to allow breaking or continuing
-directly there.
+ループを使用すると、関数内の特定のラベルを定義し、制御を転送できます。例えば、2つのループをネストし、それらのラベルで`break`と`continue`を使用して、制御フローを正確に指定できます。任意の`loop`または`while`形式の前に`'label:`形式を付けることで、そこから直接ブレークまたはコンティニューできます。
 
-To demonstrate this behavior, consider a function that takes nested vectors of numbers (i.e.,
-`vector<vector<u64>>`) to sum against some threshold, which behaves as follows:
+この動作を実演するために、ネストした数値ベクター（つまり`vector<vector<u64>>`）を受け取り、閾値に対して合計する関数を考えてみましょう。この関数は以下のように動作します：
 
-- If the sum of all the numbers are under the threshold, return that sum.
-- If adding a number to the current sum would surpass the threshold, return the current sum.
+- すべての数値の合計が閾値を下回る場合、その合計を返します。
+- 現在の合計に数値を追加すると閾値を超える場合、現在の合計を返します。
 
-We can write this by iterating over the vector of vectors as nested loops and labelling the outer
-one. If any addition in the inner loop would push us over the threshold, we can use `break` with the
-outer label to escape both loops at once:
+これを、ベクターのベクターをネストしたループとして反復し、外側のループにラベルを付けることで書くことができます。内側のループで任意の加算が閾値を超える場合、外側のラベルで`break`を使用して両方のループを一度に抜けることができます：
 
 ```move
 fun sum_until_threshold(input: &vector<vector<u64>>, threshold: u64): u64 {
@@ -54,9 +48,7 @@ fun sum_until_threshold(input: &vector<vector<u64>>, threshold: u64): u64 {
 }
 ```
 
-These sorts of labels can also be used with a nested loop form, providing precise control in larger
-bodies of code. For example, if we were processing a large table where each entry required iteration
-that might see us continuing the inner or outer loop, we could express that code using labels:
+これらの種類のラベルは、ネストしたループ形式でも使用でき、より大きなコード本体で正確な制御を提供します。例えば、各エントリが反復を必要とする大きなテーブルを処理していて、内側または外側のループを継続する可能性がある場合、ラベルを使用してそのコードを表現できます：
 
 ```move
 let x = 'outer: loop {
@@ -73,8 +65,8 @@ let x = 'outer: loop {
 };
 ```
 
-> It's a better way to use Macros instead of Loops, similarly, use `return` to control the flow.
-> Just like above function `sum_until_threshold`, can use `macro` to rewrite it:
+> ループの代わりにマクロを使用する方が良い方法です。同様に、`return`を使用してフローを制御します。
+> 上記の関数`sum_until_threshold`のように、`macro`を使用して書き直すことができます：
 ```move
 fun sum_until_threshold(input: &vector<vector<u64>>, threshold: u64): u64 {
     'outer: {
@@ -85,10 +77,9 @@ fun sum_until_threshold(input: &vector<vector<u64>>, threshold: u64): u64 {
 }
 ```
 
-## Labeled Blocks
+## ラベル付きブロック
 
-Labeled blocks allow you to write Move programs that contain intra-function non-local control flow,
-including inside of macro lambdas and returning values:
+ラベル付きブロックを使用すると、マクロラムダ内や値の返却を含む、関数内の非ローカル制御フローを含むMoveプログラムを書くことができます：
 
 ```move
 fun named_return(n: u64): vector<u8> {
@@ -102,13 +93,9 @@ fun named_return(n: u64): vector<u8> {
 }
 ```
 
-In this simple example, the program checks if the input `n` is even. If it is, the program leaves
-the block labeled `'a:` with the value `b"even"`. If not, the code continues, ending the block
-labeled `'a:` with the value `b"odd"`. At the end, we set `x` to the value and then return it.
+この簡単な例では、プログラムは入力`n`が偶数かどうかをチェックします。偶数の場合、プログラムは`'a:`というラベルが付いたブロックを値`b"even"`で抜けます。そうでない場合、コードは続行し、`'a:`というラベルが付いたブロックを値`b"odd"`で終了します。最後に、`x`をその値に設定してから返します。
 
-This control flow feature works across macro bodies as well. For example, suppose we wanted to write
-a function to find the first even number in a vector, and that we have some macro `for_ref` that
-iterates the vector elements in a loop:
+この制御フロー機能は、マクロ本体全体でも機能します。例えば、ベクター内の最初の偶数を見つける関数を書きたいとし、ベクター要素をループで反復する`for_ref`というマクロがあるとします：
 
 ```move
 macro fun for_ref<$T>($vs: &vector<$T>, $f: |&$T|) {
@@ -122,8 +109,7 @@ macro fun for_ref<$T>($vs: &vector<$T>, $f: |&$T|) {
 }
 ```
 
-Using `for_ref` and a label, we can write a lambda expression to pass `for_ref` that will escape the
-loop, returning the first even number it finds:
+`for_ref`とラベルを使用して、ループを抜けて最初に見つけた偶数を返す`for_ref`に渡すラムダ式を書くことができます：
 
 ```move
 fun find_first_even(vs: vector<u64>): Option<u64> {
@@ -134,15 +120,11 @@ fun find_first_even(vs: vector<u64>): Option<u64> {
 }
 ```
 
-This function will iterate `vs` until it finds an even number, and return that (or return
-`option::none()` if no even number exists). This makes named labels a powerful tool for interacting
-with control flow macros such as `for!`, allowing you to customize iteration behavior in those
-contexts.
+この関数は、偶数を見つけるまで`vs`を反復し、それ（または偶数が存在しない場合は`option::none()`）を返します。これにより、名前付きラベルは`for!`などの制御フローマクロと相互作用する強力なツールとなり、それらのコンテキストで反復動作をカスタマイズできます。
 
-## Restrictions
+## 制限
 
-To clarify program behavior, you may only use `break` and `continue` with loop labels, while
-`return` will only work with block labels. To this end, the following programs produce errors:
+プログラムの動作を明確にするため、`break`と`continue`はループラベルでのみ使用でき、`return`はブロックラベルでのみ機能します。この目的のために、以下のプログラムはエラーを生成します：
 
 ```move
 fun bad_loop() {

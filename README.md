@@ -1,39 +1,37 @@
-# The Move Book
+# The Move Book (日本語)
 
-This is the repository for [the Move Book](https://move-book.com) and
-[Move Language Reference](https://move-book.com/reference).
+これは[The Move Book](https://move-book.com)と[Move Language Reference](https://move-book.com/reference)の日本語版リポジトリです。
 
-## Structure
+## 構造
 
-- Two books are placed in the `book` and `reference` directories. The `book` directory contains the
-  main book, and the `reference` directory contains the reference book.
-- The `packages` directory contains the code samples used in both books.
-- The `site` directory contains [docusaurus](docusaurus.io) configuration and custom plugins for it.
+- 2つの本が`book`と`reference`ディレクトリに配置されています。`book`ディレクトリにはメインの本が含まれ、`reference`ディレクトリにはリファレンス本が含まれています。
+- `packages`ディレクトリには、両方の本で使用されるコードサンプルが含まれています。
+- `site`ディレクトリには[docusaurus](docusaurus.io)の設定とそのためのカスタムプラグインが含まれています。
 
-## Running the Books Locally
+## 本をローカルで実行する
 
-### Prerequisites
+### 前提条件
 
 - NodeJS
-- `pnpm` (installation is: `npm i -g pnpm`)
+- `pnpm`（インストール方法：`npm i -g pnpm`）
 
-### Local Server
+### ローカルサーバー
 
-> All commands can be run from the root.
+> すべてのコマンドはルートから実行できます。
 
 ```bash
 pnpm start
 ```
 
-_The book will be available at `http://localhost:3000`._
+_本は`http://localhost:3000`で利用可能になります。_
 
-### Production Build Test
+### プロダクションビルドのテスト
 
 ```bash
 pnpm build
 pnpm serve
 ```
 
-## Archive
+## アーカイブ
 
-For the archive of the old version of the book, see the `archive` branch.
+本の旧バージョンのアーカイブについては、`archive`ブランチを参照してください。

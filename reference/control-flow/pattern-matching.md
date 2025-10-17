@@ -26,13 +26,11 @@ run(3); // returns 3
 run(0); // returns 0
 ```
 
-## `match` Syntax
+## `match`構文
 
-A `match` takes an expression and a non-empty series of _match arms_ delimited by commas.
+`match`は式と、カンマで区切られた空でない一連の_マッチアーム_を取ります。
 
-Each match arm consists of a pattern (`p`), an optional guard (`if (g)` where `g` is an expression
-of type `bool`), an arrow (`=>`), and an arm expression (`e`) to execute when the pattern matches.
-For example,
+各マッチアームは、パターン（`p`）、オプションのガード（`g`が`bool`型の式である`if (g)`）、矢印（`=>`）、およびパターンがマッチしたときに実行するアーム式（`e`）で構成されます。例えば、
 
 ```move
 match (expression) {
@@ -42,19 +40,15 @@ match (expression) {
 }
 ```
 
-Match arms are checked in order from top to bottom, and the first pattern that matches (with a guard
-expression, if present, that evaluates to `true`) will be executed.
+マッチアームは上から下の順序でチェックされ、マッチする最初のパターン（存在する場合、ガード式が`true`と評価される）が実行されます。
 
-Note that the series of match arms within a `match` must be exhaustive, meaning that every possible
-value of the type being matched must be covered by one of the patterns in the `match`. If the series
-of match arms is not exhaustive, the compiler will raise an error.
+`match`内のマッチアームの系列は網羅的でなければならないことに注意してください。つまり、マッチされる型のすべての可能な値が`match`のパターンのいずれかでカバーされる必要があります。マッチアームの系列が網羅的でない場合、コンパイラはエラーを発生させます。
 
-## Pattern Syntax
+## パターン構文
 
-A pattern is matched by a value if the value is equal to the pattern, and where variables and
-wildcards (e.g., `x`, `y`, `_`, or `..`) are "equal" to anything.
+パターンは、値がパターンと等しい場合に値によってマッチされ、変数とワイルドカード（例：`x`、`y`、`_`、または`..`）は何にでも「等しい」とされます。
 
-Patterns are used to match values. Patterns can be
+パターンは値をマッチするために使用されます。パターンは以下のようになります：
 
 | Pattern              | Description                                                            |
 | -------------------- | ---------------------------------------------------------------------- |
@@ -68,7 +62,7 @@ Patterns are used to match values. Patterns can be
 | Multi-arity wildcard | A multi-arity wildcard, e.g., `MyEnum::Variant(..)`                    |
 | Mutable-binding      | A mutable-binding pattern, e.g., `mut x`                               |
 
-Patterns in Move have the following grammar:
+Moveのパターンは以下の文法を持ちます：
 
 ```bnf
 pattern = <literal>
@@ -85,7 +79,7 @@ inner-pattern = pattern
               | ..     // multi-arity wildcard
 ```
 
-Some examples of patterns are:
+パターンの例は以下の通りです：
 
 ```move
 // literal pattern
@@ -128,11 +122,9 @@ MyEnum::Variant(x, _) | MyEnum::OtherVariant(_, x)
 OtherEnum::V(MyEnum::Variant(..))
 ```
 
-### Patterns and Variables
+### パターンと変数
 
-Patterns that contain variables bind them to the match subject or subject subcomponent being
-matched. These variables can then be used either in any match guard expressions, or on the
-right-hand side of the match arm. For example:
+変数を含むパターンは、それらをマッチ対象またはマッチ対象のサブコンポーネントにバインドします。これらの変数は、任意のマッチガード式で、またはマッチアームの右側で使用できます。例えば：
 
 ```move
 public struct Wrapper(u64)
@@ -148,11 +140,9 @@ add_under_wrapper_unless_equal(Wrapper(2), 3); // returns Wrapper(5)
 add_under_wrapper_unless_equal(Wrapper(3), 3); // returns Wrapper(3)
 ```
 
-### Combining Patterns
+### パターンの組み合わせ
 
-Patterns can be nested, but patterns can also be combined using the or operator (`|`). For example,
-`p1 | p2` succeeds if either pattern `p1` or `p2` matches the subject. This pattern can occur
-anywhere -- either as a top-level pattern or a sub-pattern within another pattern.
+パターンはネストできますが、or演算子（`|`）を使用してパターンを組み合わせることもできます。例えば、`p1 | p2`は、パターン`p1`または`p2`のいずれかが対象にマッチした場合に成功します。このパターンはどこでも発生する可能性があります -- トップレベルのパターンとして、または別のパターン内のサブパターンとして。
 
 ```move
 public enum MyEnum has drop {
@@ -175,14 +165,11 @@ test_or_pattern(MyEnum::OtherVariant(false, 7)); // returns 2
 test_or_pattern(MyEnum::OtherVariant(false, 80)); // returns 3
 ```
 
-### Restrictions on Some Patterns
+### 一部のパターンの制限
 
-The `mut` and `..` patterns also have specific conditions placed on when, where, and how they can be
-used, as detailed in [Limitations on Specific Patterns](#limitations-on-specific-patterns). At a
-high level, the `mut` modifier can only be used on variable patterns, and the `..` pattern can only
-be used once within a constructor pattern -- and not as a top-level pattern.
+`mut`と`..`パターンには、いつ、どこで、どのように使用できるかについて特定の条件が課されています。詳細は[特定のパターンの制限](#limitations-on-specific-patterns)を参照してください。高レベルでは、`mut`修飾子は変数パターンでのみ使用でき、`..`パターンはコンストラクタパターン内で一度だけ使用でき、トップレベルのパターンとしては使用できません。
 
-The following is an _invalid_ usage of the `..` pattern because it is used as a top-level pattern:
+以下は、`..`パターンの_無効な_使用例です。トップレベルのパターンとして使用されているためです：
 
 ```move
 match (x) {
@@ -196,14 +183,9 @@ match (x) {
 }
 ```
 
-### Pattern Typing
+### パターンの型付け
 
-Patterns are not expressions, but they are nevertheless typed. This means that the type of a pattern
-must match the type of the value it matches. For example, the pattern `1` has an integer type, the
-pattern `MyEnum::Variant(1, true)` has type `MyEnum`, the pattern `MyStruct { x, y }` has type
-`MyStruct`, and `OtherStruct<bool> { x: true, y: 1}` has type `OtherStruct<bool>`. If you try to
-match on an expression that differs from the type of the pattern in the match, this will result in a
-type error. For example:
+パターンは式ではありませんが、それでも型付けされています。これは、パターンの型がマッチする値の型と一致する必要があることを意味します。例えば、パターン`1`は整数型を持ち、パターン`MyEnum::Variant(1, true)`は型`MyEnum`を持ち、パターン`MyStruct { x, y }`は型`MyStruct`を持ち、`OtherStruct<bool> { x: true, y: 1}`は型`OtherStruct<bool>`を持ちます。マッチ内のパターンの型と異なる式でマッチしようとすると、型エラーが発生します。例えば：
 
 ```move
 match (1) {
@@ -214,8 +196,7 @@ match (1) {
 }
 ```
 
-Similarly, the following would also result in a type error because `MyEnum` and `MyStruct` are
-different types:
+同様に、`MyEnum`と`MyStruct`は異なる型であるため、以下も型エラーになります：
 
 ```move
 match (MyStruct { x: 0, y: 0 }) {
@@ -224,10 +205,9 @@ match (MyStruct { x: 0, y: 0 }) {
 }
 ```
 
-## Matching
+## マッチング
 
-Prior to delving into the specifics of pattern matching and what it means for a value to "match" a
-pattern, let's examine a few examples to provide an intuition for the concept.
+パターンマッチングの詳細と値がパターンに「マッチ」するという意味について詳しく説明する前に、概念の直感を提供するためにいくつかの例を調べてみましょう。
 
 ```move
 fun test_lit(x: u64): u8 {
@@ -286,25 +266,15 @@ test_or_pattern(5); // returns 7
 test_or_pattern(70); // returns 73
 ```
 
-The most important thing to note from these examples is that a pattern matches a value if the value
-is equal to the pattern, and wildcard/variable patterns match anything. This is true for literals,
-variables, and constants. For example, in the `test_lit` function, the value `1` matches the pattern
-`1`, the value `2` matches the pattern `2`, and the value `3` matches the wildcard `_`. Similarly,
-in the `test_var` function, both the value `1` and the value `2` matches the pattern `y`.
+これらの例から最も重要なことは、値がパターンと等しい場合にパターンが値にマッチし、ワイルドカード/変数パターンが何にでもマッチするということです。これはリテラル、変数、定数に当てはまります。例えば、`test_lit`関数では、値`1`はパターン`1`にマッチし、値`2`はパターン`2`にマッチし、値`3`はワイルドカード`_`にマッチします。同様に、`test_var`関数では、値`1`と値`2`の両方がパターン`y`にマッチします。
 
-A variable `x` matches (or "equals") any value, and a wildcard `_` matches any value (but only one
-value). Or-patterns are like a logical OR, where a value matches the pattern if it matches any of
-patterns in the or-pattern so `p1 | p2 | p3` should be read "matches p1, or p2, or p3".
+変数`x`は任意の値にマッチ（または「等しい」）し、ワイルドカード`_`は任意の値にマッチします（ただし1つの値のみ）。Or-patternは論理ORのようなもので、値がor-pattern内の任意のパターンにマッチした場合にパターンにマッチするため、`p1 | p2 | p3`は「p1、またはp2、またはp3にマッチ」と読むべきです。
 
-### Matching Constructors
+### コンストラクタのマッチング
 
-Pattern matching includes the concept of constructor patterns. These patterns allow you to inspect
-and access deep within both structs and enums, and are one of the most powerful parts of pattern
-matching. Constructor patterns, coupled with variable bindings, allow you to match on values by
-their structure, and pull out the parts of the value you care about for usage on the right-hand side
-of the match arm.
+パターンマッチングにはコンストラクタパターンの概念が含まれます。これらのパターンにより、構造体と列挙型の両方の深い部分を検査し、アクセスでき、パターンマッチングの最も強力な部分の一つです。コンストラクタパターンは、変数バインディングと組み合わせることで、値の構造に基づいて値をマッチし、マッチアームの右側で使用するために必要な値の部分を取り出すことができます。
 
-Take the following:
+以下を考えてみましょう：
 
 ```move
 fun f(x: MyEnum): u64 {
@@ -322,13 +292,9 @@ f(MyEnum::OtherVariant(true, 3)); // returns 2
 f(MyEnum::OtherVariant(true, 2)); // returns 4
 ```
 
-This is saying that "if `x` is `MyEnum::Variant` with the fields `1` and `true`, then return `1`. If
-it is `MyEnum::OtherVariant` with any value for the first field, and `3` for the second, then return
-`2`. If it is `MyEnum::Variant` with any fields, then return `3`. Finally, if it is
-`MyEnum::OtherVariant` with any fields, then return `4`".
+これは「`x`がフィールド`1`と`true`を持つ`MyEnum::Variant`の場合、`1`を返す。最初のフィールドに任意の値を持ち、2番目に`3`を持つ`MyEnum::OtherVariant`の場合、`2`を返す。任意のフィールドを持つ`MyEnum::Variant`の場合、`3`を返す。最後に、任意のフィールドを持つ`MyEnum::OtherVariant`の場合、`4`を返す」と言っています。
 
-You can also nest patterns. So, if you wanted to match either 1, 2, or 10, instead of just matching
-1 in the previous `MyEnum::Variant`, you could do so with an or-pattern:
+パターンをネストすることもできます。したがって、前の`MyEnum::Variant`で単に1をマッチする代わりに、1、2、または10のいずれかにマッチしたい場合は、or-patternで行うことができます：
 
 ```move
 fun f(x: MyEnum): u64 {
@@ -345,15 +311,9 @@ f(MyEnum::Variant(10, true)); // returns 1
 f(MyEnum::Variant(10, false)); // returns 3
 ```
 
-### Ability Constraints
+### 能力制約
 
-Additionally, match bindings are subject to the same ability restrictions as other aspects of Move.
-In particular, the compiler will signal an error if you try to match a value (not-reference) without
-`drop` using a wildcard, as the wildcard expects to drop the value. Similarly, if you bind a
-non-`drop` value using a binder, it must be used in the right-hand side of the match arm. In
-addition, if you fully destruct that value, you have unpacked it, matching the semantics of
-[non-`drop` struct unpacking](./../structs#destroying-structs-via-pattern-matching). See the
-[abilities section on `drop`](./../abilities#drop) for more details about the `drop` capability.
+さらに、マッチバインディングは、Moveの他の側面と同じ能力制限の対象となります。特に、ワイルドカードを使用して`drop`のない値（非参照）をマッチしようとすると、ワイルドカードが値をドロップすることを期待するため、コンパイラはエラーを発生させます。同様に、バインダーを使用して非`drop`値をバインドする場合、マッチアームの右側で使用する必要があります。さらに、その値を完全に破棄する場合、[非`drop`構造体のアンパック](./../structs#destroying-structs-via-pattern-matching)のセマンティクスに一致するようにアンパックされています。`drop`機能の詳細については、[`drop`の能力セクション](./../abilities#drop)を参照してください。
 
 ```move
 public struct NonDrop(u64)
@@ -382,28 +342,17 @@ fun use_nondrop(x: NonDrop): NonDrop {
 }
 ```
 
-## Exhaustiveness
+## 網羅性
 
-The `match` expression in Move must be _exhaustive_: every possible value of the type being matched
-must be covered by one of the patterns in one of the match's arms. If the series of match arms is
-not exhaustive, the compiler will raise an error. Note that any arm with a guard expression does not
-contribute to match exhaustion, as it might fail to match at runtime.
+Moveの`match`式は_網羅的_でなければなりません：マッチされる型のすべての可能な値が、マッチのアームのいずれかのパターンでカバーされる必要があります。マッチアームの系列が網羅的でない場合、コンパイラはエラーを発生させます。ガード式を持つアームは、実行時にマッチに失敗する可能性があるため、マッチの網羅性に寄与しないことに注意してください。
 
-As an example, a match on a `u8` is exhaustive only if it matches on _every_ number from 0 to 255
-inclusive, unless there is a wildcard or variable pattern present. Similarly, a match on a `bool`
-would need to match on both `true` and `false`, unless there is a wildcard or variable pattern
-present.
+例として、`u8`のマッチは、ワイルドカードまたは変数パターンが存在しない限り、0から255までの_すべての_数値にマッチする場合にのみ網羅的です。同様に、`bool`のマッチは、ワイルドカードまたは変数パターンが存在しない限り、`true`と`false`の両方にマッチする必要があります。
 
-For structs, because there is only one type of constructor for the type, only one constructor needs
-to be matched, but the fields within the struct need to be matched exhaustively as well. Conversely,
-enums may define multiple variants, and each variant must be matched (including any sub-fields) for
-the match to be considered exhaustive.
+構造体の場合、その型には1つのコンストラクタタイプしかないため、1つのコンストラクタをマッチするだけで済みますが、構造体内のフィールドも網羅的にマッチする必要があります。逆に、列挙型は複数のバリアントを定義でき、マッチが網羅的と見なされるためには、各バリアント（サブフィールドを含む）をマッチする必要があります。
 
-Because underscores and variables are wildcards that match anything, they count as matching all
-values of the type they are matching on in that position. Additionally, the multi-arity wildcard
-pattern `..` can be used to match on multiple values within a struct or enum variant.
+アンダースコアと変数は何にでもマッチするワイルドカードであるため、その位置でマッチしている型のすべての値にマッチするとカウントされます。さらに、多項ワイルドカードパターン`..`を使用して、構造体または列挙型バリアント内の複数の値にマッチできます。
 
-To see some examples of _non-exhaustive_ matches, consider the following:
+_非網羅的_マッチの例を見るために、以下を考えてみましょう：
 
 ```move
 public enum MyEnum {
@@ -432,8 +381,7 @@ fun match_pair_bool(x: Pair<bool>): u8 {
 }
 ```
 
-These examples can then be made exhaustive by adding a wildcard pattern to the end of the match arm,
-or by fully matching on the remaining values:
+これらの例は、マッチアームの最後にワイルドカードパターンを追加するか、残りの値に完全にマッチすることで網羅的にすることができます：
 
 ```move
 fun f(x: MyEnum): u8 {
@@ -458,13 +406,9 @@ fun match_pair_bool(x: Pair<bool>): u8 {
 }
 ```
 
-## Guards
+## ガード
 
-As previously mentioned, you can add a guard to a match arm by adding an `if` clause after the
-pattern. This guard will run _after_ the pattern has been matched but _before_ the expression on the
-right hand side of the arrow is evaluated. If the guard expression evaluates to `true` then the
-expression on the right hand side of the arrow will be evaluated, if it evaluates to `false` then it
-will be considered a failed match and the next match arm in the `match` expression will be checked.
+前述のように、パターンの後に`if`句を追加することで、マッチアームにガードを追加できます。このガードは、パターンがマッチされた_後_に実行されますが、矢印の右側の式が評価される_前_に実行されます。ガード式が`true`と評価された場合、矢印の右側の式が評価され、`false`と評価された場合、マッチに失敗したと見なされ、`match`式の次のマッチアームがチェックされます。
 
 ```move
 fun match_with_guard(x: u64): u64 {
@@ -479,10 +423,7 @@ match_with_guard(1); // returns 2
 match_with_guard(0); // returns 3
 ```
 
-Guard expressions can reference variables bound in the pattern during evaluation. However, note that
-_variables are only available as immutable reference in guards_ regardless of the pattern being
-matched -- even if there are mutability specifiers on the variable or if the pattern is being
-matched by value.
+ガード式は、評価中にパターンでバインドされた変数を参照できます。ただし、マッチされるパターンに関係なく、_変数はガード内で不変参照としてのみ利用可能_であることに注意してください -- 変数に可変性指定子がある場合や、パターンが値でマッチされている場合でも。
 
 ```move
 fun incr(x: &mut u64) {
@@ -506,22 +447,17 @@ fun match_with_guard_incr2(x: &mut u64): u64 {
 }
 ```
 
-Additionally, it is important to note any match arms that have guard expressions will not be
-considered either for exhaustivity purposes because the compiler has no way of evaluating the guard
-expression statically.
+さらに、ガード式を持つマッチアームは、コンパイラがガード式を静的に評価する方法がないため、網羅性の目的では考慮されないことに注意することが重要です。
 
-## Limitations on Specific Patterns
+## 特定のパターンの制限
 
-There are some restrictions on when the `..` and `mut` pattern modifiers can be used in a pattern.
+パターンで`..`と`mut`パターン修飾子をいつ使用できるかについて、いくつかの制限があります。
 
-### Mutability Usage
+### 可変性の使用
 
-A `mut` modifier can be placed on a variable pattern to specify that the _variable_ is to be mutated
-in the right-hand expression of the match arm. Note that since the `mut` modifier only signifies
-that the variable is to be mutated, not the underlying data, this can be used on all types of match
-(by value, immutable reference, and mutable reference).
+`mut`修飾子は変数パターンに配置して、_変数_がマッチアームの右側の式で変更されることを指定できます。`mut`修飾子は変数が変更されることを示すだけで、基になるデータではないため、すべてのタイプのマッチ（値、不変参照、可変参照）で使用できることに注意してください。
 
-Note that the `mut` modifier can only be applied to variables, and not other types of patterns.
+`mut`修飾子は変数にのみ適用でき、他のタイプのパターンには適用できないことに注意してください。
 
 ```move
 public struct MyStruct(u64)
@@ -571,18 +507,13 @@ x.0; // returns 2
 mut_on_value(x); // returns 3
 ```
 
-### `..` Usage
+### `..`の使用
 
-The `..` pattern can only be used within a constructor pattern as a wildcard that matches any number
-of fields -- the compiler expands the `..` to inserting `_` in any missing fields in the
-constructor pattern (if any). So `MyStruct(_, _, _)` is the same as `MyStruct(..)`,
-`MyStruct(1, _, _)` is the same as `MyStruct(1, ..)`. Because of this, there are some restrictions
-on how, and where the `..` pattern can be used:
+`..`パターンは、任意の数のフィールドにマッチするワイルドカードとして、コンストラクタパターン内でのみ使用できます -- コンパイラは`..`を、コンストラクタパターンの欠落しているフィールド（存在する場合）に`_`を挿入するように展開します。したがって、`MyStruct(_, _, _)`は`MyStruct(..)`と同じで、`MyStruct(1, _, _)`は`MyStruct(1, ..)`と同じです。このため、`..`パターンをいつ、どこで使用できるかについて、いくつかの制限があります：
 
-- It can only be used **once** within the constructor pattern;
-- In positional arguments it can be used at the beginning, middle, or end of the patterns within the
-  constructor;
-- In named arguments it can only be used at the end of the patterns within the constructor;
+- コンストラクタパターン内で**一度だけ**使用できます；
+- 位置引数では、コンストラクタ内のパターンの開始、中間、または終了で使用できます；
+- 名前付き引数では、コンストラクタ内のパターンの終了でのみ使用できます；
 
 ```move
 public struct MyStruct(u64, u64, u64, u64) has drop;

@@ -24,18 +24,11 @@ description: ''
 
 一般的に、`@`をアドレスを名前空間アイテムから式アイテムに変換する演算子と考えることができます。
 
-## Named Addresses
+## 名前付きアドレス
 
-Named addresses are a feature that allow identifiers to be used in place of numerical values in any
-spot where addresses are used, and not just at the value level. Named addresses are declared and
-bound as top level elements (outside of modules and scripts) in Move packages, or passed as
-arguments to the Move compiler.
+名前付きアドレスは、アドレスが使用される任意の場所で、値レベルだけでなく、数値を識別子で置き換えることを可能にする機能です。名前付きアドレスは、Moveパッケージのトップレベル要素（モジュールとスクリプトの外部）として宣言・バインドされるか、Moveコンパイラに引数として渡されます。
 
-Named addresses only exist at the source language level and will be fully substituted for their
-value at the bytecode level. Because of this, modules and module members should be accessed through
-the module's named address and not through the numerical value assigned to the named address during
-compilation. So while `use my_addr::foo` is equivalent to `use 0x2::foo` (if `my_addr` is assigned
-`0x2`), it is a best practice to always use the `my_addr` name.
+名前付きアドレスはソース言語レベルでのみ存在し、バイトコードレベルでは完全にその値で置換されます。このため、モジュールとモジュールメンバーは、コンパイル時に名前付きアドレスに割り当てられた数値ではなく、モジュールの名前付きアドレスを通じてアクセスすべきです。したがって、`use my_addr::foo`は`use 0x2::foo`と同等（`my_addr`が`0x2`に割り当てられている場合）ですが、常に`my_addr`名を使用することがベストプラクティスです。
 
 ### Examples
 

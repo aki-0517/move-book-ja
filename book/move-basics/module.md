@@ -14,44 +14,36 @@ Notes:
 
 モジュールはMoveにおけるコード組織の基本単位です。モジュールはコードをグループ化して分離するために使用され、モジュールのすべてのメンバーはデフォルトでモジュールプライベートです。このセクションでは、モジュールの定義方法、メンバーの宣言方法、および他のモジュールからのアクセス方法を学びます。
 
-## Module Declaration
+## モジュール宣言
 
-Modules are declared using the `module` keyword followed by the package address, module name,
-semicolon, and the module body. The module name should be in `snake_case` - all lowercase letters
-with underscores between words. Modules names must be unique in the package.
+モジュールは`module`キーワードの後にパッケージアドレス、モジュール名、セミコロン、モジュール本体を続けて宣言します。モジュール名は`snake_case`（すべて小文字で単語間にアンダースコア）である必要があります。モジュール名はパッケージ内で一意である必要があります。
 
-Usually, a single file in the `sources/` folder contains a single module. The file name should match
-the module name - for example, a `donut_shop` module should be stored in the `donut_shop.move` file.
-You can read more about coding conventions in the
-[Coding Conventions](./../guides/code-quality-checklist) section.
+通常、`sources/`フォルダ内の単一ファイルには単一のモジュールが含まれます。ファイル名はモジュール名と一致する必要があります。例えば、`donut_shop`モジュールは`donut_shop.move`ファイルに保存されるべきです。コーディング規約について詳しくは、
+[コーディング規約](./../guides/code-quality-checklist)セクションをご覧ください。
 
-> If you need to declare more than one module in a file, you must use [Module Block](#module-block)
-> syntax.
+> ファイル内で複数のモジュールを宣言する必要がある場合は、[モジュールブロック](#module-block)構文を使用する必要があります。
 
 ```move file=packages/samples/sources/move-basics/module-label.move anchor=module
 
 ```
 
-Structs, functions, constants and imports all part of the module:
+構造体、関数、定数、インポートはすべてモジュールの一部です：
 
-- [Structs](./struct)
-- [Functions](./function)
-- [Constants](./constants)
-- [Imports](./importing-modules)
-- [Struct Methods](./struct-methods)
+- [構造体](./struct)
+- [関数](./function)
+- [定数](./constants)
+- [インポート](./importing-modules)
+- [構造体メソッド](./struct-methods)
 
-## Address and Named Address
+## アドレスと名前付きアドレス
 
-The module address can be specified as both: an address _literal_ (does not require the `@` prefix)
-or a named address specified in the [Package Manifest](./../concepts/manifest). In the example
-below, both are identical because there's a `book = "0x0"` record in the `[addresses]` section of
-the `Move.toml`.
+モジュールアドレスは、アドレス_リテラル_（`@`プレフィックスは不要）または[パッケージマニフェスト](./../concepts/manifest)で指定された名前付きアドレスの両方で指定できます。以下の例では、`Move.toml`の`[addresses]`セクションに`book = "0x0"`レコードがあるため、両者は同一です。
 
 ```move file=packages/samples/sources/move-basics/module.move anchor=address_literal
 
 ```
 
-Addresses section in the Move.toml:
+Move.tomlのアドレスセクション：
 
 ```toml
 # Move.toml
@@ -59,10 +51,9 @@ Addresses section in the Move.toml:
 book = "0x0"
 ```
 
-## Module Members
+## モジュールメンバー
 
-Module members are declared inside the module body. To illustrate that, let's define a simple module
-with a struct, a function and a constant:
+モジュールメンバーはモジュール本体の内部で宣言されます。これを説明するために、構造体、関数、定数を持つシンプルなモジュールを定義してみましょう：
 
 ```move file=packages/samples/sources/move-basics/module-members.move anchor=members
 

@@ -41,55 +41,49 @@ public enum Baz has drop {
 }
 ```
 
-Enums cannot be recursive in any of their variants, so the following definitions of an enum are not
-allowed because they would be recursive in at least one variant.
+列挙型はどのバリアントでも再帰的になることはできません。そのため、以下の列挙型定義は少なくとも1つのバリアントで再帰的になるため許可されません。
 
-Incorrect:
+不正な例：
 
 ```move
 module a::m;
 
 public enum Foo {
     Recursive(Foo),
-    //        ^ error: recursive enum variant
+    //        ^ エラー: 再帰的列挙型バリアント
 }
 public enum List {
     Nil,
     Cons { head: u64, tail: List },
-    //                      ^ error: recursive enum variant
+    //                      ^ エラー: 再帰的列挙型バリアント
 }
 public enum BTree<T> {
     Leaf(T),
     Node { left: BTree<T>, right: BTree<T> },
-    //           ^ error: recursive enum variant
+    //           ^ エラー: 再帰的列挙型バリアント
 }
 
-// Mutually recursive enums are also not allowed
+// 相互再帰的列挙型も許可されません
 public enum MutuallyRecursiveA {
     Base,
     Other(MutuallyRecursiveB),
-    //    ^^^^^^^^^^^^^^^^^^ error: recursive enum variant
+    //    ^^^^^^^^^^^^^^^^^^ エラー: 再帰的列挙型バリアント
 }
 
 public enum MutuallyRecursiveB {
     Base,
     Other(MutuallyRecursiveA),
-    //    ^^^^^^^^^^^^^^^^^^ error: recursive enum variant
+    //    ^^^^^^^^^^^^^^^^^^ エラー: 再帰的列挙型バリアント
 }
 ```
 
-## Visibility
+## 可視性
 
-All enums are declared as `public`. This means that the type of the enum can be referred to from any
-other module. However, the variants of the enum, the fields within each variant, and the ability to
-create or destroy variants of the enum are internal to the module that defines the enum.
+すべての列挙型は`public`として宣言されます。これは、列挙型の型を他のモジュールから参照できることを意味します。ただし、列挙型のバリアント、各バリアント内のフィールド、および列挙型のバリアントを作成または破棄する能力は、列挙型を定義するモジュールの内部に留まります。
 
-### Abilities
+### アビリティ
 
-Just like with structs, by default an enum declaration is linear and ephemeral. To use an enum value
-in a non-linear or non-ephemeral way -- i.e., copied, dropped, or stored in an
-[object](./abilities/object) -- you need to grant it additional [abilities](./abilities) by
-annotating them with `has <ability>`:
+構造体と同様に、デフォルトでは列挙型宣言は線形で一時的です。列挙型の値を非線形または非一時的な方法で使用する（つまり、コピー、ドロップ、または[オブジェクト](./abilities/object)に保存する）には、`has <ability>`で注釈を付けることで追加の[アビリティ](./abilities)を付与する必要があります：
 
 ```move
 module a::m;
@@ -99,9 +93,7 @@ public enum Foo has copy, drop {
 }
 ```
 
-The ability declaration can occur either before or after the enum's variants, however only one or
-the other can be used, and not both. If declared after the variants, the ability declaration must be
-terminated with a semicolon:
+アビリティ宣言は列挙型のバリアントの前または後に配置できますが、どちらか一方のみを使用でき、両方は使用できません。バリアントの後に宣言する場合、アビリティ宣言はセミコロンで終了する必要があります：
 
 ```move
 module a::m;
@@ -109,20 +101,16 @@ module a::m;
 public enum PreNamedAbilities has copy, drop { Variant }
 public enum PostNamedAbilities { Variant } has copy, drop;
 public enum PostNamedAbilitiesInvalid { Variant } has copy, drop
-//                                                              ^ ERROR! missing semicolon
-
+//                                                              ^ エラー! セミコロンが不足
 public enum NamedInvalidAbilities has copy { Variant } has drop;
-//                                                     ^ ERROR! duplicate ability declaration
+//                                                     ^ エラー! 重複するアビリティ宣言
 ```
 
-For more details, see the section on
-[annotating abilities](./abilities#annotating-structs-and-enums).
+詳細については、[アビリティの注釈](./abilities#annotating-structs-and-enums)セクションをご覧ください。
 
-## Naming
+## 命名
 
-Enums and variants within enums must start with a capital letter `A` to `Z`. After the first letter,
-enum names can contain underscores `_`, lowercase letters `a` to `z`, uppercase letters `A` to `Z`,
-or digits `0` to `9`.
+列挙型と列挙型内のバリアントは大文字の`A`から`Z`で始まる必要があります。最初の文字の後、列挙型名にはアンダースコア`_`、小文字`a`から`z`、大文字`A`から`Z`、または数字`0`から`9`を含めることができます。
 
 ```move
 public enum Foo { Variant }
@@ -130,21 +118,15 @@ public enum BAR { Variant }
 public enum B_a_z_4_2 { V_a_riant_0 }
 ```
 
-This naming restriction of starting with `A` to `Z` is in place to give room for future language
-features.
+`A`から`Z`で始まるという命名制限は、将来の言語機能の余地を与えるために設けられています。
 
-## Using Enums
+## 列挙型の使用
 
-### Creating Enum Variants
+### 列挙型バリアントの作成
 
-Values of an enum type can be created (or "packed") by indicating a variant of the enum, followed by
-a value for each field in the variant. The variant name must always be qualified by the enum's name.
+列挙型の値は、列挙型のバリアントを指定し、その後にバリアント内の各フィールドの値を続けることで作成（または「パック」）できます。バリアント名は常に列挙型の名前で修飾する必要があります。
 
-Similarly to structs, for a variant with named fields, the order of the fields does not matter but
-the field names need to be provided. For a variant with positional fields, the order of the fields
-matters and the order of the fields must match the order in the variant declaration. It must also be
-created using `()` instead of `{}`. If the variant has no fields, the variant name is sufficient and
-no `()` or `{}` needs to be used.
+構造体と同様に、名前付きフィールドを持つバリアントの場合、フィールドの順序は重要ではありませんが、フィールド名を提供する必要があります。位置フィールドを持つバリアントの場合、フィールドの順序が重要で、フィールドの順序はバリアント宣言の順序と一致する必要があります。また、`{}`の代わりに`()`を使用して作成する必要があります。バリアントにフィールドがない場合、バリアント名だけで十分で、`()`や`{}`を使用する必要はありません。
 
 ```move
 module a::m;
@@ -160,49 +142,35 @@ public enum Other has drop {
 }
 
 fun example() {
-    // Note: The `Stop` variant of `Action` doesn't have fields so no parentheses or curlies are needed.
+    // 注意: `Action`の`Stop`バリアントにはフィールドがないため、括弧や中括弧は不要です。
     let stop = Action::Stop;
     let pause = Action::Pause { duration: 10 };
     let move_to = Action::MoveTo { x: 10, y: 20 };
     let jump = Action::Jump(10);
-    // Note: The `Stop` variant of `Other` does have positional fields so we need to supply them.
+    // 注意: `Other`の`Stop`バリアントには位置フィールドがあるため、それらを提供する必要があります。
     let other_stop = Other::Stop(10);
 }
 ```
 
-For variants with named fields you can also use the shorthand syntax that you might be familiar with
-from structs to create the variant:
+名前付きフィールドを持つバリアントの場合、構造体でおなじみの省略構文を使用してバリアントを作成することもできます：
 
 ```move
 let duration = 10;
 
 let pause = Action::Pause { duration: duration };
-// is equivalent to
+// 以下と同等
 let pause = Action::Pause { duration };
 ```
 
-### Pattern Matching Enum Variants and Destructuring
+### 列挙型バリアントのパターンマッチングと分解
 
-Since enum values can take on different shapes, dot access to fields of variants is not allowed like
-it is for struct fields. Instead, to access fields within a variant -- either by value, or immutable
-or mutable reference -- you must use pattern matching.
+列挙型の値は異なる形状を取ることができるため、構造体フィールドのようにバリアントのフィールドへのドットアクセスは許可されません。代わりに、バリアント内のフィールドにアクセスするには（値、不変参照、または可変参照のいずれかで）パターンマッチングを使用する必要があります。
 
-You can pattern match on Move values by value, immutable reference, and mutable reference. When
-pattern matching by value, the value is moved into the match arm. When pattern matching by
-reference, the value is borrowed into the match arm (either immutably or mutably). We'll go through
-a brief description of pattern matching using `match` here, but for more information on pattern
-matching using `match` in Move see the [Pattern Matching](./control-flow/pattern-matching) section.
+Moveの値に対して値、不変参照、可変参照でパターンマッチングできます。値によるパターンマッチングでは、値はマッチアームにムーブされます。参照によるパターンマッチングでは、値はマッチアームに借用されます（不変または可変）。ここでは`match`を使用したパターンマッチングの簡単な説明を行いますが、Moveでの`match`を使用したパターンマッチングの詳細については[パターンマッチング](./control-flow/pattern-matching)セクションをご覧ください。
 
-A `match` statement is used to pattern match on a Move value and consists of a number of _match
-arms_. Each match arm consists of a pattern, an arrow `=>`, and an expression, followed by a comma
-`,`. The pattern can be a struct, enum variant, binding (`x`, `y`), wildcard (`_` or `..`), constant
-(`ConstValue`), or literal value (`true`, `42`, and so on). The value is matched against each
-pattern from the top-down, and will match the first pattern that structurally matches the value.
-Once the value is matched, the expression on the right hand side of the `=>` is executed.
+`match`文はMoveの値に対してパターンマッチングを行うために使用され、複数の_マッチアーム_で構成されます。各マッチアームは、パターン、矢印`=>`、式、そしてカンマ`,`で構成されます。パターンは構造体、列挙型バリアント、バインディング（`x`、`y`）、ワイルドカード（`_`または`..`）、定数（`ConstValue`）、またはリテラル値（`true`、`42`など）にすることができます。値は上から下に向かって各パターンと照合され、構造的に値と一致する最初のパターンにマッチします。値がマッチすると、`=>`の右側の式が実行されます。
 
-Additionally, match arms can have optional _guards_ that are checked after the pattern matches but
-_before_ the expression is executed. Guards are specified by the `if` keyword followed by an
-expression that must evaluate to a boolean value before the `=>`.
+さらに、マッチアームには、パターンがマッチした後、式が実行される_前_にチェックされるオプションの_ガード_を持つことができます。ガードは`if`キーワードの後に`=>`の前にブール値に評価される必要がある式を続けて指定します。
 
 ```move
 module a::m;
@@ -224,18 +192,18 @@ public struct GameState {
 
 fun perform_action(stat: &mut GameState, action: Action) {
     match (action) {
-        // Handle the `Stop` variant
+        // `Stop`バリアントを処理
         Action::Stop => state.stop(),
-        // Handle the `Pause` variant
-        // If the duration is 0, do nothing
+        // `Pause`バリアントを処理
+        // 期間が0の場合、何もしない
         Action::Pause { duration: 0 } => (),
         Action::Pause { duration } => state.pause(duration),
-        // Handle the `MoveTo` variant
+        // `MoveTo`バリアントを処理
         Action::MoveTo { x, y } => state.move_to(x, y),
-        // Handle the `Jump` variant
-        // if the game disallows jumps then do nothing
+        // `Jump`バリアントを処理
+        // ゲームがジャンプを禁止している場合は何もしない
         Action::Jump(_) if (state.jumps_not_allowed()) => (),
-        // otherwise, jump to the specified height
+        // そうでなければ、指定された高さにジャンプ
         Action::Jump(height) => state.jump(height),
     }
 }
@@ -269,24 +237,20 @@ public fun incr_enum_variant2(simple_enum: &mut SimpleEnum) {
 }
 ```
 
-Now, if we have a value of `SimpleEnum` we can use the functions to increment the value of this
-variant:
+ここで、`SimpleEnum`の値がある場合、このバリアントの値を増分するためにこれらの関数を使用できます：
 
 ```move
 let mut x = SimpleEnum::Variant1(10);
 incr_enum_variant1(&mut x);
 assert!(x == SimpleEnum::Variant1(11));
-// Doesn't increment since it increments a different variant
+// 異なるバリアントを増分するため、増分されません
 incr_enum_variant2(&mut x);
 assert!(x == SimpleEnum::Variant1(11));
 ```
 
-When pattern matching on a Move value that does not have the `drop` ability, the value must be
-consumed or destructured in each match arm. If the value is not consumed or destructured in a match
-arm, the compiler will raise an error. This is to ensure that all possible values are handled in the
-match statement.
+`drop`アビリティを持たないMoveの値に対してパターンマッチングを行う場合、値は各マッチアームで消費または分解される必要があります。値がマッチアームで消費または分解されない場合、コンパイラはエラーを発生させます。これは、マッチ文ですべての可能な値が処理されることを保証するためです。
 
-As an example, consider the following code:
+例として、以下のコードを考えてみましょう：
 
 ```move
 module a::m;
@@ -296,13 +260,12 @@ public enum X { Variant { x: u64 } }
 public fun bad(x: X) {
     match (x) {
         _ => (),
-    // ^ ERROR! value of type `X` is not consumed or destructured in this match arm
+    // ^ エラー! 型`X`の値がこのマッチアームで消費または分解されていません
     }
 }
 ```
 
-To properly handle this, you will need to destructure `X` and all its variants in the match's
-arm(s):
+これを適切に処理するには、マッチのアームで`X`とそのすべてのバリアントを分解する必要があります：
 
 ```move
 module a::m;
@@ -311,16 +274,15 @@ public enum X { Variant { x: u64 } }
 
 public fun good(x: X) {
     match (x) {
-        // OK! Compiles since the value is destructured
+        // OK! 値が分解されているためコンパイルされます
         X::Variant { x: _ } => (),
     }
 }
 ```
 
-### Overwriting to Enum Values
+### 列挙型値の上書き
 
-As long as the enum has the `drop` ability, you can overwrite the value of an enum with a new value
-of the same type just as you might with other values in Move.
+列挙型が`drop`アビリティを持っている限り、Moveの他の値と同様に、列挙型の値を同じ型の新しい値で上書きできます。
 
 ```move
 module a::m;

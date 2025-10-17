@@ -7,31 +7,28 @@ description: ''
 
 Moveには2つの型の参照があります：不変`&`と可変`&mut`。不変参照は読み取り専用であり、基になる値（またはそのフィールド）を変更することはできません。可変参照は、その参照を通じた書き込みによる変更を可能にします。Moveの型システムは、参照エラーを防ぐ所有権の規律を強制します。
 
-## Reference Operators
+## 参照演算子
 
-Move provides operators for creating and extending references as well as converting a mutable
-reference to an immutable one. Here and elsewhere, we use the notation `e: T` for "expression `e`
-has type `T`".
+Moveは、参照の作成と拡張、および可変参照を不変参照に変換するための演算子を提供します。ここおよび他の場所では、「式`e`が型`T`を持つ」ことを表すために`e: T`という記法を使用します。
 
-| Syntax      | Type                                                  | Description                                                    |
+| 構文      | 型                                                  | 説明                                                    |
 | ----------- | ----------------------------------------------------- | -------------------------------------------------------------- |
-| `&e`        | `&T` where `e: T` and `T` is a non-reference type     | Create an immutable reference to `e`                           |
-| `&mut e`    | `&mut T` where `e: T` and `T` is a non-reference type | Create a mutable reference to `e`.                             |
-| `&e.f`      | `&T` where `e.f: T`                                   | Create an immutable reference to field `f` of struct `e`.      |
-| `&mut e.f`  | `&mut T` where `e.f: T`                               | Create a mutable reference to field `f` of struct`e`.          |
-| `freeze(e)` | `&T` where `e: &mut T`                                | Convert the mutable reference `e` into an immutable reference. |
+| `&e`        | `&T`（`e: T`かつ`T`が非参照型）     | `e`への不変参照を作成                           |
+| `&mut e`    | `&mut T`（`e: T`かつ`T`が非参照型） | `e`への可変参照を作成                             |
+| `&e.f`      | `&T`（`e.f: T`）                                   | 構造体`e`のフィールド`f`への不変参照を作成      |
+| `&mut e.f`  | `&mut T`（`e.f: T`）                               | 構造体`e`のフィールド`f`への可変参照を作成          |
+| `freeze(e)` | `&T`（`e: &mut T`）                                | 可変参照`e`を不変参照に変換 |
 
-The `&e.f` and `&mut e.f` operators can be used both to create a new reference into a struct or to
-extend an existing reference:
+`&e.f`と`&mut e.f`演算子は、構造体への新しい参照を作成するためにも、既存の参照を拡張するためにも使用できます：
 
 ```move
 let s = S { f: 10 };
-let f_ref1: &u64 = &s.f; // works
+let f_ref1: &u64 = &s.f; // 動作する
 let s_ref: &S = &s;
-let f_ref2: &u64 = &s_ref.f // also works
+let f_ref2: &u64 = &s_ref.f // これも動作する
 ```
 
-A reference expression with multiple fields works as long as both structs are in the same module:
+複数のフィールドを持つ参照式は、両方の構造体が同じモジュールにある限り動作します：
 
 ```move
 public struct A { b: B }
@@ -41,82 +38,75 @@ fun f(a: &A): &u64 {
 }
 ```
 
-Finally, note that references to references are not allowed:
+最後に、参照への参照は許可されていないことに注意してください：
 
 ```move
 let x = 7;
 let y: &u64 = &x;
 // highlight-error
-let z: &&u64 = &y; // ERROR! will not compile
+let z: &&u64 = &y; // エラー！コンパイルされません
 ```
 
-## Reading and Writing Through References
+## 参照を通じた読み取りと書き込み
 
-Both mutable and immutable references can be read to produce a copy of the referenced value.
+可変参照と不変参照の両方で、参照された値のコピーを生成するために読み取りができます。
 
-Only mutable references can be written. A write `*x = v` discards the value previously stored in `x`
-and updates it with `v`.
+可変参照のみが書き込み可能です。書き込み`*x = v`は、`x`に以前に格納されていた値を破棄し、`v`で更新します。
 
-Both operations use the C-like `*` syntax. However, note that a read is an expression, whereas a
-write is a mutation that must occur on the left hand side of an equals.
+両方の操作はC言語風の`*`構文を使用します。ただし、読み取りは式であるのに対し、書き込みは等号の左側で発生しなければならない変更であることに注意してください。
 
-| Syntax     | Type                                | Description                         |
+| 構文     | 型                                | 説明                         |
 | ---------- | ----------------------------------- | ----------------------------------- |
-| `*e`       | `T` where `e` is `&T` or `&mut T`   | Read the value pointed to by `e`    |
-| `*e1 = e2` | `()` where `e1: &mut T` and `e2: T` | Update the value in `e1` with `e2`. |
+| `*e`       | `T`（`e`が`&T`または`&mut T`）   | `e`が指す値を読み取り    |
+| `*e1 = e2` | `()`（`e1: &mut T`かつ`e2: T`） | `e1`の値を`e2`で更新 |
 
-In order for a reference to be read, the underlying type must have the
-[`copy` ability](../abilities) as reading the reference creates a new copy of the value. This rule
-prevents the copying of assets:
+参照を読み取るためには、基になる型が[`copy`アビリティ](../abilities)を持っている必要があります。これは、参照を読み取ると値の新しいコピーが作成されるためです。このルールは、アセットのコピーを防ぎます：
 
 ```move
 fun copy_coin_via_ref_bad(c: Coin) {
     let c_ref = &c;
     // highlight-error
-    let counterfeit: Coin = *c_ref; // not allowed!
+    let counterfeit: Coin = *c_ref; // 許可されません！
     pay(c);
     pay(counterfeit);
 }
 ```
 
-Dually: in order for a reference to be written to, the underlying type must have the
-[`drop` ability](../abilities) as writing to the reference will discard (or "drop") the old value.
-This rule prevents the destruction of resource values:
+双対的に：参照に書き込むためには、基になる型が[`drop`アビリティ](../abilities)を持っている必要があります。これは、参照に書き込むと古い値が破棄（または「ドロップ」）されるためです。このルールは、リソース値の破壊を防ぎます：
 
 ```move
 fun destroy_coin_via_ref_bad(mut ten_coins: Coin, c: Coin) {
     let ref = &mut ten_coins;
     // highlight-error
-    *ref = c; // ERROR! not allowed--would destroy 10 coins!
+    *ref = c; // エラー！許可されません--10コインが破壊されます！
 }
 ```
 
-## `freeze` inference
+## `freeze`推論
 
-A mutable reference can be used in a context where an immutable reference is expected:
+可変参照は、不変参照が期待されるコンテキストで使用できます：
 
 ```move
 let mut x = 7;
 let y: &u64 = &mut x;
 ```
 
-This works because the under the hood, the compiler inserts `freeze` instructions where they are
-needed. Here are a few more examples of `freeze` inference in action:
+これは、内部でコンパイラが必要な場所に`freeze`命令を挿入するためです。以下は、`freeze`推論の動作例です：
 
 ```move
 fun takes_immut_returns_immut(x: &u64): &u64 { x }
 
-// freeze inference on return value
+// 戻り値でのfreeze推論
 fun takes_mut_returns_immut(x: &mut u64): &u64 { x }
 
 fun expression_examples() {
     let mut x = 0;
     let mut y = 0;
-    takes_immut_returns_immut(&x); // no inference
-    takes_immut_returns_immut(&mut x); // inferred freeze(&mut x)
-    takes_mut_returns_immut(&mut x); // no inference
+    takes_immut_returns_immut(&x); // 推論なし
+    takes_immut_returns_immut(&mut x); // 推論されたfreeze(&mut x)
+    takes_mut_returns_immut(&mut x); // 推論なし
 
-    assert!(&x == &mut y, 42); // inferred freeze(&mut y)
+    assert!(&x == &mut y, 42); // 推論されたfreeze(&mut y)
 }
 
 fun assignment_examples() {
@@ -124,17 +114,14 @@ fun assignment_examples() {
     let y = 0;
     let imm_ref: &u64 = &x;
 
-    imm_ref = &x; // no inference
-    imm_ref = &mut y; // inferred freeze(&mut y)
+    imm_ref = &x; // 推論なし
+    imm_ref = &mut y; // 推論されたfreeze(&mut y)
 }
 ```
 
-### Subtyping
+### サブタイピング
 
-With this `freeze` inference, the Move type checker can view `&mut T` as a subtype of `&T`. As shown
-above, this means that anywhere for any expression where a `&T` value is used, a `&mut T` value can
-also be used. This terminology is used in error messages to concisely indicate that a `&mut T` was
-needed where a `&T` was supplied. For example
+この`freeze`推論により、Move型チェッカーは`&mut T`を`&T`のサブタイプとして見ることができます。上記で示したように、これは`&T`値が使用される任意の式の任意の場所で、`&mut T`値も使用できることを意味します。この用語は、`&T`が提供された場所で`&mut T`が必要だったことを簡潔に示すためにエラーメッセージで使用されます。例えば
 
 ```move
 module a::example {
@@ -189,44 +176,29 @@ error:
     │
 ```
 
-The only other types that currently have subtyping are [tuples](./tuples)
+現在サブタイピングを持つ他の型は[タプル](./tuples)のみです
 
-## Ownership
+## 所有権
 
-Both mutable and immutable references can always be copied and extended _even if there are existing
-copies or extensions of the same reference_:
+可変参照と不変参照の両方は、_同じ参照の既存のコピーや拡張がある場合でも_、常にコピーおよび拡張できます：
 
 ```move
 fun reference_copies(s: &mut S) {
   let s_copy1 = s; // ok
-  let s_extension = &mut s.f; // also ok
-  let s_copy2 = s; // still ok
+  let s_extension = &mut s.f; // これもok
+  let s_copy2 = s; // まだok
   ...
 }
 ```
 
-This might be surprising for programmers familiar with Rust's ownership system, which would reject
-the code above. Move's type system is more permissive in its treatment of
-[copies](./../variables#move-and-copy), but equally strict in ensuring unique ownership of mutable
-references before writes.
+これは、Rustの所有権システムに慣れているプログラマーにとって驚くべきことかもしれません。Rustは上記のコードを拒否するでしょう。Moveの型システムは[コピー](./../variables#move-and-copy)の処理においてより寛容ですが、書き込み前の可変参照の一意の所有権を確保する点では同様に厳格です。
 
-### References Cannot Be Stored
+### 参照は格納できない
 
-References and tuples are the _only_ types that cannot be stored as a field value of structs, which
-also means that they cannot exist in storage or [objects](./../abilities/object). All references
-created during program execution will be destroyed when a Move program terminates; they are entirely
-ephemeral. This also applies to all types without the `store` ability: any value of a non-`store`
-type must be destroyed before the program terminates.
+参照とタプルは、構造体のフィールド値として格納できない_唯一の_型です。これは、それらがストレージや[オブジェクト](./../abilities/object)に存在できないことも意味します。プログラム実行中に作成されたすべての参照は、Moveプログラムが終了するときに破棄されます。それらは完全に一時的です。これは`store`アビリティを持たないすべての型にも適用されます：非`store`型の任意の値は、プログラムが終了する前に破棄されなければなりません。
 
-This is another difference between Move and Rust, which allows references to be stored inside of
-structs.
+これは、構造体内部に参照を格納することを許可するRustとのもう1つの違いです。
 
-One could imagine a fancier, more expressive, type system that would allow references to be stored
-in structs. We could allow references inside of structs that do not have the `store`
-[ability](./../abilities), but the core difficulty is that Move has a fairly complex system for
-tracking static reference safety. This aspect of the type system would also have to be extended to
-support storing references inside of structs. In short, Move's reference safety system would have to
-expand to support stored references, and it is something we are keeping an eye on as the language
-evolves.
+構造体に参照を格納することを許可する、より洗練された、より表現力豊かな型システムを想像することができます。`store`[アビリティ](./../abilities)を持たない構造体内部の参照を許可することもできますが、核心的な困難は、Moveが静的参照安全性を追跡するためのかなり複雑なシステムを持っていることです。型システムのこの側面も、構造体内部に参照を格納することをサポートするために拡張する必要があります。要するに、Moveの参照安全性システムは、格納された参照をサポートするために拡張する必要があり、言語が進化するにつれて注目しているものです。
 
-<!-- TODO actually document a sketch of the borrow rules -->
+<!-- TODO 借用ルールのスケッチを実際に文書化する -->

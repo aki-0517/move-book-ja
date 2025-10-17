@@ -5,20 +5,20 @@ bookSidebar:
   - label: The Move Book
     enumerate: false
     id: index
-  - label: Foreword
+  - label: はじめに
     enumerate: false
     id: foreword
   - type: category
-    label: Before We Begin
+    label: 始める前に
     link:
       id: before-we-begin/index
       type: doc
     items:
-      - label: Install Sui
+      - label: Suiのインストール
         id: before-we-begin/install-sui
-      - label: Install MVR
+      - label: MVRのインストール
         id: before-we-begin/install-move-registry-cli
-      - label: IDE Support
+      - label: IDEサポート
         id: before-we-begin/ide-support
       - label: Move 2024
         id: before-we-begin/move-2024
@@ -27,218 +27,218 @@ bookSidebar:
   - label: Hello Sui!
     id: your-first-move/hello-sui
   - type: category
-    label: Concepts
+    label: 概念
     link:
       id: concepts/index
       type: doc
     items:
-      - label: Packages
+      - label: パッケージ
         id: concepts/packages
-      - label: Manifest
+      - label: マニフェスト
         id: concepts/manifest
-      - label: Address
+      - label: アドレス
         id: concepts/address
-      - label: Account
+      - label: アカウント
         id: concepts/what-is-an-account
-      - label: Transaction
+      - label: トランザクション
         id: concepts/what-is-a-transaction
   - type: category
-    label: Move Basics
+    label: Moveの基本
     link:
       id: move-basics/index
       type: doc
     items:
-      - label: Modules
+      - label: モジュール
         id: move-basics/module
-      - label: Comments
+      - label: コメント
         id: move-basics/comments
-      - label: Primitive Types
+      - label: プリミティブ型
         id: move-basics/primitive-types
-      - label: Address Type
+      - label: アドレス型
         id: move-basics/address
-      - label: Expressions
+      - label: 式
         id: move-basics/expression
-      - label: Structs
+      - label: 構造体
         id: move-basics/struct
-      - label: Abilities Introduction
+      - label: アビリティ入門
         id: move-basics/abilities-introduction
-      - label: 'Ability: Drop'
+      - label: 'アビリティ: Drop'
         id: move-basics/drop-ability
-      - label: Importing Modules
+      - label: モジュールのインポート
         id: move-basics/importing-modules
-      - label: Standard Library
+      - label: 標準ライブラリ
         id: move-basics/standard-library
-      - label: Vector
+      - label: ベクター
         id: move-basics/vector
       - label: Option
         id: move-basics/option
-      - label: String
+      - label: 文字列
         id: move-basics/string
-      - label: Control Flow
+      - label: 制御フロー
         id: move-basics/control-flow
-      - label: Enums and Match
+      - label: 列挙型とマッチ
         id: move-basics/enum-and-match
-      - label: Constants
+      - label: 定数
         id: move-basics/constants
-      - label: Aborting Execution
+      - label: 実行の中断
         id: move-basics/assert-and-abort
-      - label: Functions
+      - label: 関数
         id: move-basics/function
-      - label: Struct Methods
+      - label: 構造体メソッド
         id: move-basics/struct-methods
-      - label: Visibility Modifiers
+      - label: 可視性修飾子
         id: move-basics/visibility
-      - label: Ownership and Scope
+      - label: 所有権とスコープ
         id: move-basics/ownership-and-scope
-      - label: 'Ability: Copy'
+      - label: 'アビリティ: Copy'
         id: move-basics/copy-ability
-      - label: References
+      - label: 参照
         id: move-basics/references
-      - label: Generics
+      - label: ジェネリクス
         id: move-basics/generics
-      - label: Type Reflection
+      - label: 型リフレクション
         id: move-basics/type-reflection
-      # - label: "5.26 Macros: Introduction"
+      # - label: "5.26 マクロ: 入門"
       #   type: doc
       #   id: move-basics/type-parameters
-      - label: Testing
+      - label: テスト
         id: move-basics/testing
   - type: category
-    label: Object Model
+    label: オブジェクトモデル
     link:
       id: object/index
       type: doc
     items:
-      - label: Language for Digital Assets
+      - label: デジタルアセットのための言語
         id: object/digital-assets
-      - label: Evolution of Move
+      - label: Moveの進化
         id: object/evolution-of-move
-      - label: What is an Object?
+      - label: オブジェクトとは何か？
         id: object/object-model
-      - label: Ownership
+      - label: 所有権
         id: object/ownership
-      - label: Fast Path & Consensus
+      - label: 高速パスとコンセンサス
         id: object/fast-path-and-consensus
   - type: category
-    label: Using Objects
+    label: オブジェクトの使用
     link:
       id: storage/index
       type: doc
     items:
-      - label: Internal Constraint
+      - label: 内部制約
         id: storage/internal-constraint
-      - label: 'Ability: Key'
+      - label: 'アビリティ: Key'
         id: storage/key-ability
-      - label: 'Ability: Store'
+      - label: 'アビリティ: Store'
         id: storage/store-ability
-      - label: Storage Functions
+      - label: ストレージ関数
         id: storage/storage-functions
-      # - label: Transfer Restrictions
+      # - label: 転送制限
       #   id: storage/transfer-restrictions
-      - label: UID and ID
+      - label: UIDとID
         id: storage/uid-and-id
-      - label: Receiving as Object
+      - label: オブジェクトとして受信
         id: storage/transfer-to-object
-      # - label: 9.6 Transfer to Object
+      # - label: 9.6 オブジェクトへの転送
       #   id: storage/transfer-to-object
       #   type: doc
-      # - label: Derived Object
+      # - label: 派生オブジェクト
       #   id: storage/derived-object
   - type: category
-    label: Advanced Programmability
+    label: 高度なプログラマビリティ
     link:
       id: programmability/index
       type: doc
     items:
       - label: Sui Framework
         id: programmability/sui-framework
-      - label: Transaction Context
+      - label: トランザクションコンテキスト
         id: programmability/transaction-context
-      - label: Module Initializer
+      - label: モジュール初期化子
         id: programmability/module-initializer
-      - label: 'Pattern: Capability'
+      - label: 'パターン: ケーパビリティ'
         id: programmability/capability
-      - label: Epoch and Time
+      - label: エポックと時間
         id: programmability/epoch-and-time
-      - label: Collections
+      - label: コレクション
         id: programmability/collections
-      - label: 'Pattern: Wrapper Type'
+      - label: 'パターン: ラッパー型'
         id: programmability/wrapper-type-pattern
-      - label: Dynamic Fields
+      - label: 動的フィールド
         id: programmability/dynamic-fields
-      - label: Dynamic Object Fields
+      - label: 動的オブジェクトフィールド
         id: programmability/dynamic-object-fields
-      - label: Dynamic Collections
+      - label: 動的コレクション
         id: programmability/dynamic-collections
-      - label: 'Pattern: Witness'
+      - label: 'パターン: ウィットネス'
         id: programmability/witness-pattern
-      - label: One-Time Witness
+      - label: ワンタイムウィットネス
         id: programmability/one-time-witness
-      - label: Publisher Authority
+      - label: パブリッシャー権限
         id: programmability/publisher
-      - label: Object Display
+      - label: オブジェクト表示
         id: programmability/display
-      - label: Events
+      - label: イベント
         id: programmability/events
-      # - label: Balance & Coin
+      # - label: バランスとコイン
       #   id: programmability/balance-and-coin
       #   type: doc
-      - label: 'Pattern: Hot Potato'
+      - label: 'パターン: ホットポテト'
         id: programmability/hot-potato-pattern
-      # - label: '8.18 Pattern: Request'
+      # - label: '8.18 パターン: リクエスト'
       #   id: programmability/request-pattern
       #   type: doc
-      # - label: '8.19 Pattern: Object Capability'
+      # - label: '8.19 パターン: オブジェクトケーパビリティ'
       #   id: programmability/object-capability-pattern
       #   type: doc
-      # - label: '8.20 Package Upgrades'
+      # - label: '8.20 パッケージアップグレード'
       #   id: programmability/package-upgrades
       #   type: doc
-      # - label: '8.21 Transaction Blocks'
+      # - label: '8.21 トランザクションブロック'
       #   id: programmability/transaction-block
       #   type: doc
-      # - label: '8.22 Authorization Patterns'
+      # - label: '8.22 認証パターン'
       #   id: programmability/authorization-patterns
       #   type: doc
-      # - label: '8.23 Cryptography and Hashing'
+      # - label: '8.23 暗号化とハッシュ'
       #   id: programmability/cryptography-and-hashing
       #   type: doc
-      # - label: '8.24 Randomness'
+      # - label: '8.24 ランダム性'
       #   id: programmability/cryptography-and-hashing
       #   type: doc
       - label: BCS
         id: programmability/bcs
   - type: category
-    label: Guides
+    label: ガイド
     enumerate: false
     items:
-      - label: 2024 Migration Guide
+      - label: 2024移行ガイド
         id: guides/2024-migration-guide
-      - label: Upgradability Practices
+      - label: アップグレード可能性の実践
         id: guides/upgradeability-practices
-      - label: Building Against Limits
+      - label: 制限に対する構築
         id: guides/building-against-limits
-      - label: Better Error Handling
+      - label: より良いエラーハンドリング
         id: guides/better-error-handling
-      - label: Code Quality Checklist
+      - label: コード品質チェックリスト
         id: guides/code-quality-checklist
-      # - label: Open-sourcing Libraries
+      # - label: ライブラリのオープンソース化
       #   id: guides/open-sourcing-libraries
-      # - label: Creating an NFT Collection
+      # - label: NFTコレクションの作成
       #   id: guides/creating-an-nft-collection
   - type: category
-    label: Appendix
+    label: 付録
     enumerate: false
     items:
-      - label: A. Glossary
+      - label: A. 用語集
         id: appendix/glossary
-      - label: B. Reserved Addresses
+      - label: B. 予約済みアドレス
         id: appendix/reserved-addresses
-      - label: C. Transfer Functions
+      - label: C. 転送関数
         id: appendix/transfer-functions
-      - label: D. Publications
+      - label: D. 出版物
         id: appendix/publications
-      - label: E. Contributing
+      - label: E. 貢献
         id: appendix/contributing
-      - label: F. Acknowledgements
+      - label: F. 謝辞
         id: appendix/acknowledgements

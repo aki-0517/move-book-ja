@@ -7,54 +7,42 @@ description: ''
 
 Moveは、[第一級値](https://en.wikipedia.org/wiki/First-class_citizen)としてタプルを持つ他の言語から期待されるように、タプルを完全にサポートしていません。ただし、複数の戻り値をサポートするために、Moveにはタプル風の式があります。これらの式は実行時に具体的な値を生成せず（バイトコードにタプルは存在しません）、その結果非常に制限されています：
 
-- They can only appear in expressions (usually in the return position for a function).
-- They cannot be bound to local variables.
-- They cannot be stored in structs.
-- Tuple types cannot be used to instantiate generics.
+- それらは式でのみ現れる（通常は関数の戻り位置）。
+- それらはローカル変数にバインドできない。
+- それらは構造体に格納できない。
+- タプル型はジェネリクスのインスタンス化に使用できない。
 
-Similarly, [unit `()`](https://en.wikipedia.org/wiki/Unit_type) is a type created by the Move source
-language in order to be expression based. The unit value `()` does not result in any runtime value.
-We can consider unit`()` to be an empty tuple, and any restrictions that apply to tuples also apply
-to unit.
+同様に、[ユニット`()`](https://en.wikipedia.org/wiki/Unit_type)は、式ベースにするためにMoveソース言語によって作成された型です。ユニット値`()`は、ランタイム値は生成しません。ユニット`()`を空のタプルと考えることができ、タプルに適用される任意の制限はユニットにも適用されます。
 
-It might feel weird to have tuples in the language at all given these restrictions. But one of the
-most common use cases for tuples in other languages is for functions to allow functions to return
-multiple values. Some languages work around this by forcing the users to write structs that contain
-the multiple return values. However in Move, you cannot put references inside of
-[structs](./../structs). This required Move to support multiple return values. These multiple return
-values are all pushed on the stack at the bytecode level. At the source level, these multiple return
-values are represented using tuples.
+これらの制限を考えると、言語にタプルがあることが奇妙に感じるかもしれません。しかし、他の言語でのタプルの最も一般的な使用例の1つは、関数が複数の値を返すことを可能にすることです。一部の言語は、複数の戻り値を含む構造体をユーザーに書かせることでこれを回避しています。しかし、Moveでは[構造体](./../structs)内部に参照を置くことができません。これにより、Moveは複数の戻り値をサポートする必要がありました。これらの複数の戻り値はすべて、バイトコードレベルでスタックにプッシュされます。ソースレベルでは、これらの複数の戻り値はタプルを使用して表現されます。
 
-## Literals
+## リテラル
 
-Tuples are created by a comma separated list of expressions inside of parentheses.
+タプルは、括弧内のカンマ区切りの式リストによって作成されます。
 
-| Syntax          | Type                                                                         | Description                                                  |
+| 構文          | 型                                                                         | 説明                                                  |
 | --------------- | ---------------------------------------------------------------------------- | ------------------------------------------------------------ |
-| `()`            | `(): ()`                                                                     | Unit, the empty tuple, or the tuple of arity 0               |
-| `(e1, ..., en)` | `(e1, ..., en): (T1, ..., Tn)` where `e_i: Ti` s.t. `0 < i <= n` and `n > 0` | A `n`-tuple, a tuple of arity `n`, a tuple with `n` elements |
+| `()`            | `(): ()`                                                                     | ユニット、空のタプル、またはアリティ0のタプル               |
+| `(e1, ..., en)` | `(e1, ..., en): (T1, ..., Tn)`（`e_i: Ti`で`0 < i <= n`かつ`n > 0`） | `n`タプル、アリティ`n`のタプル、`n`個の要素を持つタプル |
 
-Note that `(e)` does not have type `(e): (t)`, in other words there is no tuple with one element. If
-there is only a single element inside of the parentheses, the parentheses are only used for
-disambiguation and do not carry any other special meaning.
+`(e)`は型`(e): (t)`を持たないことに注意してください。言い換えれば、1つの要素を持つタプルはありません。括弧内に単一の要素しかない場合、括弧は曖昧性の解決にのみ使用され、他の特別な意味は持ちません。
 
-Sometimes, tuples with two elements are called "pairs" and tuples with three elements are called
-"triples."
+時々、2つの要素を持つタプルは「ペア」と呼ばれ、3つの要素を持つタプルは「トリプル」と呼ばれます。
 
-### Examples
+### 例
 
 ```move
 module 0::example;
 
-// all 3 of these functions are equivalent
+// これら3つの関数はすべて同等
 
-// when no return type is provided, it is assumed to be `()`
+// 戻り型が提供されない場合、`()`と仮定される
 fun returns_unit_1() { }
 
-// there is an implicit () value in empty expression blocks
+// 空の式ブロックには暗黙の()値がある
 fun returns_unit_2(): () { }
 
-// explicit version of `returns_unit_1` and `returns_unit_2`
+// `returns_unit_1`と`returns_unit_2`の明示的バージョン
 fun returns_unit_3(): () { () }
 
 
@@ -66,15 +54,15 @@ fun returns_4_values(x: &u64): (&u64, u8, u128, vector<u8>) {
 }
 ```
 
-## Operations
+## 操作
 
-The only operation that can be done on tuples currently is destructuring.
+現在、タプルに対して実行できる唯一の操作は分割代入です。
 
-### Destructuring
+### 分割代入
 
-For tuples of any size, they can be destructured in either a `let` binding or in an assignment.
+任意のサイズのタプルは、`let`バインディングまたは代入で分割代入できます。
 
-For example:
+例：
 
 ```move
 module 0x42::example;
@@ -105,15 +93,13 @@ fun examples_with_function_calls() {
 }
 ```
 
-For more details, see [Move Variables](./../variables).
+詳細については、[Move変数](./../variables)を参照してください。
 
-## Subtyping
+## サブタイピング
 
-Along with references, tuples are the only types that have
-[subtyping](https://en.wikipedia.org/wiki/Subtyping) in Move. Tuples have subtyping only in the
-sense that subtype with references (in a covariant way).
+参照と同様に、タプルはMoveで[サブタイピング](https://en.wikipedia.org/wiki/Subtyping)を持つ唯一の型です。タプルは、参照とのサブタイピング（共変的な方法で）という意味でのみサブタイピングを持ちます。
 
-For example:
+例：
 
 ```move
 let x: &u64 = &0;
@@ -134,9 +120,6 @@ let (e, f): (&mut u64, &mut u64) = (x, y);
 // highlight-error-end
 ```
 
-## Ownership
+## 所有権
 
-As mentioned above, tuple values don't really exist at runtime. And currently they cannot be stored
-into local variables because of this (but it is likely that this feature will come at some point in
-the future). As such, tuples can only be moved currently, as copying them would require putting them
-into a local variable first.
+上記で述べたように、タプル値は実行時には実際には存在しません。そして現在、このためローカル変数に格納することはできません（ただし、この機能は将来的に追加される可能性があります）。そのため、現在タプルは移動のみ可能です。なぜなら、コピーするにはまずローカル変数に格納する必要があるからです。

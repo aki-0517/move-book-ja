@@ -39,8 +39,7 @@ fun new_vec(): vector<o::Option<u8>> {
 }
 ```
 
-If you want to import a specific module member (such as a function or struct). You can use the
-following syntax.
+特定のモジュールメンバー（関数や構造体など）をインポートしたい場合。以下の構文を使用できます。
 
 ```move
 use <address>::<module name>::<module member>;
@@ -54,9 +53,7 @@ use std::vector::push_back;
 use std::option::some as s;
 ```
 
-This would let you use the function `std::vector::push_back` without full qualification. Similarly
-for `std::option::some` with `s`. Instead you could use `push_back` and `s` respectively. Again,
-`use std::vector::push_back;` is equivalent to `use std::vector::push_back as push_back;`
+これにより、完全修飾なしで関数`std::vector::push_back`を使用できます。同様に`std::option::some`は`s`で使用できます。代わりに、それぞれ`push_back`と`s`を使用できます。繰り返しますが、`use std::vector::push_back;`は`use std::vector::push_back as push_back;`と同等です。
 
 ```move
 use std::vector::push_back;
@@ -70,10 +67,9 @@ fun new_vec(): vector<std::option::Option<u8>> {
 }
 ```
 
-### Multiple Aliases
+### 複数のエイリアス
 
-If you want to add aliases for multiple module members at once, you can do so with the following
-syntax
+複数のモジュールメンバーに一度にエイリアスを追加したい場合は、以下の構文を使用できます。
 
 ```move
 use <address>::<module name>::{<module member>, <module member> as <member alias> ... };
@@ -93,16 +89,15 @@ fun new_vec(): vector<std::option::Option<u8>> {
 }
 ```
 
-### Self aliases
+### Selfエイリアス
 
-If you need to add an alias to the Module itself in addition to module members, you can do that in a
-single `use` using `Self`. `Self` is a member of sorts that refers to the module.
+モジュールメンバーに加えてモジュール自体にエイリアスを追加する必要がある場合は、`Self`を使用して単一の`use`で行うことができます。`Self`はモジュールを参照する一種のメンバーです。
 
 ```move
 use std::option::{Self, some, none};
 ```
 
-For clarity, all of the following are equivalent:
+明確にするために、以下はすべて同等です：
 
 ```move
 use std::option;
@@ -113,9 +108,9 @@ use std::option::{Self};
 use std::option::{Self as option};
 ```
 
-### Multiple Aliases for the Same Definition
+### 同じ定義に対する複数のエイリアス
 
-If needed, you can have as many aliases for any item as you like
+必要に応じて、任意のアイテムに対して好きなだけ多くのエイリアスを持つことができます。
 
 ```move
 use std::vector::push_back;
@@ -129,10 +124,9 @@ fun new_vec(): vector<Option<u8>> {
 }
 ```
 
-### Nested imports
+### ネストしたインポート
 
-In Move, you can also import multiple names with the same `use` declaration. This brings all
-provided names into scope:
+Moveでは、同じ`use`宣言で複数の名前をインポートすることもできます。これにより、提供されたすべての名前がスコープに取り込まれます：
 
 ```move
 use std::{
@@ -148,9 +142,9 @@ fun example(s: &mut String) {
 }
 ```
 
-## Inside a `module`
+## `module`内
 
-Inside of a `module` all `use` declarations are usable regardless of the order of declaration.
+`module`内では、宣言の順序に関係なく、すべての`use`宣言が使用可能です。
 
 ```move
 module a::example;
@@ -167,14 +161,13 @@ fun new_vec(): vector<Option<u8>> {
 use std::option::{Option, some, none};
 ```
 
-The aliases declared by `use` in the module usable within that module.
+モジュール内で`use`によって宣言されたエイリアスは、そのモジュール内で使用可能です。
 
-Additionally, the aliases introduced cannot conflict with other module members. See
-[Uniqueness](#uniqueness) for more details
+さらに、導入されたエイリアスは他のモジュールメンバーと競合することはできません。詳細は[一意性](#uniqueness)を参照してください。
 
-## Inside an expression
+## 式内
 
-You can add `use` declarations to the beginning of any expression block
+任意の式ブロックの先頭に`use`宣言を追加できます。
 
 ```move
 module a::example;
@@ -190,8 +183,7 @@ fun new_vec(): vector<Option<u8>> {
 }
 ```
 
-As with `let`, the aliases introduced by `use` in an expression block are removed at the end of that
-block.
+`let`と同様に、式ブロック内で`use`によって導入されたエイリアスは、そのブロックの終わりで削除されます。
 
 ```move
 module a::example;
@@ -210,7 +202,7 @@ fun new_vec(): vector<Option<u8>> {
 }
 ```
 
-Attempting to use the alias after the block ends will result in an error
+ブロック終了後にエイリアスを使用しようとするとエラーになります。
 
 ```move
 fun new_vec(): vector<Option<u8>> {
@@ -228,8 +220,7 @@ fun new_vec(): vector<Option<u8>> {
 }
 ```
 
-Any `use` must be the first item in the block. If the `use` comes after any expression or `let`, it
-will result in a parsing error
+任意の`use`はブロックの最初の項目である必要があります。`use`が任意の式や`let`の後に来る場合、解析エラーになります。
 
 ```move
 {
@@ -238,14 +229,11 @@ will result in a parsing error
 }
 ```
 
-This allows you to shorten your import blocks in many situations. Note that these imports, as the
-previous ones, are all subject to the naming and uniqueness rules described in the following
-sections.
+これにより、多くの状況でインポートブロックを短縮できます。これらのインポートは、前のものと同様に、以下のセクションで説明する命名規則と一意性規則の対象となることに注意してください。
 
-## Naming rules
+## 命名規則
 
-Aliases must follow the same rules as other module members. This means that aliases to structs (and
-constants) must start with `A` to `Z`
+エイリアスは他のモジュールメンバーと同じ規則に従う必要があります。これは、構造体（および定数）のエイリアスが`A`から`Z`で始まる必要があることを意味します。
 
 ```move
 module a::data {
@@ -263,11 +251,11 @@ module a::example {
 }
 ```
 
-## Uniqueness
+## 一意性
 
-Inside a given scope, all aliases introduced by `use` declarations must be unique.
+与えられたスコープ内では、`use`宣言によって導入されたすべてのエイリアスは一意である必要があります。
 
-For a module, this means aliases introduced by `use` cannot overlap
+モジュールの場合、これは`use`によって導入されたエイリアスが重複できないことを意味します。
 
 ```move
 module a::example;
@@ -281,7 +269,7 @@ use std::option::some as bar; // ERROR!
 //                       ^^^ duplicate 'bar'
 ```
 
-And, they cannot overlap with any of the module's other members
+また、モジュールの他のメンバーと重複することはできません。
 
 ```move
 module a::data {
@@ -296,13 +284,11 @@ module example {
 }
 ```
 
-Inside of an expression block, they cannot overlap with each other, but they can
-[shadow](#shadowing) other aliases or names from an outer scope
+式ブロック内では、互いに重複することはできませんが、外側のスコープの他のエイリアスや名前を[シャドウ](#shadowing)できます。
 
-## Shadowing
+## シャドウイング
 
-`use` aliases inside of an expression block can shadow names (module members or aliases) from the
-outer scope. As with shadowing of locals, the shadowing ends at the end of the expression block;
+式ブロック内の`use`エイリアスは、外側のスコープの名前（モジュールメンバーまたはエイリアス）をシャドウできます。ローカルのシャドウイングと同様に、シャドウイングは式ブロックの終わりで終了します。
 
 ```move
 module a::example;
@@ -344,9 +330,9 @@ fun example2(): WrappedVector {
 }
 ```
 
-## Unused Use or Alias
+## 未使用のUseまたはエイリアス
 
-An unused `use` will result in a warning
+未使用の`use`は警告を発生させます。
 
 ```move
 module a::example;

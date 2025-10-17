@@ -46,12 +46,9 @@ public struct D(D)
 
 将来的には、[関数](./functions#visibility)と同様に、構造体を`public(package)`または内部として宣言する機能を追加する予定です。
 
-### Abilities
+### アビリティ
 
-As mentioned above: by default, a struct declaration is linear and ephemeral. So to allow the value
-to be used in these ways (e.g., copied, dropped, stored in an [object](./abilities/object), or
-used to define a storable [object](./abilities/object)), structs can be granted
-[abilities](./abilities) by annotating them with `has <ability>`:
+上記で述べたように：デフォルトでは、構造体宣言は線形で一時的です。したがって、値をこれらの方法で使用できるようにする（例：コピー、ドロップ、[オブジェクト](./abilities/object)に保存、または保存可能な[オブジェクト](./abilities/object)を定義するために使用）ために、構造体に`has <ability>`で注釈を付けることで[アビリティ](./abilities)を付与できます：
 
 ```move
 module a::m {
@@ -59,9 +56,7 @@ module a::m {
 }
 ```
 
-The ability declaration can occur either before or after the struct's fields. However, only one or
-the other can be used, and not both. If declared after the struct's fields, the ability declaration
-must be terminated with a semicolon:
+アビリティ宣言は構造体のフィールドの前または後に配置できます。しかし、どちらか一方のみを使用でき、両方は使用できません。構造体のフィールドの後に宣言する場合、アビリティ宣言はセミコロンで終了する必要があります：
 
 ```move
 module a::m;
@@ -69,26 +64,25 @@ module a::m;
 public struct PreNamedAbilities has copy, drop { x: u64, y: bool }
 public struct PostNamedAbilities { x: u64, y: bool } has copy, drop;
 public struct PostNamedAbilitiesInvalid { x: u64, y: bool } has copy, drop
-//                                                                        ^ ERROR! missing semicolon
+//                                                                        ^ エラー！セミコロンが不足
 
 public struct NamedInvalidAbilities has copy { x: u64, y: bool } has drop;
-//                                                               ^ ERROR! duplicate ability declaration
+//                                                               ^ エラー！重複するアビリティ宣言
 
 public struct PrePositionalAbilities has copy, drop (u64, bool)
 public struct PostPositionalAbilities (u64, bool) has copy, drop;
 public struct PostPositionalAbilitiesInvalid (u64, bool) has copy, drop
-//                                                                     ^ ERROR! missing semicolon
+//                                                                     ^ エラー！セミコロンが不足
 public struct InvalidAbilities has copy (u64, bool) has drop;
-//                                                  ^ ERROR! duplicate ability declaration
+//                                                  ^ エラー！重複するアビリティ宣言
 ```
 
-For more details, see the section on
-[annotating a struct's abilities](./abilities#annotating-structs-and-enums).
+詳細については、[構造体のアビリティの注釈](./abilities#annotating-structs-and-enums)のセクションを参照してください。
 
-### Naming
+### 命名
 
-Structs must start with a capital letter `A` to `Z`. After the first letter, struct names can
-contain underscores `_`, letters `a` to `z`, letters `A` to `Z`, or digits `0` to `9`.
+構造体は大文字`A`から`Z`で始まる必要があります。最初の文字の後、構造体名には
+アンダースコア`_`、文字`a`から`z`、文字`A`から`Z`、または数字`0`から`9`を含めることができます。
 
 ```move
 public struct Foo {}
@@ -97,20 +91,16 @@ public struct B_a_z_4_2 {}
 public struct P_o_s_Foo()
 ```
 
-This naming restriction of starting with `A` to `Z` is in place to give room for future language
-features. It may or may not be removed later.
+`A`から`Z`で始まるこの命名制限は、将来の言語機能の余地を与えるために設けられています。
+後で削除される可能性があります。
 
-## Using Structs
+## 構造体の使用
 
-### Creating Structs
+### 構造体の作成
 
-Values of a struct type can be created (or "packed") by indicating the struct name, followed by
-value for each field.
+構造体型の値は、構造体名を示し、その後に各フィールドの値を指定することで作成（または「パック」）できます。
 
-For a struct with named fields, the order of the fields does not matter, but the field name needs to
-be provided. For a struct with positional fields, the order of the fields must match the order of
-the fields in the struct definition, and it must be created using `()` instead of `{}` to enclose
-the parameters.
+名前付きフィールドを持つ構造体の場合、フィールドの順序は関係ありませんが、フィールド名を提供する必要があります。位置指定フィールドを持つ構造体の場合、フィールドの順序は構造体定義内のフィールドの順序と一致する必要があり、パラメータを囲むために`{}`の代わりに`()`を使用して作成する必要があります。
 
 ```move
 module a::m;
@@ -139,12 +129,11 @@ let baz = Baz { foo: foo };
 let baz = Baz { foo };
 ```
 
-This is sometimes called "field name punning".
+これは時々「フィールド名パニング」と呼ばれます。
 
-### Destroying Structs via Pattern Matching
+### パターンマッチングによる構造体の破棄
 
-Struct values can be destroyed by binding or assigning them in patterns using similar syntax to
-constructing them.
+構造体の値は、構築するのと同様の構文を使用してパターンでバインドまたは代入することで破棄できます。
 
 ```move
 module a::m;
@@ -220,11 +209,11 @@ fun example_destroy_qux() {
 }
 ```
 
-### Accessing Struct Fields
+### 構造体フィールドへのアクセス
 
-Fields of a struct can be accessed using the dot operator `.`.
+構造体のフィールドはドット演算子`.`を使用してアクセスできます。
 
-For structs with named fields, the fields can be accessed by their name:
+名前付きフィールドを持つ構造体の場合、フィールドは名前でアクセスできます：
 
 ```move
 public struct Foo { x: u64, y: bool }
@@ -233,7 +222,7 @@ let x = foo.x;  // x == 3
 let y = foo.y;  // y == true
 ```
 
-For positional structs, fields can be accessed by their position in the struct definition:
+位置指定構造体の場合、フィールドは構造体定義内の位置でアクセスできます：
 
 ```move
 public struct PosFoo(u64, bool)
@@ -242,15 +231,14 @@ let x = pos_foo.0;  // x == 3
 let y = pos_foo.1;  // y == true
 ```
 
-Accessing struct fields without borrowing or copying them is subject to the field's ability
-constraints. For more details see the sections on
-[borrowing structs and fields](#borrowing-structs-and-fields) and
-[reading and writing fields](#reading-and-writing-fields) for more information.
+構造体フィールドを借用またはコピーせずにアクセスすることは、フィールドのアビリティ制約の対象となります。
+詳細については、[構造体とフィールドの借用](#borrowing-structs-and-fields)と
+[フィールドの読み書き](#reading-and-writing-fields)のセクションを参照してください。
 
-### Borrowing Structs and Fields
+### 構造体とフィールドの借用
 
-The `&` and `&mut` operator can be used to create references to structs or fields. These examples
-include some optional type annotations (e.g., `: &Foo`) to demonstrate the type of operations.
+`&`と`&mut`演算子を使用して、構造体またはフィールドへの参照を作成できます。これらの例には、
+操作の型を示すためのいくつかのオプションの型注釈（例：`: &Foo`）が含まれています。
 
 ```move
 let foo = Foo { x: 3, y: true };
@@ -280,9 +268,9 @@ let x_ref = &foo_ref.x;
 // this has the same effect as let x_ref = &foo.x
 ```
 
-### Reading and Writing Fields
+### フィールドの読み書き
 
-If you need to read and copy a field's value, you can then dereference the borrowed field:
+フィールドの値を読み取り、コピーする必要がある場合は、借用されたフィールドを逆参照できます：
 
 ```move
 let foo = Foo { x: 3, y: true };
@@ -292,10 +280,9 @@ let y: bool = *&foo.y;
 let foo2: Foo = *&bar.0;
 ```
 
-More canonically, the dot operator can be used to read fields of a struct without any borrowing. As
-is true with
-[dereferencing](./primitive-types/references#reading-and-writing-through-references), the field
-type must have the `copy` [ability](./abilities).
+より標準的には、ドット演算子を使用して借用なしで構造体のフィールドを読み取ることができます。
+[逆参照](./primitive-types/references#reading-and-writing-through-references)と同様に、
+フィールド型は`copy`[アビリティ](./abilities)を持つ必要があります。
 
 ```move
 let foo = Foo { x: 3, y: true };
@@ -303,24 +290,23 @@ let x = foo.x;  // x == 3
 let y = foo.y;  // y == true
 ```
 
-Dot operators can be chained to access nested fields:
+ドット演算子をチェーンしてネストしたフィールドにアクセスできます：
 
 ```move
 let bar = Bar(Foo { x: 3, y: true });
 let x = baz.0.x; // x = 3;
 ```
 
-However, this is not permitted for fields that contain non-primitive types, such a vector or another
-struct:
+しかし、これはベクターや他の構造体などの非プリミティブ型を含むフィールドでは許可されません：
 
 ```move
 let foo = Foo { x: 3, y: true };
 let bar = Bar(foo);
 let foo2: Foo = *&bar.0;
-let foo3: Foo = bar.0; // error! must add an explicit copy with *&
+let foo3: Foo = bar.0; // エラー！*&で明示的なコピーを追加する必要があります
 ```
 
-We can mutably borrow a field to a struct to assign it a new value:
+構造体のフィールドを可変借用して新しい値を代入できます：
 
 ```move
 let mut foo = Foo { x: 3, y: true };
@@ -331,8 +317,8 @@ let mut bar = Bar(foo);               // bar = Bar(Foo { x: 42, y: false })
 *&mut bar.0 = Foo { x: 62, y: true }; // bar = Bar(Foo { x: 62, y: true })
 ```
 
-Similar to dereferencing, we can instead directly use the dot operator to modify a field. And in
-both cases, the field type must have the `drop` [ability](./abilities).
+逆参照と同様に、代わりにドット演算子を直接使用してフィールドを変更できます。どちらの場合も、
+フィールド型は`drop`[アビリティ](./abilities)を持つ必要があります。
 
 ```move
 let mut foo = Foo { x: 3, y: true };
@@ -343,7 +329,7 @@ bar.0.x = 52;                   // bar = Bar(Foo { x: 52, y: false })
 bar.0 = Foo { x: 62, y: true }; // bar = Bar(Foo { x: 62, y: true })
 ```
 
-The dot syntax for assignment also works via a reference to a struct:
+代入のドット構文は、構造体への参照を通しても機能します：
 
 ```move
 let mut foo = Foo { x: 3, y: true };
@@ -351,20 +337,16 @@ let foo_ref = &mut foo;
 foo_ref.x = foo_ref.x + 1;
 ```
 
-## Privileged Struct Operations
+## 特権構造体操作
 
-Most struct operations on a struct type `T` can only be performed inside the module that declares
-`T`:
+構造体型`T`に対するほとんどの構造体操作は、`T`を宣言するモジュール内でのみ実行できます：
 
-- Struct types can only be created ("packed"), destroyed ("unpacked") inside the module that defines
-  the struct.
-- The fields of a struct are only accessible inside the module that defines the struct.
+- 構造体型は、構造体を定義するモジュール内でのみ作成（「パック」）または破棄（「アンパック」）できます。
+- 構造体のフィールドは、構造体を定義するモジュール内でのみアクセス可能です。
 
-Following these rules, if you want to modify your struct outside the module, you will need to
-provide public APIs for them. The end of the chapter contains some examples of this.
+これらのルールに従って、モジュール外で構造体を変更したい場合は、それらのためのパブリックAPIを提供する必要があります。章の最後に、これの例がいくつか含まれています。
 
-However as stated [in the visibility section above](#visibility), struct _types_ are always visible
-to another module
+ただし、[上記の可視性セクション](#visibility)で述べたように、構造体_型_は常に他のモジュールから見えます
 
 ```move
 module a::m {
@@ -397,12 +379,11 @@ module a::n {
 
 ```
 
-## Ownership
+## 所有権
 
-As mentioned above in [Defining Structs](#defining-structs), structs are by default linear and
-ephemeral. This means they cannot be copied or dropped. This property can be very useful when
-modeling real world assets like money, as you do not want money to be duplicated or get lost in
-circulation.
+[構造体の定義](#defining-structs)で上記で述べたように、構造体はデフォルトで線形で一時的です。
+これは、コピーまたはドロップできないことを意味します。この特性は、お金のような現実世界の資産を
+モデル化する際に非常に有用です。お金が複製されたり、流通で失われたりすることを望まないからです。
 
 ```move
 module a::m;
@@ -429,7 +410,7 @@ public fun destroying_2(f: &mut Foo) {
 }
 ```
 
-To fix the example `fun destroying_1`, you would need to manually "unpack" the value:
+例`fun destroying_1`を修正するには、値を手動で「アンパック」する必要があります：
 
 ```move
 module a::m;
@@ -442,12 +423,11 @@ public fun destroying_1_fixed() {
 }
 ```
 
-Recall that you are only able to deconstruct a struct within the module in which it is defined. This
-can be leveraged to enforce certain invariants in a system, for example, conservation of money.
+構造体を分解できるのは、それが定義されているモジュール内のみであることを思い出してください。これは、
+システム内の特定の不変条件（例：お金の保存）を強制するために活用できます。
 
-If on the other hand, your struct does not represent something valuable, you can add the abilities
-`copy` and `drop` to get a struct value that might feel more familiar from other programming
-languages:
+一方で、構造体が価値のあるものを表していない場合は、`copy`と`drop`のアビリティを追加して、
+他のプログラミング言語からより馴染みのある構造体値を得ることができます：
 
 ```move
 module a::m;

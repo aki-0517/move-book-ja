@@ -9,27 +9,25 @@ description: ''
 
 `vector<T>`は任意の型`T`でインスタンス化できます。例えば、`vector<u64>`、`vector<address>`、`vector<0x42::my_module::MyData>`、`vector<vector<u8>>`はすべて有効なベクター型です。
 
-## Literals
+## リテラル
 
-### General `vector` Literals
+### 一般的な`vector`リテラル
 
-Vectors of any type can be created with `vector` literals.
+任意の型のベクターは`vector`リテラルで作成できます。
 
-| Syntax                | Type                                                                          | Description                                |
+| 構文                | 型                                                                          | 説明                                |
 | --------------------- | ----------------------------------------------------------------------------- | ------------------------------------------ |
-| `vector[]`            | `vector[]: vector<T>` where `T` is any single, non-reference type             | An empty vector                            |
-| `vector[e1, ..., en]` | `vector[e1, ..., en]: vector<T>` where `e_i: T` s.t. `0 < i <= n` and `n > 0` | A vector with `n` elements (of length `n`) |
+| `vector[]`            | `vector[]: vector<T>`（`T`は任意の単一の非参照型）             | 空のベクター                            |
+| `vector[e1, ..., en]` | `vector[e1, ..., en]: vector<T>`（`e_i: T`で`0 < i <= n`かつ`n > 0`） | `n`個の要素を持つベクター（長さ`n`） |
 
-In these cases, the type of the `vector` is inferred, either from the element type or from the
-vector's usage. If the type cannot be inferred, or simply for added clarity, the type can be
-specified explicitly:
+これらの場合、`vector`の型は、要素の型またはベクターの使用法から推論されます。型を推論できない場合、または単に明確性を高めるために、型を明示的に指定できます：
 
 ```move
 vector<T>[]: vector<T>
 vector<T>[e1, ..., en]: vector<T>
 ```
 
-#### Example Vector Literals
+#### ベクターリテラルの例
 
 ```move
 (vector[]: vector<bool>);
@@ -38,41 +36,35 @@ vector<T>[e1, ..., en]: vector<T>
 (vector<address>[@0x42, @0x100]: vector<address>);
 ```
 
-### `vector<u8>` literals
+### `vector<u8>`リテラル
 
-A common use-case for vectors in Move is to represent "byte arrays", which are represented with
-`vector<u8>`. These values are often used for cryptographic purposes, such as a public key or a hash
-result. These values are so common that specific syntax is provided to make the values more
-readable, as opposed to having to use `vector[]` where each individual `u8` value is specified in
-numeric form.
+Moveでのベクターの一般的な使用例は、「バイト配列」を表現することです。これは`vector<u8>`で表現されます。これらの値は、公開鍵やハッシュ結果など、暗号化目的でよく使用されます。これらの値は非常に一般的なので、各`u8`値を数値形式で指定する`vector[]`を使用する代わりに、値をより読みやすくするための特定の構文が提供されています。
 
-There are currently two supported types of `vector<u8>` literals, _byte strings_ and _hex strings_.
+現在、`vector<u8>`リテラルの2つのサポートされた型があります：_バイト文字列_と_16進文字列_です。
 
-#### Byte Strings
+#### バイト文字列
 
-Byte strings are quoted string literals prefixed by a `b`, e.g. `b"Hello!\n"`.
+バイト文字列は`b`をプレフィックスとする引用符付き文字列リテラルです。例：`b"Hello!\n"`
 
-These are ASCII encoded strings that allow for escape sequences. Currently, the supported escape
-sequences are:
+これらはエスケープシーケンスを許可するASCIIエンコード文字列です。現在、サポートされているエスケープシーケンスは以下の通りです：
 
-| Escape Sequence | Description                                    |
+| エスケープシーケンス | 説明                                    |
 | --------------- | ---------------------------------------------- |
-| `\n`            | New line (or Line feed)                        |
-| `\r`            | Carriage return                                |
-| `\t`            | Tab                                            |
-| `\\`            | Backslash                                      |
-| `\0`            | Null                                           |
-| `\"`            | Quote                                          |
-| `\xHH`          | Hex escape, inserts the hex byte sequence `HH` |
+| `\n`            | 改行（またはラインフィード）                        |
+| `\r`            | キャリッジリターン                                |
+| `\t`            | タブ                                            |
+| `\\`            | バックスラッシュ                                      |
+| `\0`            | ヌル                                           |
+| `\"`            | 引用符                                          |
+| `\xHH`          | 16進エスケープ、16進バイトシーケンス`HH`を挿入 |
 
-#### Hex Strings
+#### 16進文字列
 
-Hex strings are quoted string literals prefixed by a `x`, e.g. `x"48656C6C6F210A"`.
+16進文字列は`x`をプレフィックスとする引用符付き文字列リテラルです。例：`x"48656C6C6F210A"`
 
-Each byte pair, ranging from `00` to `FF`, is interpreted as hex encoded `u8` value. So each byte
-pair corresponds to a single entry in the resulting `vector<u8>`.
+`00`から`FF`までの各バイトペアは、16進エンコードされた`u8`値として解釈されます。したがって、各バイトペアは結果の`vector<u8>`の単一エントリに対応します。
 
-#### Example String Literals
+#### 文字列リテラルの例
 
 ```move
 fun byte_and_hex_strings() {
@@ -87,33 +79,32 @@ fun byte_and_hex_strings() {
 }
 ```
 
-## Operations
+## 操作
 
-`vector` supports the following operations via the `std::vector` module in the Move standard
-library:
+`vector`は、Move標準ライブラリの`std::vector`モジュールを通じて以下の操作をサポートします：
 
-| Function                                                   | Description                                                                                                                                                     | Aborts?                        |
+| 関数                                                   | 説明                                                                                                                                                     | アボート？                        |
 | ---------------------------------------------------------- | --------------------------------------------------------------------------------------------------------------------------------------------------------------- | ------------------------------ |
-| `vector::empty<T>(): vector<T>`                            | Create an empty vector that can store values of type `T`                                                                                                        | Never                          |
-| `vector::singleton<T>(t: T): vector<T>`                    | Create a vector of size 1 containing `t`                                                                                                                        | Never                          |
-| `vector::push_back<T>(v: &mut vector<T>, t: T)`            | Add `t` to the end of `v`                                                                                                                                       | Never                          |
-| `vector::pop_back<T>(v: &mut vector<T>): T`                | Remove and return the last element in `v`                                                                                                                       | If `v` is empty                |
-| `vector::borrow<T>(v: &vector<T>, i: u64): &T`             | Return an immutable reference to the `T` at index `i`                                                                                                           | If `i` is not in bounds        |
-| `vector::borrow_mut<T>(v: &mut vector<T>, i: u64): &mut T` | Return a mutable reference to the `T` at index `i`                                                                                                              | If `i` is not in bounds        |
-| `vector::destroy_empty<T>(v: vector<T>)`                   | Delete `v`                                                                                                                                                      | If `v` is not empty            |
-| `vector::append<T>(v1: &mut vector<T>, v2: vector<T>)`     | Add the elements in `v2` to the end of `v1`                                                                                                                     | Never                          |
-| `vector::contains<T>(v: &vector<T>, e: &T): bool`          | Return true if `e` is in the vector `v`. Otherwise, returns false                                                                                               | Never                          |
-| `vector::swap<T>(v: &mut vector<T>, i: u64, j: u64)`       | Swaps the elements at the `i`th and `j`th indices in the vector `v`                                                                                             | If `i` or `j` is out of bounds |
-| `vector::reverse<T>(v: &mut vector<T>)`                    | Reverses the order of the elements in the vector `v` in place                                                                                                   | Never                          |
-| `vector::index_of<T>(v: &vector<T>, e: &T): (bool, u64)`   | Return `(true, i)` if `e` is in the vector `v` at index `i`. Otherwise, returns `(false, 0)`                                                                    | Never                          |
-| `vector::remove<T>(v: &mut vector<T>, i: u64): T`          | Remove the `i`th element of the vector `v`, shifting all subsequent elements. This is O(n) and preserves ordering of elements in the vector                     | If `i` is out of bounds        |
-| `vector::swap_remove<T>(v: &mut vector<T>, i: u64): T`     | Swap the `i`th element of the vector `v` with the last element and then pop the element, This is O(1), but does not preserve ordering of elements in the vector | If `i` is out of bounds        |
+| `vector::empty<T>(): vector<T>`                            | 型`T`の値を格納できる空のベクターを作成                                                                                                        | なし                          |
+| `vector::singleton<T>(t: T): vector<T>`                    | `t`を含むサイズ1のベクターを作成                                                                                                                        | なし                          |
+| `vector::push_back<T>(v: &mut vector<T>, t: T)`            | `t`を`v`の末尾に追加                                                                                                                                       | なし                          |
+| `vector::pop_back<T>(v: &mut vector<T>): T`                | `v`の最後の要素を削除して返す                                                                                                                       | `v`が空の場合                |
+| `vector::borrow<T>(v: &vector<T>, i: u64): &T`             | インデックス`i`の`T`への不変参照を返す                                                                                                           | `i`が範囲外の場合        |
+| `vector::borrow_mut<T>(v: &mut vector<T>, i: u64): &mut T` | インデックス`i`の`T`への可変参照を返す                                                                                                              | `i`が範囲外の場合        |
+| `vector::destroy_empty<T>(v: vector<T>)`                   | `v`を削除                                                                                                                                                      | `v`が空でない場合            |
+| `vector::append<T>(v1: &mut vector<T>, v2: vector<T>)`     | `v2`の要素を`v1`の末尾に追加                                                                                                                     | なし                          |
+| `vector::contains<T>(v: &vector<T>, e: &T): bool`          | `e`がベクター`v`に含まれている場合はtrueを返す。そうでなければfalseを返す                                                                                               | なし                          |
+| `vector::swap<T>(v: &mut vector<T>, i: u64, j: u64)`       | ベクター`v`の`i`番目と`j`番目のインデックスの要素を交換                                                                                             | `i`または`j`が範囲外の場合 |
+| `vector::reverse<T>(v: &mut vector<T>)`                    | ベクター`v`の要素の順序をその場で逆転                                                                                                   | なし                          |
+| `vector::index_of<T>(v: &vector<T>, e: &T): (bool, u64)`   | `e`がベクター`v`のインデックス`i`にある場合は`(true, i)`を返す。そうでなければ`(false, 0)`を返す                                                                    | なし                          |
+| `vector::remove<T>(v: &mut vector<T>, i: u64): T`          | ベクター`v`の`i`番目の要素を削除し、後続のすべての要素をシフト。これはO(n)で、ベクター内の要素の順序を保持                     | `i`が範囲外の場合        |
+| `vector::swap_remove<T>(v: &mut vector<T>, i: u64): T`     | ベクター`v`の`i`番目の要素を最後の要素と交換してから要素をポップ。これはO(1)だが、ベクター内の要素の順序は保持しない | `i`が範囲外の場合        |
 
-<!-- TODO we should just link out to generated stdlib docs? Maybe?  -->
+<!-- TODO 生成されたstdlibドキュメントにリンクすべき？多分？ -->
 
-More operations may be added over time.
+より多くの操作が時間とともに追加される可能性があります。
 
-## Example
+## 例
 
 ```move
 use std::vector;
@@ -128,13 +119,11 @@ assert!(vector::pop_back(&mut v) == 6, 42);
 assert!(vector::pop_back(&mut v) == 5, 42);
 ```
 
-## Destroying and copying `vector`s
+## `vector`の破棄とコピー
 
-Some behaviors of `vector<T>` depend on the abilities of the element type, `T`. For example, vectors
-containing elements that do not have `drop` cannot be implicitly discarded like `v` in the example
-above--they must be explicitly destroyed with `vector::destroy_empty`.
+`vector<T>`の一部の動作は、要素型`T`のアビリティに依存します。例えば、`drop`を持たない要素を含むベクターは、上記の例の`v`のように暗黙的に破棄することはできません。それらは`vector::destroy_empty`で明示的に破棄する必要があります。
 
-Note that `vector::destroy_empty` will abort at runtime unless `vec` contains zero elements:
+`vec`がゼロ個の要素を含まない限り、`vector::destroy_empty`は実行時にアボートすることに注意してください：
 
 ```move
 fun destroy_any_vector<T>(vec: vector<T>) {
@@ -142,7 +131,7 @@ fun destroy_any_vector<T>(vec: vector<T>) {
 }
 ```
 
-But no error would occur for dropping a vector that contains elements with `drop`:
+しかし、`drop`を持つ要素を含むベクターをドロップする場合、エラーは発生しません：
 
 ```move
 fun destroy_droppable_vector<T: drop>(vec: vector<T>) {
@@ -151,9 +140,7 @@ fun destroy_droppable_vector<T: drop>(vec: vector<T>) {
 }
 ```
 
-Similarly, vectors cannot be copied unless the element type has `copy`. In other words, a
-`vector<T>` has `copy` if and only if `T` has `copy`. Note that it will be implicitly copied if
-needed:
+同様に、要素型が`copy`を持たない限り、ベクターはコピーできません。言い換えれば、`vector<T>`は`T`が`copy`を持つ場合にのみ`copy`を持ちます。必要に応じて暗黙的にコピーされることに注意してください：
 
 ```move
 let x = vector[10];
@@ -162,8 +149,7 @@ let z = x;
 (y, z)
 ```
 
-Keep in mind, copies of large vectors can be expensive. If this is a concern, annotating the
-`intended` usage can prevent accidental copies. For example,
+大きなベクターのコピーは高価になる可能性があることを覚えておいてください。これが懸念事項である場合、`intended`使用法に注釈を付けることで、意図しないコピーを防ぐことができます。例えば：
 
 ```move
 let x = vector[10];
@@ -172,11 +158,8 @@ let z = x; // ERROR! x has been moved
 (y, z)
 ```
 
-For more details see the sections on [type abilities](./../abilities) and [generics](./../generics).
+詳細については、[型アビリティ](./../abilities)と[ジェネリクス](./../generics)のセクションを参照してください。
 
-## Ownership
+## 所有権
 
-As mentioned [above](#destroying-and-copying-vectors), `vector` values can be copied only if the
-elements can be copied. In that case, the copy can be done via a
-[`copy`](./../variables#move-and-copy) or a
-[dereference `*`](./references#reading-and-writing-through-references).
+[上記](#destroying-and-copying-vectors)で述べたように、`vector`値は要素がコピーできる場合にのみコピーできます。その場合、コピーは[`copy`](./../variables#move-and-copy)または[逆参照`*`](./references#reading-and-writing-through-references)によって実行できます。

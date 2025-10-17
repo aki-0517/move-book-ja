@@ -7,103 +7,103 @@ referenceSidebar:
     id: index
   - type: category
     enumerate: false
-    label: Getting Started
+    label: はじめに
     items:
-      - label: 1. Modules
+      - label: 1. モジュール
         id: modules
   - type: category
     enumerate: false
-    label: Basic Concepts
+    label: 基本概念
     items:
       - type: category
-        label: 2. Primitive Types
+        label: 2. プリミティブ型
         link:
           id: primitive-types
           type: doc
         items:
-          - label: 2.1 Integers
+          - label: 2.1 整数
             id: primitive-types/integers
-          - label: 2.2 Bool
+          - label: 2.2 ブール
             id: primitive-types/bool
-          - label: 2.3 Address
+          - label: 2.3 アドレス
             id: primitive-types/address
-          - label: 2.4 Vector
+          - label: 2.4 ベクター
             id: primitive-types/vector
-          - label: 2.5 References
+          - label: 2.5 参照
             id: primitive-types/references
-          - label: 2.6 Tuples and Unit
+          - label: 2.6 タプルとユニット
             id: primitive-types/tuples
-      - label: 3. Local Variables and Scopes
+      - label: 3. ローカル変数とスコープ
         id: variables
-      - label: 4. Equality
+      - label: 4. 等価性
         id: equality
       - type: category
-        label: 5. Abort and Assert
+        label: 5. アボートとアサート
         link:
           id: abort-and-assert
           type: doc
         items:
-          - label: 5.1 Clever Errors
+          - label: 5.1 巧妙なエラー
             id: abort-and-assert/clever-errors
       - type: category
-        label: 6. Control Flow
+        label: 6. 制御フロー
         link:
           id: control-flow
           type: doc
         items:
-          - label: 6.1 Conditional Expressions
+          - label: 6.1 条件式
             id: control-flow/conditionals
-          - label: 6.2 Loops
+          - label: 6.2 ループ
             id: control-flow/loops
-          - label: 6.3 Labeled Control Flow
+          - label: 6.3 ラベル付き制御フロー
             id: control-flow/labeled-control-flow
-          - label: 6.4 Pattern Matching
+          - label: 6.4 パターンマッチング
             id: control-flow/pattern-matching
       - type: category
-        label: 7. Functions
+        label: 7. 関数
         link:
           id: functions
           type: doc
         items:
-          - label: 7.1 Macros
+          - label: 7.1 マクロ
             id: functions/macros
-      - label: 8. Structs
+      - label: 8. 構造体
         id: structs
-      - label: 9. Enums
+      - label: 9. 列挙型
         id: enums
-      - label: 10. Constants
+      - label: 10. 定数
         id: constants
-      - label: 11. Generics
+      - label: 11. ジェネリクス
         id: generics
-      - label: 12. Abilities
+      - label: 12. アビリティ
         id: abilities
-      - label: 13. Uses and Aliases
+      - label: 13. 使用とエイリアス
         id: uses
   - type: category
     enumerate: false
-    label: Advanced Concepts
+    label: 高度な概念
     items:
-      - label: 14. Method Syntax
+      - label: 14. メソッド構文
         id: method-syntax
-      - label: 15. Index Syntax
+      - label: 15. インデックス構文
         id: index-syntax
   - type: category
-    label: Tooling
+    label: ツール
     enumerate: false
     items:
-      - label: 16. Packages
+      - label: 16. パッケージ
         id: packages
-      - label: 17. Unit Testing
+      - label: 17. 単体テスト
         id: unit-testing
   - type: category
-    label: Reference
+    label: リファレンス
     enumerate: false
     items:
-      - label: 18. Coding Conventions
+      - label: 18. コーディング規約
         id: coding-conventions
   - type: category
-    label: Deprecated
+    label: 非推奨
     enumerate: false
     items:
-      - label: 19. Friends
+      - label: 19. フレンド
         id: friends
