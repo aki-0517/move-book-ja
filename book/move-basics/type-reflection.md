@@ -1,13 +1,8 @@
-# Type Reflection
+# 型リフレクション
 
-In programming languages, _reflection_ is the ability of a program to examine and modify its own
-structure and behavior. Move supports a limited form of reflection that lets you inspect the type of
-a value at runtime. This is handy when you need to store type information in a homogeneous
-collection, or when you want to check if a type comes from a particular package.
+プログラミング言語において、_リフレクション_はプログラムが自分自身の構造と動作を調査および変更する能力です。Moveは、実行時に値の型を検査できる限定的な形のリフレクションをサポートします。これは、同質コレクションに型情報を格納する必要がある場合や、特定のパッケージから型が来ているかどうかをチェックしたい場合に便利です。
 
-Type reflection is implemented in the [Standard Library](./standard-library) module
-[`std::type_name`][type-name-stdlib]. It provides a set of functions, main of which are
-`with_defining_ids` and `with_original_ids`.
+型リフレクションは[標準ライブラリ](./standard-library)モジュール[`std::type_name`][type-name-stdlib]で実装されています。これは関数のセットを提供し、主要なものは`with_defining_ids`と`with_original_ids`です。
 
 ```move
 let defining_type_name: TypeName = type_name::with_defining_ids<T>();
@@ -18,13 +13,12 @@ let defining_package: address = type_name::defining_id<T>();
 let original_package: address = type_name::original_id<T>();
 ```
 
-## Defining IDs vs. Original IDs
+## Defining IDとOriginal ID
 
-It is important to understand the difference between _defining ID_ and _original ID_.
+_defining ID_と_original ID_の違いを理解することが重要です。
 
-- Original ID is the first published ID of the package (before the first upgrade).
-- Defining ID is the package ID which introduced the reflected type, this property becomes crucial
-  when new types are introduced in package upgrades.
+- Original IDはパッケージの最初に公開されたID（最初のアップグレード前）です。
+- Defining IDはリフレクションされる型を導入したパッケージIDであり、このプロパティはパッケージのアップグレードで新しい型が導入される際に重要になります。
 
 For example, suppose the first version of a package was published at `0xA` and introduced the type
 `Version1`. Later, in an upgrade, the package moved to address `0xB` and introduced a new type
@@ -55,17 +49,16 @@ public struct Version1 has drop {}
 public struct Version2 has drop {}
 ```
 
-## In practice
+## 実際の使用
 
-The module is straightforward, and operations allowed on the result are limited to getting a string
-representation and extracting the module and address of the type.
+モジュールは簡単で、結果に対して許可される操作は、文字列表現の取得と型のモジュールおよびアドレスの抽出に限定されます。
 
 ```move file=packages/samples/sources/move-basics/type-reflection.move anchor=main
 
 ```
 
-## Further Reading
+## さらなる読み物
 
-- [std::type_name][type-name-stdlib] module documentation.
+- [std::type_name][type-name-stdlib]モジュールドキュメント
 
 [type-name-stdlib]: https://docs.sui.io/references/framework/std/type_name

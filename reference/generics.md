@@ -1,44 +1,34 @@
 ---
-title: 'Generics | Reference'
+title: 'ジェネリクス | リファレンス'
 description: ''
 ---
 
-# Generics
+# ジェネリクス
 
-Generics can be used to define functions and structs over different input data types. This language
-feature is sometimes referred to as parametric polymorphism. In Move, we will often use the term
-generics interchangeably with _type parameters_ and _type arguments_.
+ジェネリクスは、異なる入力データ型に対して関数と構造体を定義するために使用できます。この言語機能は時々パラメトリック多相性と呼ばれます。Moveでは、ジェネリクスという用語を_型パラメータ_と_型引数_と交換可能に使用することがよくあります。
 
-Generics are commonly used in library code, such as in [vector](./primitive-types/vector), to
-declare code that works over any possible type (that satisfies the specified constraints). This sort
-of parameterization allows you to reuse the same implementation across multiple types and
-situations.
+ジェネリクスは、[vector](./primitive-types/vector)などのライブラリコードで一般的に使用され、任意の可能な型（指定された制約を満たす）で動作するコードを宣言します。この種のパラメータ化により、複数の型と状況で同じ実装を再利用できます。
 
-## Declaring Type Parameters
+## 型パラメータの宣言
 
-Both functions and structs can take a list of type parameters in their signatures, enclosed by a
-pair of angle brackets `<...>`.
+関数と構造体の両方は、角括弧`<...>`で囲まれた型パラメータのリストをシグネチャに取ることができます。
 
-### Generic Functions
+### ジェネリック関数
 
-Type parameters for functions are placed after the function name and before the (value) parameter
-list. The following code defines a generic identity function that takes a value of any type and
-returns that value unchanged.
+関数の型パラメータは、関数名の後、値パラメータリストの前に配置されます。以下のコードは、任意の型の値を受け取り、その値を変更せずに返すジェネリック恒等関数を定義しています。
 
 ```move
 fun id<T>(x: T): T {
-    // this type annotation is unnecessary but valid
+    // この型注釈は不要ですが有効です
     (x: T)
 }
 ```
 
-Once defined, the type parameter `T` can be used in parameter types, return types, and inside the
-function body.
+一度定義されると、型パラメータ`T`はパラメータ型、戻り値の型、関数本体内で使用できます。
 
-### Generic Structs
+### ジェネリック構造体
 
-Type parameters for structs are placed after the struct name, and can be used to name the types of
-the fields.
+構造体の型パラメータは構造体名の後に配置され、フィールドの型を命名するために使用できます。
 
 ```move
 public struct Foo<T> has copy, drop { x: T }
@@ -49,14 +39,13 @@ public struct Bar<T1, T2> has copy, drop {
 }
 ```
 
-Note that [type parameters do not have to be used](#unused-type-parameters)
+[型パラメータは使用する必要がない](#unused-type-parameters)ことに注意してください
 
-## Type Arguments
+## 型引数
 
-### Calling Generic Functions
+### ジェネリック関数の呼び出し
 
-When calling a generic function, one can specify the type arguments for the function's type
-parameters in a list enclosed by a pair of angle brackets.
+ジェネリック関数を呼び出す際は、角括弧で囲まれたリストで関数の型パラメータの型引数を指定できます。
 
 ```move
 fun foo() {
@@ -64,119 +53,105 @@ fun foo() {
 }
 ```
 
-If you do not specify the type arguments, Move's [type inference](#type-inference) will supply them
-for you.
+型引数を指定しない場合、Moveの[型推論](#type-inference)がそれらを提供します。
 
-### Using Generic Structs
+### ジェネリック構造体の使用
 
-Similarly, one can attach a list of type arguments for the struct's type parameters when
-constructing or destructing values of generic types.
+同様に、ジェネリック型の値を構築または破棄する際に、構造体の型パラメータの型引数リストを添付できます。
 
 ```move
 fun foo() {
-    // type arguments on construction
+    // 構築時の型引数
     let foo = Foo<bool> { x: true };
     let bar = Bar<u64, u8> { x: 0, y: vector<u8>[] };
 
-    // type arguments on destruction
+    // 破棄時の型引数
     let Foo<bool> { x } = foo;
     let Bar<u64, u8> { x, y } = bar;
 }
 ```
 
-In any case if you do not specify the type arguments, Move's [type inference](#type-inference) will
-supply them for you.
+いずれの場合も型引数を指定しない場合、Moveの[型推論](#type-inference)がそれらを提供します。
 
-### Type Argument Mismatch
+### 型引数の不一致
 
-If you specify the type arguments and they conflict with the actual values supplied, an error will
-be given:
+型引数を指定し、それらが提供された実際の値と競合する場合、エラーが発生します：
 
 ```move
 fun foo() {
-    let x = id<u64>(true); // ERROR! true is not a u64
+    let x = id<u64>(true); // ERROR! trueはu64ではありません
 }
 ```
 
-and similarly:
+同様に：
 
 ```move
 fun foo() {
-    let foo = Foo<bool> { x: 0 }; // ERROR! 0 is not a bool
-    let Foo<address> { x } = foo; // ERROR! bool is incompatible with address
+    let foo = Foo<bool> { x: 0 }; // ERROR! 0はboolではありません
+    let Foo<address> { x } = foo; // ERROR! boolはaddressと互換性がありません
 }
 ```
 
-## Type Inference
+## 型推論
 
-In most cases, the Move compiler will be able to infer the type arguments so you don't have to write
-them down explicitly. Here's what the examples above would look like if we omit the type arguments:
+ほとんどの場合、Moveコンパイラは型引数を推論できるため、明示的に記述する必要はありません。型引数を省略した場合の上記の例は以下のようになります：
 
 ```move
 fun foo() {
     let x = id(true);
-    //        ^ <bool> is inferred
+    //        ^ <bool>が推論されます
 
     let foo = Foo { x: true };
-    //           ^ <bool> is inferred
+    //           ^ <bool>が推論されます
 
     let Foo { x } = foo;
-    //     ^ <bool> is inferred
+    //     ^ <bool>が推論されます
 }
 ```
 
-Note: when the compiler is unable to infer the types, you'll need annotate them manually. A common
-scenario is to call a function with type parameters appearing only at return positions.
+注意：コンパイラが型を推論できない場合、手動で注釈する必要があります。一般的なシナリオは、型パラメータが戻り値の位置にのみ現れる関数を呼び出すことです。
 
 ```move
 module a::m;
 
 fun foo() {
     let v = vector[]; // ERROR!
-    //            ^ The compiler cannot figure out the element type, since it is never used
+    //            ^ コンパイラは要素型を把握できません。使用されていないためです
 
     let v = vector<u64>[];
-    //            ^~~~~ Must annotate manually in this case.
+    //            ^~~~~ この場合は手動で注釈する必要があります。
 }
 ```
 
-Note that these cases are a bit contrived since the `vector[]` is never used, ad as such, Move's
-type inference cannot infer the type.
+これらのケースは`vector[]`が使用されないため少し人工的であり、そのためMoveの型推論は型を推論できません。
 
-However, the compiler will be able to infer the type if that value is used later in that function:
+ただし、その値がその関数内で後で使用される場合、コンパイラは型を推論できます：
 
 ```move
 module a::m;
 
 fun foo() {
     let v = vector[];
-    //            ^ <u64> is inferred
+    //            ^ <u64>が推論されます
     vector::push_back(&mut v, 42);
-    //               ^ <u64> is inferred
+    //               ^ <u64>が推論されます
 }
 ```
 
-### `_` Type
+### `_`型
 
-In some cases, you might want to explicitly annotate some of the type arguments, but let the
-compiler infer the others. The `_` type serves as such a placeholder for the compiler to infer the
-type.
+場合によっては、型引数の一部を明示的に注釈し、他の部分をコンパイラに推論させたいことがあります。`_`型は、コンパイラが型を推論するためのプレースホルダーとして機能します。
 
 ```move
 let bar = Bar<u64, _> { x: 0, y: vector[b"hello"] };
-//                 ^ vector<u8> is inferred
+//                 ^ vector<u8>が推論されます
 ```
 
-The placeholder `_` may only appear in expressions and macro function definitions, not signatures.
-This means you cannot use `_` as part of the definition of a function parameter, function return
-type, constant definition type, and datatype field.
+プレースホルダー`_`は、シグネチャではなく、式とマクロ関数定義でのみ現れることができます。これは、関数パラメータ、関数戻り値の型、定数定義型、データ型フィールドの定義の一部として`_`を使用できないことを意味します。
 
-## Integers
+## 整数
 
-In Move, the integer types `u8`, `u16`, `u32`, `u64`, `u128`, and `u256` are all distinct types.
-However, each one of these types can be created with the same numerical value syntax. In other
-words, if a type suffix is not provided, the compiler will infer the integer type based on the usage
-of the value.
+Moveでは、整数型`u8`、`u16`、`u32`、`u64`、`u128`、`u256`はすべて異なる型です。ただし、これらの型のそれぞれは同じ数値構文で作成できます。言い換えると、型サフィックスが提供されない場合、コンパイラは値の使用に基づいて整数型を推論します。
 
 ```move
 let x8: u8 = 0;
@@ -187,35 +162,32 @@ let x128: u128 = 0;
 let x256: u256 = 0;
 ```
 
-If the value is not used in a context that requires a specific integer type, `u64` is taken as a
-default.
+値が特定の整数型を必要とするコンテキストで使用されない場合、`u64`がデフォルトとして使用されます。
 
 ```move
 let x = 0;
-//      ^ u64 is used by default
+//      ^ デフォルトでu64が使用されます
 ```
 
-If the value however is too large for the inferred type, an error will be given
+ただし、値が推論された型に対して大きすぎる場合、エラーが発生します
 
 ```move
 let i: u8 = 256; // ERROR!
-//          ^^^ too large for u8
+//          ^^^ u8には大きすぎます
 let x = 340282366920938463463374607431768211454;
-//      ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ too large for u64
+//      ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ u64には大きすぎます
 ```
 
-In cases where the number is too large, you might need to annotate it explicitly
+数値が大きすぎる場合、明示的に注釈する必要があるかもしれません
 
 ```move
 let x = 340282366920938463463374607431768211454u128;
-//                                             ^^^^ valid!
+//                                             ^^^^ 有効です！
 ```
 
-## Unused Type Parameters
+## 未使用の型パラメータ
 
-For a struct definition, an unused type parameter is one that does not appear in any field defined
-in the struct, but is checked statically at compile time. Move allows unused type parameters so the
-following struct definition is valid:
+構造体定義では、未使用の型パラメータは、構造体で定義されたフィールドに現れないが、コンパイル時に静的にチェックされるものです。Moveは未使用の型パラメータを許可するため、以下の構造体定義は有効です：
 
 ```move
 public struct Foo<T> {
@@ -223,28 +195,27 @@ public struct Foo<T> {
 }
 ```
 
-This can be convenient when modeling certain concepts. Here is an example:
+これは特定の概念をモデル化する際に便利です。以下に例を示します：
 
 ```move
 module a::m;
 
-// Currency Specifiers
+// 通貨指定子
 public struct A {}
 public struct B {}
 
-// A generic coin type that can be instantiated using a currency
-// specifier type.
-//   e.g. Coin<A>, Coin<B> etc.
+// 通貨指定子型を使用してインスタンス化できるジェネリックコイン型
+//   例：Coin<A>、Coin<B>など
 public struct Coin<Currency> has store {
     value: u64
 }
 
-// Write code generically about all currencies
+// すべての通貨について汎用的にコードを書く
 public fun mint_generic<Currency>(value: u64): Coin<Currency> {
     Coin { value }
 }
 
-// Write code concretely about one currency
+// 特定の通貨について具体的にコードを書く
 public fun mint_a(value: u64): Coin<A> {
     mint_generic(value)
 }
@@ -253,38 +224,19 @@ public fun mint_b(value: u64): Coin<B> {
 }
 ```
 
-In this example, `Coin<Currency>` is generic on the `Currency` type parameter, which specifies the
-currency of the coin and allows code to be written either generically on any currency or concretely
-on a specific currency. This generality applies even when the `Currency` type parameter does not
-appear in any of the fields defined in `Coin`.
+この例では、`Coin<Currency>`は`Currency`型パラメータでジェネリックであり、コインの通貨を指定し、任意の通貨について汎用的に、または特定の通貨について具体的にコードを書くことを可能にします。この汎用性は、`Currency`型パラメータが`Coin`で定義されたフィールドに現れない場合でも適用されます。
 
-### Phantom Type Parameters
+### ファントム型パラメータ
 
-In the example above, although `struct Coin` asks for the `store` ability, neither `Coin<A>` nor
-`Coin<B>` will have the `store` ability. This is because of the rules for
-[Conditional Abilities and Generic Types](./abilities#conditional-abilities-and-generic-types) and
-the fact that `A` and `B` don't have the `store` ability, despite the fact that they are not even
-used in the body of `struct Coin`. This might cause some unpleasant consequences. For example, we
-are unable to put `Coin<A>` into a wallet in storage.
+上記の例では、`struct Coin`が`store`アビリティを要求しているにもかかわらず、`Coin<A>`も`Coin<B>`も`store`アビリティを持ちません。これは、[条件付きアビリティとジェネリック型](./abilities#conditional-abilities-and-generic-types)のルールと、`A`と`B`が`store`アビリティを持たないという事実によるものです。`struct Coin`の本体で使用されていないにもかかわらずです。これにより、いくつかの不快な結果が生じる可能性があります。例えば、`Coin<A>`をストレージのウォレットに入れることができません。
 
-One possible solution would be to add spurious ability annotations to `A` and `B` (i.e.,
-`public struct Currency1 has store {}`). But, this might lead to bugs or security vulnerabilities
-because it weakens the types with unnecessary ability declarations. For example, we would never
-expect a value in the storage to have a field in type `A`, but this would be possible with the
-spurious `store` ability. Moreover, the spurious annotations would be infectious, requiring many
-functions generic on the unused type parameter to also include the necessary constraints.
+一つの可能な解決策は、`A`と`B`に偽のアビリティ注釈を追加することです（例：`public struct Currency1 has store {}`）。しかし、これは不要なアビリティ宣言で型を弱体化させるため、バグやセキュリティの脆弱性につながる可能性があります。例えば、ストレージの値が`A`型のフィールドを持つことを期待することはありませんが、偽の`store`アビリティがあれば可能になります。さらに、偽の注釈は感染性があり、未使用の型パラメータでジェネリックな多くの関数も必要な制約を含める必要があります。
 
-Phantom type parameters solve this problem. Unused type parameters can be marked as _phantom_ type
-parameters, which do not participate in the ability derivation for structs. In this way, arguments
-to phantom type parameters are not considered when deriving the abilities for generic types, thus
-avoiding the need for spurious ability annotations. For this relaxed rule to be sound, Move's type
-system guarantees that a parameter declared as `phantom` is either not used at all in the struct
-definition, or it is only used as an argument to type parameters also declared as `phantom`.
+ファントム型パラメータはこの問題を解決します。未使用の型パラメータは_ファントム_型パラメータとしてマークでき、構造体のアビリティ導出に参加しません。この方法で、ジェネリック型のアビリティを導出する際にファントム型パラメータへの引数は考慮されないため、偽のアビリティ注釈の必要性を回避できます。この緩和されたルールが健全であるため、Moveの型システムは、`phantom`として宣言されたパラメータが構造体定義で全く使用されないか、`phantom`として宣言された型パラメータへの引数としてのみ使用されることを保証します。
 
-#### Declaration
+#### 宣言
 
-In a struct definition a type parameter can be declared as phantom by adding the `phantom` keyword
-before its declaration.
+構造体定義では、型パラメータを宣言の前に`phantom`キーワードを追加することでファントムとして宣言できます。
 
 ```move
 public struct Coin<phantom Currency> has store {
@@ -292,41 +244,34 @@ public struct Coin<phantom Currency> has store {
 }
 ```
 
-If a type parameter is declared as phantom we say it is a phantom type parameter. When defining a
-struct, Move's type checker ensures that every phantom type parameter is either not used inside the
-struct definition or it is only used as an argument to a phantom type parameter.
+型パラメータがファントムとして宣言されている場合、それをファントム型パラメータと呼びます。構造体を定義する際、Moveの型チェッカーは、すべてのファントム型パラメータが構造体定義内で使用されないか、ファントム型パラメータへの引数としてのみ使用されることを保証します。
 
 ```move
 public struct S1<phantom T1, T2> { f: u64 }
-//               ^^^^^^^ valid, T1 does not appear inside the struct definition
+//               ^^^^^^^ 有効、T1は構造体定義内に現れません
 
 public struct S2<phantom T1, T2> { f: S1<T1, T2> }
-//               ^^^^^^^ valid, T1 appears in phantom position
+//               ^^^^^^^ 有効、T1はファントム位置に現れます
 ```
 
-The following code shows examples of violations of the rule:
+以下のコードは、ルールの違反例を示しています：
 
 ```move
 public struct S1<phantom T> { f: T }
-//               ^^^^^^^ ERROR!  ^ Not a phantom position
+//               ^^^^^^^ ERROR!  ^ ファントム位置ではありません
 
 public struct S2<T> { f: T }
 public struct S3<phantom T> { f: S2<T> }
-//               ^^^^^^^ ERROR!     ^ Not a phantom position
+//               ^^^^^^^ ERROR!     ^ ファントム位置ではありません
 ```
 
-More formally, if a type is used as an argument to a phantom type parameter we say the type appears
-in _phantom position_. With this definition in place, the rule for the correct use of phantom
-parameters can be specified as follows: **A phantom type parameter can only appear in phantom
-position**.
+より正式には、型がファントム型パラメータへの引数として使用される場合、その型は_ファントム位置_に現れると言います。この定義により、ファントムパラメータの正しい使用のルールは以下のように指定できます：**ファントム型パラメータはファントム位置にのみ現れることができます**。
 
-Note that specifying `phantom` is not required, but the compiler will warn if a type parameter could
-be `phantom` but was not marked as such.
+`phantom`の指定は必須ではありませんが、型パラメータが`phantom`になる可能性があるがマークされていない場合、コンパイラは警告を出します。
 
-#### Instantiation
+#### インスタンス化
 
-When instantiating a struct, the arguments to phantom parameters are excluded when deriving the
-struct abilities. For example, consider the following code:
+構造体をインスタンス化する際、ファントムパラメータへの引数は構造体のアビリティを導出する際に除外されます。例えば、以下のコードを考えてみてください：
 
 ```move
 public struct S<T1, phantom T2> has copy { f: T1 }
@@ -334,45 +279,34 @@ public struct NoCopy {}
 public struct HasCopy has copy {}
 ```
 
-Consider now the type `S<HasCopy, NoCopy>`. Since `S` is defined with `copy` and all non-phantom
-arguments have `copy` then `S<HasCopy, NoCopy>` also has `copy`.
+`S<HasCopy, NoCopy>`型を考えてみてください。`S`は`copy`で定義されており、すべての非ファントム引数が`copy`を持つため、`S<HasCopy, NoCopy>`も`copy`を持ちます。
 
-#### Phantom Type Parameters with Ability Constraints
+#### アビリティ制約を持つファントム型パラメータ
 
-Ability constraints and phantom type parameters are orthogonal features in the sense that phantom
-parameters can be declared with ability constraints.
+アビリティ制約とファントム型パラメータは、ファントムパラメータがアビリティ制約で宣言できるという意味で直交する機能です。
 
 ```move
 public struct S<phantom T: copy> {}
 ```
 
-When instantiating a phantom type parameter with an ability constraint, the type argument has to
-satisfy that constraint, even though the parameter is phantom. The usual restrictions apply and `T`
-can only be instantiated with arguments having `copy`.
+アビリティ制約を持つファントム型パラメータをインスタンス化する際、パラメータがファントムであっても、型引数はその制約を満たす必要があります。通常の制限が適用され、`T`は`copy`を持つ引数でのみインスタンス化できます。
 
-## Constraints
+## 制約
 
-In the examples above, we have demonstrated how one can use type parameters to define "unknown"
-types that can be plugged in by callers at a later time. This however means the type system has
-little information about the type and has to perform checks in a very conservative way. In some
-sense, the type system must assume the worst case scenario for an unconstrained generic--a type with
-no [abilities](./abilities).
+上記の例では、型パラメータを使用して「未知の」型を定義し、後で呼び出し元がプラグインできる方法を示しました。しかし、これは型システムが型についてほとんど情報を持たず、非常に保守的な方法でチェックを実行する必要があることを意味します。ある意味で、型システムは制約のないジェネリックに対して最悪のシナリオを想定する必要があります—[アビリティ](./abilities)を持たない型です。
 
-Constraints offer a way to specify what properties these unknown types have so the type system can
-allow operations that would otherwise be unsafe.
+制約は、これらの未知の型が持つプロパティを指定する方法を提供し、型システムがそうでなければ安全でない操作を許可できるようにします。
 
-### Declaring Constraints
+### 制約の宣言
 
-Constraints can be imposed on type parameters using the following syntax.
+制約は以下の構文を使用して型パラメータに課すことができます。
 
 ```move
-// T is the name of the type parameter
+// Tは型パラメータの名前です
 T: <ability> (+ <ability>)*
 ```
 
-The `<ability>` can be any of the four [abilities](./abilities), and a type parameter can be
-constrained with multiple abilities at once. So all of the following would be valid type parameter
-declarations:
+`<ability>`は4つの[アビリティ](./abilities)のいずれかであり、型パラメータは一度に複数のアビリティで制約できます。したがって、以下はすべて有効な型パラメータ宣言です：
 
 ```move
 T: copy
@@ -380,29 +314,29 @@ T: copy + drop
 T: copy + drop + store + key
 ```
 
-### Verifying Constraints
+### 制約の検証
 
-Constraints are checked at instantiation sites
+制約はインスタンス化サイトでチェックされます
 
 ```move
 public struct Foo<T: copy> { x: T }
 
 public struct Bar { x: Foo<u8> }
-//                         ^^ valid, u8 has `copy`
+//                         ^^ 有効、u8は`copy`を持ちます
 
 public struct Baz<T> { x: Foo<T> }
-//                            ^ ERROR! T does not have 'copy'
+//                            ^ ERROR! Tは'copy'を持ちません
 ```
 
-And similarly for functions
+関数についても同様です
 
 ```move
 fun unsafe_consume<T>(x: T) {
-    // ERROR! x does not have 'drop'
+    // ERROR! xは'drop'を持ちません
 }
 
 fun consume<T: drop>(x: T) {
-    // valid, x will be dropped automatically
+    // 有効、xは自動的にドロップされます
 }
 
 public struct NoAbilities {}
@@ -410,20 +344,20 @@ public struct NoAbilities {}
 fun foo() {
     let r = NoAbilities {};
     consume<NoAbilities>(NoAbilities);
-    //      ^^^^^^^^^^^ ERROR! NoAbilities does not have 'drop'
+    //      ^^^^^^^^^^^ ERROR! NoAbilitiesは'drop'を持ちません
 }
 ```
 
-And some similar examples, but with `copy`
+`copy`を使った同様の例もいくつかあります
 
 ```move
 fun unsafe_double<T>(x: T) {
     (copy x, x)
-    // ERROR! T does not have 'copy'
+    // ERROR! Tは'copy'を持ちません
 }
 
 fun double<T: copy>(x: T) {
-    (copy x, x) // valid, T has 'copy'
+    (copy x, x) // 有効、Tは'copy'を持ちます
 }
 
 public struct NoAbilities {}
@@ -431,30 +365,28 @@ public struct NoAbilities {}
 fun foo(): (NoAbilities, NoAbilities) {
     let r = NoAbilities {};
     double<NoAbilities>(r)
-    //     ^ ERROR! NoAbilities does not have 'copy'
+    //     ^ ERROR! NoAbilitiesは'copy'を持ちません
 }
 ```
 
-For more information, see the abilities section on
-[conditional abilities and generic types](./abilities#conditional-abilities-and-generic-types).
+詳細については、[条件付きアビリティとジェネリック型](./abilities#conditional-abilities-and-generic-types)のアビリティセクションを参照してください。
 
-## Limitations on Recursions
+## 再帰の制限
 
-### Recursive Structs
+### 再帰構造体
 
-Generic structs can not contain fields of the same type, either directly or indirectly, even with
-different type arguments. All of the following struct definitions are invalid:
+ジェネリック構造体は、異なる型引数であっても、同じ型のフィールドを直接または間接的に含むことはできません。以下の構造体定義はすべて無効です：
 
 ```move
 public struct Foo<T> {
-    x: Foo<u64> // ERROR! 'Foo' containing 'Foo'
+    x: Foo<u64> // ERROR! 'Foo'を含む'Foo'
 }
 
 public struct Bar<T> {
-    x: Bar<T> // ERROR! 'Bar' containing 'Bar'
+    x: Bar<T> // ERROR! 'Bar'を含む'Bar'
 }
 
-// ERROR! 'A' and 'B' forming a cycle, which is not allowed either.
+// ERROR! 'A'と'B'が循環を形成し、これも許可されません。
 public struct A<T> {
     x: B<T, u64>
 }
@@ -465,58 +397,54 @@ public struct B<T1, T2> {
 }
 ```
 
-### Advanced Topic: Type-level Recursions
+### 高度なトピック: 型レベル再帰
 
-Move allows generic functions to be called recursively. However, when used in combination with
-generic structs, this could create an infinite number of types in certain cases, and allowing this
-means adding unnecessary complexity to the compiler, vm and other language components. Therefore,
-such recursions are forbidden.
+Moveはジェネリック関数の再帰呼び出しを許可します。ただし、ジェネリック構造体と組み合わせて使用すると、特定のケースで無限の数の型を作成する可能性があり、これを許可することは、コンパイラ、VM、その他の言語コンポーネントに不要な複雑さを追加することを意味します。したがって、そのような再帰は禁止されています。
 
-This restriction might be relaxed in the future, but for now, the following examples should give you
-an idea of what is allowed and what is not.
+この制限は将来緩和される可能性がありますが、今のところ、以下の例は何が許可され、何が許可されないかの理解を提供するはずです。
 
 ```move
 module a::m;
 
 public struct A<T> {}
 
-// Finitely many types -- allowed.
-// foo<T> -> foo<T> -> foo<T> -> ... is valid
+// 有限の数の型 -- 許可されます。
+// foo<T> -> foo<T> -> foo<T> -> ... は有効です
 fun foo<T>() {
     foo<T>();
 }
 
-// Finitely many types -- allowed.
-// foo<T> -> foo<A<u64>> -> foo<A<u64>> -> ... is valid
+// 有限の数の型 -- 許可されます。
+// foo<T> -> foo<A<u64>> -> foo<A<u64>> -> ... は有効です
 fun foo<T>() {
     foo<A<u64>>();
 }
 ```
 
-Not allowed:
+許可されないもの：
 
 ```move
 module a::m;
 
 public struct A<T> {}
 
-// Infinitely many types -- NOT allowed.
-// error!
+// 無限の数の型 -- 許可されません。
+// エラー！
 // foo<T> -> foo<A<T>> -> foo<A<A<T>>> -> ...
 fun foo<T>() {
     foo<Foo<T>>();
 }
 ```
 
-And similarly, not allowed:
+同様に、許可されません：
 
 ```move
 module a::n;
 
 public struct A<T> {}
 
-// Infinitely many types -- NOT allowed.
-// error!
+// 無限の数の型 -- 許可されません。
+// エラー！
 // foo<T1, T2> -> bar<T2, T1> -> foo<T2, A<T1>>
 //   -> bar<A<T1>, T2> -> foo<A<T1>, A<T2>>
 //   -> bar<A<T2>, A<T1>> -> foo<A<T2>, A<A<T1>>>
@@ -530,20 +458,18 @@ fun bar<T1, T2> {
 }
 ```
 
-Note, the check for type level recursions is based on a conservative analysis on the call sites and
-does NOT take control flow or runtime values into account.
+注意：型レベル再帰のチェックは、呼び出しサイトでの保守的な分析に基づいており、制御フローやランタイム値は考慮しません。
 
 ```move
 module a::m;
 
 public struct A<T> {}
 
-// Infinitely many types -- NOT allowed.
-// error!
+// 無限の数の型 -- 許可されません。
+// エラー！
 fun foo<T>(n: u64) {
     if (n > 0) foo<A<T>>(n - 1);
 }
 ```
 
-The function in the example above will technically terminate for any given input and therefore only
-creating finitely many types, but it is still considered invalid by Move's type system.
+上記の例の関数は技術的には任意の入力に対して終了し、したがって有限の数の型のみを作成しますが、Moveの型システムでは依然として無効と見なされます。

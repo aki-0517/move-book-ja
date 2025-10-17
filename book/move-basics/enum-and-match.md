@@ -1,15 +1,10 @@
-# Enums and Match
+# EnumとMatch
 
-An enum is a user-defined data structure that, unlike a [struct](./struct), can represent multiple
-variants. Each variant can contain primitive types, structs, or other enums. However, recursive enum
-definitions — similar to recursive struct definitions — are not allowed.
+enumは、[構造体](./struct)とは異なり、複数のバリアントを表現できるユーザー定義のデータ構造です。各バリアントはプリミティブ型、構造体、または他のenumを含むことができます。しかし、再帰的のenum定義は—再帰的な構造体定義と同様に—許可されません。
 
-## Definition
+## 定義
 
-An enum is defined using the `enum` keyword, followed by optional abilities and a block of variant
-definitions. Each variant has a tag name and may optionally include either positional values or
-named fields. Enum must have at least one variant. The structure of each variant is not flexible,
-and the total number of variants can be relatively large - up to 100.
+enumは`enum`キーワードで定義され、その後にオプションのアビリティとバリアント定義のブロックが続きます。各バリアントはタグ名を持ち、オプションで位置値または名前付きフィールドを含むことができます。Enumは少なくとも1つのバリアントを持つ必要があります。各バリアントの構造は柔軟性がなく、バリアントの総数は最大100まで比較的大きくすることができます。
 
 ```move file=packages/samples/sources/move-basics/enum-and-match.move anchor=definition
 

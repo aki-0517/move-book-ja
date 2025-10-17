@@ -1,12 +1,7 @@
-# The Move Reference
+# Move リファレンス
 
-Welcome to Move, a next generation language for secure asset programming. Its primary use case is in
-blockchain environments, where Move programs are used to construct state changes. Move allows
-developers to write programs that flexibly manage and transfer assets, while providing the security
-and protections against attacks on those assets. However, Move has been developed with use cases in
-mind outside a blockchain context as well.
+Moveへようこそ。Moveは安全なアセットプログラミングのための次世代言語です。主な用途はブロックチェーン環境で、Moveプログラムは状態変更を構築するために使用されます。Moveにより、開発者はアセットを柔軟に管理・転送するプログラムを書きつつ、それらのアセットに対する攻撃からのセキュリティと保護を提供できます。しかし、Moveはブロックチェーンコンテキスト以外での用途も念頭に置いて開発されています。
 
-Move takes its cue from [Rust](https://www.rust-lang.org/) by using resource types with move (hence
-the name) semantics as an explicit representation of digital assets, such as currency.
+Moveは[Rust](https://www.rust-lang.org/)からヒントを得て、通貨などのデジタルアセットの明示的な表現として、ムーブ（名前の由来）セマンティクスを持つリソース型を使用しています。
 
 <!-- TODO do we have a pre-existing summary we can copy in here? -->

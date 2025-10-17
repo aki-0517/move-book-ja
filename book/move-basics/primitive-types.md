@@ -1,144 +1,131 @@
-# Primitive Types
+# プリミティブ型
 
 <!-- TODO: Shall we split this into two pages? Maybe give an overview and focus more on specifics? -->
 
-For simple values, Move has a number of built-in primitive types. They're the foundation for all
-other types. The primitive types are:
+シンプルな値に対して、Moveには多数の組み込みプリミティブ型があります。これらは他のすべての型の基礎です。プリミティブ型は以下の通りです：
 
-- [Booleans](#booleans)
-- [Unsigned Integers](#integer-types)
-- [Addresses](./address) - covered in the next section
+- [ブール型](#booleans)
+- [符号なし整数](#integer-types)
+- [アドレス](./address) - 次のセクションで説明
 
-Before we get to the primitive types, let's first take a look at how to declare and assign variables
-in Move.
+プリミティブ型に入る前に、まずMoveで変数を宣言し代入する方法を見てみましょう。
 
-## Variables and Assignment
+## 変数と代入
 
-Variables are declared using the `let` keyword. They are immutable by default, but can be made
-mutable by adding the `mut` keyword:
+変数は`let`キーワードを使用して宣言されます。デフォルトでは不変ですが、`mut`キーワードを追加することで可変にすることができます：
 
 ```
 let <variable_name>[: <type>]  = <expression>;
 let mut <variable_name>[: <type>] = <expression>;
 ```
 
-Where:
+ここで：
 
-- `<variable_name>` - the name of the variable
-- `<type>` - the type of the variable, optional
-- `<expression>` - the value to be assigned to the variable
+- `<variable_name>` - 変数の名前
+- `<type>` - 変数の型、オプション
+- `<expression>` - 変数に代入される値
 
 ```move file=packages/samples/sources/move-basics/primitive-types.move anchor=variables_and_assignment
 
 ```
 
-A mutable variable can be reassigned using the `=` operator.
+可変変数は`=`演算子を使用して再代入できます。
 
 ```move
 y = 43;
 ```
 
-Variables can also be shadowed by re-declaring them.
+変数は再宣言によってシャドウ（隠蔽）することもできます。
 
 ```move file=packages/samples/sources/move-basics/primitive-types.move anchor=shadowing
 
 ```
 
-## Booleans
+## ブール型
 
-The `bool` type represents a boolean value - yes or no, true or false. It has two possible values:
-`true` and `false`, which are keywords in Move. For booleans, the compiler can always infer the type
-from the value, so there is no need to explicitly specify it.
+`bool`型はブール値を表します - はいまたはいいえ、真または偽です。2つの可能な値があります：
+`true`と`false`で、これらはMoveのキーワードです。ブール型の場合、コンパイラは常に値から型を推論できるため、明示的に指定する必要はありません。
 
 ```move file=packages/samples/sources/move-basics/primitive-types.move anchor=boolean
 
 ```
 
-Booleans are often used to store flags and to control the flow of the program. Please refer to the
-[Control Flow](./control-flow) section for more information.
+ブール型は、フラグを保存したり、プログラムの流れを制御したりするためによく使用されます。詳細については[制御フロー](./control-flow)セクションを参照してください。
 
-## Integer Types
+## 整数型
 
-Move supports unsigned integers of various sizes, from 8-bit to 256-bit. The integer types are:
+Moveは8ビットから256ビットまでの様々なサイズの符号なし整数をサポートしています。整数型は以下の通りです：
 
-- `u8` - 8-bit
-- `u16` - 16-bit
-- `u32` - 32-bit
-- `u64` - 64-bit
-- `u128` - 128-bit
-- `u256` - 256-bit
+- `u8` - 8ビット
+- `u16` - 16ビット
+- `u32` - 32ビット
+- `u64` - 64ビット
+- `u128` - 128ビット
+- `u256` - 256ビット
 
 ```move file=packages/samples/sources/move-basics/primitive-types.move anchor=integers
 
 ```
 
-While boolean literals like `true` and `false` are clearly booleans, an integer literal like `42`
-could be any of the integer types. In most of the cases, the compiler will infer the type from the
-value, usually defaulting to `u64`. However, sometimes the compiler is unable to infer the type and
-will require an explicit type annotation. It can either be provided during assignment or by using a
-type suffix.
+`true`や`false`のようなブールリテラルは明らかにブール型ですが、`42`のような整数リテラルは任意の整数型にすることができます。ほとんどの場合、コンパイラは値から型を推論し、通常は`u64`をデフォルトとします。しかし、時々コンパイラが型を推論できず、明示的な型注釈が必要になります。これは代入時に提供するか、型サフィックスを使用して提供できます。
 
 ```move file=packages/samples/sources/move-basics/primitive-types.move anchor=integer_explicit_type
 
 ```
 
-### Operations
+### 演算
 
-Move supports the standard arithmetic operations for integers: addition, subtraction,
-multiplication, division, and modulus (remainder). The syntax for these operations is:
+Moveは整数の標準的な算術演算をサポートしています：加算、減算、乗算、除算、剰余（余り）です。これらの演算の構文は以下の通りです：
 
-| Syntax | Operation           | Aborts If                                |
+| 構文 | 演算           | 中止条件                                |
 | ------ | ------------------- | ---------------------------------------- |
-| +      | addition            | Result is too large for the integer type |
-| -      | subtraction         | Result is less than zero                 |
-| \*     | multiplication      | Result is too large for the integer type |
-| %      | modulus (remainder) | The divisor is 0                         |
-| /      | truncating division | The divisor is 0                         |
+| +      | 加算            | 結果が整数型に対して大きすぎる |
+| -      | 減算         | 結果がゼロ未満                 |
+| \*     | 乗算      | 結果が整数型に対して大きすぎる |
+| %      | 剰余（余り） | 除数が0                         |
+| /      | 切り捨て除算 | 除数が0                         |
 
-> For more operations, including bitwise operations, please refer to the
-> [Move Reference](./../../reference/primitive-types/integers#bitwise).
+> ビット演算を含むより多くの演算については、
+> [Move Reference](./../../reference/primitive-types/integers#bitwise)を参照してください。
 
-The types of the operands _must match_, or the compiler will raise an error. The result of the
-operation will be of the same type as the operands. To perform operations on different types, the
-operands need to be cast to the same type.
+オペランドの型は_一致する必要があり_、そうでなければコンパイラはエラーを発生させます。演算の結果はオペランドと同じ型になります。異なる型で演算を実行するには、オペランドを同じ型にキャストする必要があります。
 
 <!-- TODO: add examples + parentheses for arithmetic operations -->
 <!-- TODO: add bitwise operators -->
 
-### Casting with `as`
+### `as`によるキャスト
 
-Move supports explicit casting between integer types. The syntax is as follows:
+Moveは整数型間の明示的なキャストをサポートしています。構文は以下の通りです：
 
 ```move
 <expression> as <type>
 ```
 
-Note that parentheses around the expression may be required to prevent ambiguity:
+曖昧さを防ぐために、式の周りに括弧が必要な場合があることに注意してください：
 
 ```move file=packages/samples/sources/move-basics/primitive-types.move anchor=cast_as
 
 ```
 
-A more complex example, preventing overflow:
+オーバーフローを防ぐより複雑な例：
 
 ```move file=packages/samples/sources/move-basics/primitive-types.move anchor=overflow
 
 ```
 
-### Overflow
+### オーバーフロー
 
-Move does not support overflow / underflow; an operation that results in a value outside the range
-of the type will raise a runtime error. This is a safety feature to prevent unexpected behavior.
+Moveはオーバーフロー/アンダーフローをサポートしていません。型の範囲外の値になる演算は実行時エラーを発生させます。これは予期しない動作を防ぐための安全機能です。
 
 ```move
 let x = 255u8;
 let y = 1u8;
 
-// This will raise an error
+// これはエラーを発生させます
 let z = x + y;
 ```
 
-## Further Reading
+## 参考資料
 
 - [Bool](./../../reference/primitive-types/bool) in the Move Reference.
 - [Integer](./../../reference/primitive-types/integers) in the Move Reference.

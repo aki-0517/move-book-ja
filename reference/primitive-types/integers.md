@@ -1,12 +1,11 @@
 ---
-title: 'Integers | Reference'
+title: '整数 | リファレンス'
 description: ''
 ---
 
-# Integers
+# 整数
 
-Move supports six unsigned integer types: `u8`, `u16`, `u32`, `u64`, `u128`, and `u256`. Values of
-these types range from 0 to a maximum that depends on the size of the type.
+Moveは6つの符号なし整数型をサポートします：`u8`、`u16`、`u32`、`u64`、`u128`、`u256`。これらの型の値は0から型のサイズに依存する最大値までの範囲です。
 
 | Type                             | Value Range              |
 | -------------------------------- | ------------------------ |

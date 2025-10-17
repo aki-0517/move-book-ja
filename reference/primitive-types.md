@@ -1,21 +1,20 @@
 ---
-title: 'Primitive Types | Reference'
+title: 'プリミティブ型 | リファレンス'
 description: ''
 ---
 
-# Primitive Types
+# プリミティブ型
 
-The primitive types are the basic building blocks of the language.
+プリミティブ型は言語の基本的な構成要素です。
 
-These primitive types can be used on their own or can be used to build more complex,
-user-defined types, e.g. in a [`struct`](./structs).
+これらのプリミティブ型は単独で使用することも、[`struct`](./structs)などでより複雑なユーザー定義型を構築するために使用することもできます。
 
-- [Integers](./primitive-types/integers)
+- [整数](./primitive-types/integers)
 - [Bool](./primitive-types/bool)
 - [Address](./primitive-types/address)
 - [Vector](./primitive-types/vector)
 
-These primitive types are used in conjunction with other types
+これらのプリミティブ型は他の型と組み合わせて使用されます
 
-- [References](./primitive-types/references)
-- [Tuples and Unit](./primitive-types/tuples)
+- [参照](./primitive-types/references)
+- [タプルと単位型](./primitive-types/tuples)

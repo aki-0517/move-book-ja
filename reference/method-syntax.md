@@ -1,21 +1,13 @@
 ---
-title: 'Method Syntax | Reference'
+title: 'メソッド構文 | リファレンス'
 description: ''
 ---
 
-# Methods
+# メソッド
 
-As a syntactic convenience, some functions in Move can be called as "methods" on a value. This is done
-by using the `.` operator to call the function, where the value on the left-hand side of the `.` is
-the first argument to the function (sometimes called the receiver). The type of that value
-statically determines which function is called. This is an important difference from some other
-languages, where this syntax might indicate a dynamic call, where the function to be called is
-determined at runtime. In Move, all function calls are statically determined.
+構文的な利便性として、Moveの一部の関数は値の「メソッド」として呼び出すことができます。これは、関数を呼び出すために`.`演算子を使用することで行われ、`.`の左側の値が関数の最初の引数（時々レシーバーと呼ばれる）です。その値の型が静的にどの関数が呼び出されるかを決定します。これは、この構文が動的呼び出しを示す可能性がある他の言語との重要な違いです。動的呼び出しでは、呼び出される関数が実行時に決定されます。Moveでは、すべての関数呼び出しが静的に決定されます。
 
-In short, this syntax exists to make it easier to call functions without having to create an alias
-with `use`, and without having to explicitly borrow the first argument to the function.
-Additionally, this can make code more readable, as it reduces the amount of boilerplate needed to
-call a function and makes it easier to chain function calls.
+要するに、この構文は`use`でエイリアスを作成する必要がなく、関数の最初の引数を明示的に借用する必要がなく、関数を呼び出すことを容易にするために存在します。さらに、これは関数呼び出しに必要なボイラープレートの量を減らし、関数呼び出しをチェーンすることを容易にするため、コードをより読みやすくすることができます。
 
 ## Syntax
 

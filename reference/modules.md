@@ -1,21 +1,15 @@
 ---
-title: 'Modules | Reference'
+title: 'モジュール | リファレンス'
 description: ''
 ---
 
-# Modules
+# モジュール
 
-**Modules** are the core program unit that define types along with functions that operate on these
-types. Struct types define the schema of Move's [storage](./abilities#key), and module functions
-define the rules interacting with values of those types. While modules themselves are also stored in
-storage, they are not accessible from within a Move program. In a blockchain environment, the
-modules are stored on chain in a process typically referred to as "publishing". After being
-published, [`entry`](./functions#entry-modifier) and [`public`](./functions#visibility)
-functions can be invoked according to the rules of that particular Move instance.
+**モジュール**は、これらの型で動作する関数と共に型を定義するコアプログラム単位です。構造体型はMoveの[ストレージ](./abilities#key)のスキーマを定義し、モジュール関数はそれらの型の値との相互作用のルールを定義します。モジュール自体もストレージに保存されますが、Moveプログラム内からアクセスすることはできません。ブロックチェーン環境では、モジュールは通常「パブリッシュ」と呼ばれるプロセスでチェーン上に保存されます。パブリッシュ後、[`entry`](./functions#entry-modifier)と[`public`](./functions#visibility)関数は、その特定のMoveインスタンスのルールに従って呼び出すことができます。
 
-## Syntax
+## 構文
 
-A module has the following syntax:
+モジュールは以下の構文を持ちます：
 
 ```text
 module <address>::<identifier> {
@@ -23,10 +17,9 @@ module <address>::<identifier> {
 }
 ```
 
-where `<address>` is a valid [address](./primitive-types/address) specifying the module's
-package.
+ここで`<address>`は、モジュールのパッケージを指定する有効な[アドレス](./primitive-types/address)です。
 
-For example:
+例えば：
 
 ```move
 module 0::test;
@@ -44,14 +37,11 @@ public fun print(x: u64) {
 }
 ```
 
-## Names
+## 名前
 
-The `module test_addr::test` part specifies that the module `test` will be published under the
-numerical [address](./primitive-types/address) value assigned for the name `test_addr` in the
-[package settings](./packages).
+`module test_addr::test`部分は、モジュール`test`が[パッケージ設定](./packages)で`test_addr`という名前に割り当てられた数値[アドレス](./primitive-types/address)値の下でパブリッシュされることを指定します。
 
-Modules should normally be declared using [named addresses](./primitive-types/address) (as
-opposed to using the numerical value directly). For example:
+モジュールは通常、[名前付きアドレス](./primitive-types/address)を使用して宣言する必要があります（数値を直接使用するのではなく）。例えば：
 
 ```move
 module test_addr::test;
@@ -67,11 +57,9 @@ public fun print() {
 }
 ```
 
-These named addresses commonly match the name of the [package](./packages).
+これらの名前付きアドレスは通常、[パッケージ](./packages)の名前と一致します。
 
-Because named addresses only exist at the source language level and during compilation, named
-addresses will be fully substituted for their value at the bytecode level. For example if we had the
-following code:
+名前付きアドレスはソース言語レベルとコンパイル中にのみ存在するため、名前付きアドレスはバイトコードレベルでその値に完全に置換されます。例えば、以下のコードがある場合：
 
 ```move
 fun example() {
@@ -79,8 +67,7 @@ fun example() {
 }
 ```
 
-and we compiled it with `my_addr` set to `0xC0FFEE`, then it would be operationally equivalent to
-the following:
+`my_addr`を`0xC0FFEE`に設定してコンパイルした場合、以下のコードと機能的に同等になります：
 
 ```move
 fun example() {
@@ -88,29 +75,21 @@ fun example() {
 }
 ```
 
-While at the source level these two different accesses are equivalent, it is a best practice to
-always use the named address and not the numerical value assigned to that address.
+ソースレベルでは、これら2つの異なるアクセスは同等ですが、常に名前付きアドレスを使用し、そのアドレスに割り当てられた数値を使用しないことがベストプラクティスです。
 
-Module names can start with a lowercase letter from `a` to `z` or an uppercase letter from `A` to
-`Z`. After the first character, module names can contain underscores `_`, letters `a` to `z`,
-letters `A` to `Z`, or digits `0` to `9`.
+モジュール名は`a`から`z`の小文字または`A`から`Z`の大文字で始まることができます。最初の文字の後、モジュール名にはアンダースコア`_`、`a`から`z`の文字、`A`から`Z`の文字、または`0`から`9`の数字を含めることができます。
 
 ```move
 module a::my_module {}
 module a::foo_bar_42 {}
 ```
 
-Typically, module names start with a lowercase letter. A module named `my_module` should be stored
-in a source file named `my_module.move`.
+通常、モジュール名は小文字で始まります。`my_module`という名前のモジュールは、`my_module.move`という名前のソースファイルに保存する必要があります。
 
-## Members
+## メンバー
 
-All members inside a `module` block can appear in any order. Fundamentally, a module is a collection
-of [`types`](./structs) and [`functions`](./functions). The [`use`](./uses) keyword refers
-to members from other modules. The [`const`](./constants) keyword defines constants that can be
-used in the functions of a module.
+`module`ブロック内のすべてのメンバーは任意の順序で現れることができます。基本的に、モジュールは[`types`](./structs)と[`functions`](./functions)のコレクションです。[`use`](./uses)キーワードは他のモジュールからのメンバーを参照します。[`const`](./constants)キーワードは、モジュールの関数で使用できる定数を定義します。
 
-The [`friend`](./friends) syntax is a deprecated concept for specifying a list of trusted
-modules. The concept has been superseded by [`public(package)`](./functions#visibility)
+[`friend`](./friends)構文は、信頼されたモジュールのリストを指定するための非推奨の概念です。この概念は[`public(package)`](./functions#visibility)に置き換えられました
 
 <!-- TODO member access rules -->

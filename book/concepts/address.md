@@ -1,4 +1,4 @@
-# Address
+# アドレス（Address）
 
 <!--
 
@@ -25,36 +25,31 @@ Links:
 
  -->
 
-Address is a unique identifier of a location on the blockchain. It is used to identify
-[packages](./packages), [accounts](./what-is-an-account), and [objects](./../object/object-model).
-Address has a fixed size of 32 bytes and is usually represented as a hexadecimal string prefixed
-with `0x`. Addresses are case insensitive.
+アドレスは、ブロックチェーン上の場所を示す一意の識別子です。
+[パッケージ](./packages)、[アカウント](./what-is-an-account)、および[オブジェクト](./../object/object-model)を識別するために使用されます。
+アドレスは32バイトの固定サイズを持ち、通常は`0x`で始まる16進数文字列として表現されます。アドレスは大文字小文字を区別しません。
 
 ```move
 0xe51ff5cd221a81c3d6e22b9e670ddf99004d71de4f769b0312b68c7c4872e2f1
 ```
 
-The address above is an example of a valid address. It is 64 characters long (32 bytes) and prefixed
-with `0x`.
+上記のアドレスは有効なアドレスの例です。64文字（32バイト）の長さで、`0x`で始まっています。
 
-Sui also has reserved addresses that are used to identify standard packages and objects. Reserved
-addresses are typically simple values that are easy to remember and type. For example, the address
-of the Standard Library is `0x1`. Addresses, shorter than 32 bytes, are padded with zeros to the
-left.
+Suiには、標準パッケージやオブジェクトを識別するために使用される予約アドレスもあります。予約アドレスは通常、覚えやすく入力しやすい簡単な値です。例えば、標準ライブラリのアドレスは`0x1`です。32バイトより短いアドレスは、左側にゼロが埋め込まれます。
 
 ```move
 0x1 = 0x0000000000000000000000000000000000000000000000000000000000000001
 ```
 
-Here are some examples of reserved addresses:
+予約アドレスの例を以下に示します：
 
-- `0x1` - address of the Sui Standard Library (alias `std`)
-- `0x2` - address of the Sui Framework (alias `sui`)
-- `0x6` - address of the system `Clock` object
+- `0x1` - Sui標準ライブラリのアドレス（エイリアス`std`）
+- `0x2` - Suiフレームワークのアドレス（エイリアス`sui`）
+- `0x6` - システムの`Clock`オブジェクトのアドレス
 
-> You can find all reserved addresses in the [Appendix B](../appendix/reserved-addresses).
+> すべての予約アドレスは[付録B](../appendix/reserved-addresses)で確認できます。
 
-## Further Reading
+## 関連資料
 
-- [Address type](../move-basics/address) in Move
-- [sui::address module](https://docs.sui.io/references/framework/sui/address)
+- Move の[アドレス型](../move-basics/address)
+- [sui::address モジュール](https://docs.sui.io/references/framework/sui/address)

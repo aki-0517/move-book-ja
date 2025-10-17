@@ -1,97 +1,79 @@
-# Importing Modules
+# モジュールのインポート
 
 <!--
-    TODO: create a better example for:
-        1. Importing a module in general
-        2. Importing a member
-        3. Importing multiple members
-        4. Grouping imports
-        5. Self keyword for groups
+    TODO: より良い例を作成する：
+        1. 一般的なモジュールのインポート
+        2. メンバーのインポート
+        3. 複数メンバーのインポート
+        4. インポートのグループ化
+        5. グループ用のSelfキーワード
 -->
 
 <!--
 
-Goals:
-    - Show the import syntax
-    - Local dependencies
-    - External dependencies
-    - Importing modules from other packages
+目標：
+    - インポート構文の表示
+    - ローカル依存関係
+    - 外部依存関係
+    - 他のパッケージからのモジュールインポート
 
  -->
 
-Move achieves high modularity and code reuse by allowing module imports. Modules within the same
-package can import each other, and a new package can depend on already existing packages and use
-their modules too. This section will cover the basics of importing modules and how to use them in
-your own code.
+Moveはモジュールのインポートを許可することで、高いモジュール性とコードの再利用を実現しています。同じパッケージ内のモジュールは互いにインポートでき、新しいパッケージは既存のパッケージに依存し、それらのモジュールも使用できます。このセクションでは、モジュールのインポートの基本と、独自のコードでそれらを使用する方法について説明します。
 
-## Importing a Module
+## モジュールのインポート
 
-Modules defined in the same package can import each other. The `use` keyword is followed by the
-module path, which consists of the package address (or alias) and the module name separated by `::`.
+同じパッケージ内で定義されたモジュールは互いにインポートできます。`use`キーワードの後にモジュールパスが続き、これはパッケージアドレス（またはエイリアス）と`::`で区切られたモジュール名で構成されます。
 
 ```move title="File: sources/module_one.move" file=packages/samples/sources/move-basics/importing-modules.move anchor=module_one
 
 ```
 
-Another module defined in the same package can import the first module using the `use` keyword.
+同じパッケージ内で定義された別のモジュールは、`use`キーワードを使用して最初のモジュールをインポートできます。
 
 ```move title="File: sources/module_two.move" file=packages/samples/sources/move-basics/importing-modules-two.move anchor=module_two
 
 ```
 
-> Note: Any item (struct, function, constant, etc.) that you want to import from another module must
-> be marked with the `public` (or `public(package)` - see [visibility modifiers](./visibility))
-> keyword to make it accessible outside its defining module. For example, the `Character` struct and
-> the `new` function in `module_one` are marked public so they can be used in `module_two`.
+> 注意：他のモジュールからインポートしたい任意のアイテム（構造体、関数、定数など）は、定義モジュールの外部でアクセス可能にするために`public`（または`public(package)` - [可視性修飾子](./visibility)を参照）キーワードでマークする必要があります。例えば、`module_one`の`Character`構造体と`new`関数は、`module_two`で使用できるようにパブリックにマークされています。
 
-## Importing Members
+## メンバーのインポート
 
-You can also import specific members from a module. This is useful when you only need a single
-function or a single type from a module. The syntax is the same as for importing a module, but you
-add the member name after the module path.
+モジュールから特定のメンバーをインポートすることもできます。これは、モジュールから単一の関数または単一の型のみが必要な場合に便利です。構文はモジュールのインポートと同じですが、モジュールパスの後にメンバー名を追加します。
 
 ```move file=packages/samples/sources/move-basics/importing-modules-members.move anchor=members
 
 ```
 
-## Grouping Imports
+## インポートのグループ化
 
-Imports can be grouped into a single `use` statement using curly braces `{}`. This allows for
-cleaner and more organized code when importing multiple members from the same module or package.
+インポートは中括弧`{}`を使用して単一の`use`ステートメントにグループ化できます。これにより、同じモジュールまたはパッケージから複数のメンバーをインポートする際に、よりクリーンで整理されたコードが可能になります。
 
 ```move file=packages/samples/sources/move-basics/importing-modules-grouped.move anchor=grouped
 
 ```
 
-Importing function names is less common in Move, since the function names can overlap and cause
-confusion. A recommended practice is to import the entire module and use the module path to access
-the function. Types have unique names and should be imported individually.
+Moveでは関数名のインポートは一般的ではありません。これは、関数名が重複して混乱を招く可能性があるためです。推奨される実践は、モジュール全体をインポートし、モジュールパスを使用して関数にアクセスすることです。型には一意の名前があり、個別にインポートすべきです。
 
-To import members and the module itself in the group import, you can use the `Self` keyword. The
-`Self` keyword refers to the module itself and can be used to import the module and its members.
+グループインポートでメンバーとモジュール自体の両方をインポートするには、`Self`キーワードを使用できます。`Self`キーワードはモジュール自体を参照し、モジュールとそのメンバーをインポートするために使用できます。
 
 ```move file=packages/samples/sources/move-basics/importing-modules-self.move anchor=self
 
 ```
 
-## Resolving Name Conflicts
+## 名前の競合の解決
 
-When importing multiple members from different modules, it is possible to have name conflicts. For
-example, if you import two modules that both have a function with the same name, you will need to
-use the module path to access the function. It is also possible to have modules with the same name
-in different packages. To resolve the conflict and avoid ambiguity, Move offers the `as` keyword to
-rename the imported member.
+異なるモジュールから複数のメンバーをインポートする際、名前の競合が発生する可能性があります。例えば、同じ名前の関数を持つ2つのモジュールをインポートした場合、関数にアクセスするためにモジュールパスを使用する必要があります。異なるパッケージに同じ名前のモジュールがある場合もあります。競合を解決し、曖昧さを避けるために、Moveはインポートされたメンバーをリネームする`as`キーワードを提供します。
 
 ```move file=packages/samples/sources/move-basics/importing-modules-conflict-resolution.move anchor=conflict
 
 ```
 
-## Adding an External Dependency
+## 外部依存関係の追加
 
-Move packages can depend on other packages; the dependencies are listed in the
-[Package Manifest](./../concepts/manifest) file called `Move.toml`.
+Moveパッケージは他のパッケージに依存できます。依存関係は`Move.toml`という[パッケージマニフェスト](./../concepts/manifest)ファイルにリストされます。
 
-Package dependencies are defined in the [Package Manifest](./../concepts/manifest) as follows:
+パッケージ依存関係は[パッケージマニフェスト](./../concepts/manifest)で以下のように定義されます：
 
 ```ini title="Move.toml"
 [dependencies]
@@ -99,35 +81,22 @@ Example = { git = "https://github.com/Example/example.git", subdir = "path/to/pa
 Local = { local = "../my_other_package" }
 ```
 
-The `dependencies` section contains an entry for each package dependency. The key of the entry is
-the name of the package (`Example` or `Local` in the example), and the value is either a git import
-table or a local path. The git import contains the URL of the package, the subdirectory where the
-package is located, and the revision of the package. The local path is a relative path to the qa
-package directory.
+`dependencies`セクションには、各パッケージ依存関係のエントリが含まれています。エントリのキーはパッケージ名（例では`Example`または`Local`）で、値はgitインポートテーブルまたはローカルパスです。gitインポートには、パッケージのURL、パッケージが配置されているサブディレクトリ、パッケージのリビジョンが含まれます。ローカルパスは、パッケージディレクトリへの相対パスです。
 
-If you add a dependency, all of its dependencies also become available to your package.
+依存関係を追加すると、そのすべての依存関係もパッケージで利用可能になります。
 
-If a dependency is added to the `Move.toml` file, the compiler will automatically fetch (and later
-refetch) the dependencies when building the package.
+`Move.toml`ファイルに依存関係が追加されると、コンパイラはパッケージをビルドする際に自動的に依存関係を取得（および後で再取得）します。
 
-> Starting with version 1.45 of the sui CLI, the system packages are automatically included as
-> dependencies for all packages if they are not present in `Move.toml`. Therefore, `MoveStdlib`,
-> `Sui`, `System`, `Bridge`, and `Deepbook` are all available without an explicit import.
+> sui CLIのバージョン1.45から、システムパッケージは`Move.toml`に存在しない場合、すべてのパッケージの依存関係として自動的に含まれます。したがって、`MoveStdlib`、`Sui`、`System`、`Bridge`、`Deepbook`はすべて明示的なインポートなしで利用可能です。
 
-## Importing a Module from Another Package
+## 他のパッケージからのモジュールインポート
 
-Normally, packages define their addresses in the `[addresses]` section. You can use aliases instead
-of full addresses. For example, instead of using `0x2::coin` to reference the Sui `coin` module, you
-can use `sui::coin`. The `sui` alias is defined in the Sui Framework package's manifest. Similarly,
-the `std` alias is defined in the Standard Library package and can be used instead of `0x1` to
-access standard library modules.
+通常、パッケージは`[addresses]`セクションでアドレスを定義します。完全なアドレスの代わりにエイリアスを使用できます。例えば、Suiの`coin`モジュールを参照するために`0x2::coin`を使用する代わりに、`sui::coin`を使用できます。`sui`エイリアスはSui Frameworkパッケージのマニフェストで定義されています。同様に、`std`エイリアスは標準ライブラリパッケージで定義されており、標準ライブラリモジュールにアクセスするために`0x1`の代わりに使用できます。
 
-To import a module from another package, use the `use` keyword followed by the module path. The
-module path consists of the package address (or alias) and the module name, separated by `::`.
+他のパッケージからモジュールをインポートするには、`use`キーワードの後にモジュールパスを使用します。モジュールパスは、パッケージアドレス（またはエイリアス）と`::`で区切られたモジュール名で構成されます。
 
 ```move file=packages/samples/sources/move-basics/importing-modules-external.move anchor=external
 
 ```
 
-> Note: Module address names come from the `[addresses]` section of the manifest file (`Move.toml`),
-> not the names used in the `[dependencies]` section.
+> 注意：モジュールアドレス名は、マニフェストファイル（`Move.toml`）の`[addresses]`セクションから来ます。`[dependencies]`セクションで使用される名前ではありません。

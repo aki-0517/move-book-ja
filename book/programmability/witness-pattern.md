@@ -1,22 +1,22 @@
-# Pattern: Witness
+# パターン：ウィットネス
 
-Witness is a pattern of proving an existence by constructing a proof. In the context of programming,
-witness is a way to prove a certain property of a system by providing a value that can only be
-constructed if the property holds.
+ウィットネスは、証明を構築することによって存在を証明するパターンです。プログラミングの文脈では、
+ウィットネスは、プロパティが保持されている場合にのみ構築できる値を提供することによって、
+システムの特定のプロパティを証明する方法です。
 
-## Witness in Move
+## Moveでのウィットネス
 
-In the [Struct](./../move-basics/struct) section we have shown that a struct can only be created -
-or _packed_ - by the module defining it. Hence, in Move, a module proves ownership of the type by
-constructing it. This is one of the most important patterns in Move, and it is widely used for
-generic type instantiation and authorization.
+[Struct](./../move-basics/struct)セクションでは、構造体はそれを定義するモジュールによってのみ
+作成（または_パック_）できることを示しました。したがって、Moveでは、モジュールは型を構築することによって
+その型の所有権を証明します。これはMoveで最も重要なパターンの一つであり、
+ジェネリック型のインスタンス化と認証に広く使用されています。
 
-Practically speaking, for the witness to be used, there has to be a function that expects a witness
-as an argument. In the example below it is the `new` function that expects a witness of the `T` type
-to create a `Instance<T>` instance.
+実際には、ウィットネスを使用するには、ウィットネスを引数として期待する関数が
+必要です。以下の例では、`Instance<T>`インスタンスを作成するために`T`型のウィットネスを
+期待する`new`関数です。
 
-> It is often the case that the witness struct is not stored, and for that the function may require
-> the [Drop](./../move-basics/drop-ability) ability for the type.
+> ウィットネス構造体が格納されないことが多く、そのため関数は型に
+> [Drop](./../move-basics/drop-ability)アビリティを要求する場合があります。
 
 ```move
 module book::witness;
@@ -30,32 +30,32 @@ public fun new<T>(witness: T): Instance<T> {
 }
 ```
 
-The only way to construct an `Instance<T>` is to call the `new` function with an instance of the
-type `T`. This is a basic example of the witness pattern in Move. A module providing a witness often
-has a matching implementation, like the module `book::witness_source` below:
+`Instance<T>`を構築する唯一の方法は、型`T`のインスタンスで`new`関数を呼び出すことです。
+これはMoveでのウィットネスパターンの基本的な例です。ウィットネスを提供するモジュールは、
+以下の`book::witness_source`モジュールのように、対応する実装を持つことがよくあります：
 
 ```move
 module book::witness_source;
 
 use book::witness::{Self, Instance};
 
-/// A struct used as a witness.
+/// ウィットネスとして使用される構造体。
 public struct W {}
 
-/// Create a new instance of `Instance<W>`.
+/// `Instance<W>`の新しいインスタンスを作成します。
 public fun new_instance(): Instance<W> {
     witness::new(W {})
 }
 ```
 
-The instance of the struct `W` is passed into the `new_instance` function to create an
-`Instance<W>`, thereby proving that the module `book::witness_source` owns the type `W`.
+構造体`W`のインスタンスは`new_instance`関数に渡されて`Instance<W>`を作成し、
+それによって`book::witness_source`モジュールが型`W`を所有していることを証明します。
 
-## Instantiating a Generic Type
+## ジェネリック型のインスタンス化
 
-Witness allows generic types to be instantiated with a concrete type. This is useful for inheriting
-associated behaviors from the type with an option to extend them, if the module provides the ability
-to do so.
+ウィットネスにより、ジェネリック型を具体的な型でインスタンス化できます。
+これは、モジュールがその能力を提供する場合、型から関連する動作を継承し、
+それらを拡張するオプションを持つのに役立ちます。
 
 ```move
 module sui::balance;
@@ -76,27 +76,27 @@ public fun supply_value<T>(supply: &Supply<T>): u64 {
 }
 ```
 
-In the example above, which is borrowed from the [`balance` module][balance-framework] of the
-[Sui Framework](./sui-framework), the `Supply` is a generic struct that can be constructed only by
-supplying a witness of the type `T`. The witness is taken by value and _discarded_ - hence the `T`
-must have the [drop](./../move-basics/drop-ability) ability.
+上記の例は[Sui Framework](./sui-framework)の[`balance` module][balance-framework]から
+借用したもので、`Supply`は型`T`のウィットネスを提供することによってのみ構築できる
+ジェネリック構造体です。ウィットネスは値で受け取られ、_破棄_されます - したがって`T`は
+[drop](./../move-basics/drop-ability)アビリティを持たなければなりません。
 
 [balance-framework]: https://docs.sui.io/references/framework/sui/balance
 
-The instantiated `Supply<T>` can then be used to mint new `Balance<T>`'s, where `T` is the type of
-the supply.
+インスタンス化された`Supply<T>`は、`T`が供給の型である新しい`Balance<T>`を
+ミントするために使用できます。
 
 ```move
 module sui::balance;
 
 const EOverflow: u64 = 0;
 
-/// Storable balance.
+/// 格納可能なバランス。
 public struct Balance<phantom T> has store {
     value: u64,
 }
 
-/// Increase supply by `value` and create a new `Balance<T>` with this value.
+/// 供給を`value`だけ増やし、この値で新しい`Balance<T>`を作成します。
 public fun increase_supply<T>(self: &mut Supply<T>, value: u64): Balance<T> {
     assert!(value < (std::u64::max_value!() - self.value), EOverflow);
     self.value = self.value + value;
@@ -104,19 +104,19 @@ public fun increase_supply<T>(self: &mut Supply<T>, value: u64): Balance<T> {
 }
 ```
 
-## One Time Witness
+## ワンタイムウィットネス
 
-While a struct can be created any number of times, there are cases where a struct should be
-guaranteed to be created only once. For this purpose, Sui provides the "One-Time Witness" - a
-special witness that can only be used once. We explain it in more detail in the
-[next section](./one-time-witness).
+構造体は任意の回数作成できますが、構造体が一度だけ作成されることを保証する必要がある
+場合があります。この目的のために、Suiは「ワンタイムウィットネス」を提供します - 
+一度だけ使用できる特別なウィットネスです。これについては[次のセクション](./one-time-witness)で
+より詳しく説明します。
 
-## Summary
+## まとめ
 
-- Witness is a pattern of proving a certain property by constructing a proof.
-- In Move, a module proves ownership of a type by constructing it.
-- Witness is often used for generic type instantiation and authorization.
+- ウィットネスは、証明を構築することによって特定のプロパティを証明するパターンです。
+- Moveでは、モジュールは型を構築することによってその型の所有権を証明します。
+- ウィットネスは、ジェネリック型のインスタンス化と認証によく使用されます。
 
-## Next Steps
+## 次のステップ
 
-In the next section, we will learn about the [One Time Witness](./one-time-witness) pattern.
+次のセクションでは、[ワンタイムウィットネス](./one-time-witness)パターンについて学びます。

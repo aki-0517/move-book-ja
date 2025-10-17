@@ -1,74 +1,73 @@
-# Epoch and Time
+# エポックと時間
 
-Sui has two ways of accessing the current time: `Epoch` and `Time`. The former represents
-operational periods in the system and changed roughly every 24 hours. The latter represents the
-current time in milliseconds since the Unix Epoch. Both can be accessed freely in the program.
+Suiには現在の時間にアクセスする2つの方法があります：`Epoch`と`Time`です。前者は
+システムの運用期間を表し、約24時間ごとに変更されます。後者は、Unixエポックからの
+現在の時間をミリ秒で表します。両方ともプログラム内で自由にアクセスできます。
 
-## Epoch
+## エポック
 
-Epochs are used to separate the system into operational periods. During an epoch the validator set
-is fixed, however, at the epoch boundary, the validator set can be changed. Epochs play a crucial
-role in the consensus algorithm and are used to determine the current validator set. They are also
-used as measurement in the staking mechanism.
+エポックは、システムを運用期間に分離するために使用されます。エポック中はバリデーターセットが
+固定されますが、エポック境界では、バリデーターセットを変更できます。エポックは
+コンセンサスアルゴリズムで重要な役割を果たし、現在のバリデーターセットを決定するために
+使用されます。また、ステーキングメカニズムでの測定にも使用されます。
 
-Epoch can be read from the [transaction context](./transaction-context):
+エポックは[トランザクションコンテキスト](./transaction-context)から読み取ることができます：
 
 ```move file=packages/samples/sources/programmability/epoch-and-time.move anchor=epoch
 
 ```
 
-It is also possible to get the unix timestamp of the epoch start:
+エポック開始のUnixタイムスタンプを取得することも可能です：
 
 ```move file=packages/samples/sources/programmability/epoch-and-time.move anchor=epoch_start
 
 ```
 
-Normally, epochs are used in staking and system operations, however, in custom scenarios they can be
-used to emulate 24h periods. They are critical if an application relies on the staking logic or
-needs to know the current validator set.
+通常、エポックはステーキングとシステム操作で使用されますが、カスタムシナリオでは
+24時間期間をエミュレートするために使用できます。アプリケーションがステーキングロジックに
+依存している場合や、現在のバリデーターセットを知る必要がある場合は重要です。
 
-## Time
+## 時間
 
-For a more precise time measurement, Sui provides the `Clock` object. It is a system object that is
-updated during checkpoints by the system, which stores the current time in milliseconds since the
-Unix Epoch. The `Clock` object is defined in the `sui::clock` module and has a reserved address
-`0x6`.
+より正確な時間測定のために、Suiは`Clock`オブジェクトを提供します。これは、システムによって
+チェックポイント中に更新されるシステムオブジェクトで、Unixエポックからの現在の時間を
+ミリ秒で格納します。`Clock`オブジェクトは`sui::clock`モジュールで定義され、
+予約済みアドレス`0x6`を持ちます。
 
-Clock is a shared object, but a transaction attempting to access it mutably will fail. This
-limitation allows parallel access to the `Clock` object, which is important for maintaining
-performance.
+Clockは共有オブジェクトですが、可変でアクセスしようとするトランザクションは失敗します。
+この制限により、`Clock`オブジェクトへの並列アクセスが可能になり、パフォーマンスの維持に
+重要です。
 
 ```move
 module sui::clock;
 
-/// Singleton shared object that exposes time to Move calls.  This
-/// object is found at address 0x6, and can only be read (accessed
-/// via an immutable reference) by entry functions.
+/// Move呼び出しに時間を公開するシングルトン共有オブジェクト。この
+/// オブジェクトはアドレス0x6にあり、エントリ関数によってのみ読み取り可能
+/// （不変参照を介してアクセス）です。
 ///
-/// Entry Functions that attempt to accept `Clock` by mutable
-/// reference or value will fail to verify, and honest validators
-/// will not sign or execute transactions that use `Clock` as an
-/// input parameter, unless it is passed by immutable reference.
+/// 可変参照または値で`Clock`を受け入れようとするエントリ関数は
+/// 検証に失敗し、正直なバリデーターは不変参照として渡されない限り、
+/// `Clock`を入力パラメータとして使用するトランザクションに署名または
+/// 実行しません。
 public struct Clock has key {
     id: UID,
-    /// The clock's timestamp, which is set automatically by a
-    /// system transaction every time consensus commits a
-    /// schedule, or by `sui::clock::increment_for_testing` during
-    /// testing.
+    /// クロックのタイムスタンプ。これは、コンセンサスがスケジュールを
+    /// コミットするたびにシステムトランザクションによって自動的に設定されるか、
+    /// テスト中は`sui::clock::increment_for_testing`によって設定されます。
     timestamp_ms: u64,
 }
 ```
 
-There is only one public function available in the `Clock` module - `timestamp_ms`. It returns the
-current time in milliseconds since the Unix Epoch.
+`Clock`モジュールで利用可能なパブリック関数は1つだけです - `timestamp_ms`です。
+これは、Unixエポックからの現在の時間をミリ秒で返します。
 
 ```move file=packages/samples/sources/programmability/epoch-and-time.move anchor=clock
 
 ```
 
-## Testing
+## テスト
 
-The `Clock` module provides a number of methods for use in testing.
+`Clock`モジュールは、テストで使用するための多くのメソッドを提供します。
 
 ```move file=packages/samples/sources/programmability/epoch-and-time.move anchor=test
 

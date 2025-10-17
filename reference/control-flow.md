@@ -1,17 +1,13 @@
 ---
-title: 'Control Flow | Reference'
+title: '制御フロー | リファレンス'
 description: ''
 ---
 
-# Control Flow
+# 制御フロー
 
-Move offers multiple constructs for control flow based on
-[boolean expressions](./primitive-types/bool), including common programming constructs such as `if`
-expressions and `while` and `for` loops, along with advanced control flow structures including
-labels for loops and escapable named blocks. It also supports more complex constructs based on
-structural pattern matching.
+Moveは[ブール式](./primitive-types/bool)に基づく制御フローのための複数の構造を提供しており、`if`式や`while`と`for`ループなどの一般的なプログラミング構造、ループのラベルや脱出可能な名前付きブロックを含む高度な制御フロー構造があります。また、構造的パターンマッチングに基づくより複雑な構造もサポートしています。
 
-- [Conditional Expressions](./control-flow/conditionals)
-- [Pattern Matching](./control-flow/pattern-matching)
-- [Loops](./control-flow/loops)
-- [Labeled Control FLow](./control-flow/labeled-control-flow)
+- [条件式](./control-flow/conditionals)
+- [パターンマッチング](./control-flow/pattern-matching)
+- [ループ](./control-flow/loops)
+- [ラベル付き制御フロー](./control-flow/labeled-control-flow)

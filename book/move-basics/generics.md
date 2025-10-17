@@ -1,124 +1,88 @@
-# Generics
+# ジェネリクス
 
-Generics are a way to define a type or function that can work with any type. This is useful when you
-want to write a function which can be used with different types, or when you want to define a type
-that can hold any other type. Generics are the foundation of many advanced features in Move
-including collections, abstract implementations, and more.
+ジェネリクスは、あらゆる型で動作する型や関数を定義する方法です。これは、異なる型で使用できる関数を書きたい場合や、他の任意の型を保持できる型を定義したい場合に有用です。ジェネリクスは、コレクション、抽象実装など、Moveの多くの高度な機能の基盤となっています。
 
-## In the Standard Library
+## 標準ライブラリでの使用
 
-In this chapter we already mentioned the [vector](./vector) type, which is a generic type that can
-hold any other type. Another example of a generic type in the standard library is the
-[Option](./option) type, which is used to represent a value that may or may not be present.
+この章では既に[vector](./vector)型について説明しましたが、これは他の任意の型を保持できるジェネリック型です。標準ライブラリでのジェネリック型のもう一つの例は[Option](./option)型で、これは存在する場合としない場合がある値を表現するために使用されます。
 
-## Generic Syntax
+## ジェネリクス構文
 
-To define a generic type or function, a type signature needs to have a list of generic parameters
-enclosed in angle brackets (`<` and `>`). The generic parameters are separated by commas.
+ジェネリック型または関数を定義するには、型シグネチャに角括弧（`<`と`>`）で囲まれたジェネリックパラメータのリストが必要です。ジェネリックパラメータはカンマで区切られます。
 
 ```move file=packages/samples/sources/move-basics/generics.move anchor=container
 
 ```
 
-In the example above, `Container` is a generic type with a single type parameter `T`, the `value`
-field of the container stores the `T`. The `new` function is a generic function with a single type
-parameter `T`, and it returns a `Container` with the given value. Generic types must be initialized
-with a concrete type, and generic functions must be called with a concrete type, although in some
-cases the Move compiler can infer the correct type.
+上記の例では、`Container`は単一の型パラメータ`T`を持つジェネリック型で、コンテナの`value`フィールドは`T`を格納します。`new`関数は単一の型パラメータ`T`を持つジェネリック関数で、与えられた値を持つ`Container`を返します。ジェネリック型は具象型で初期化する必要があり、ジェネリック関数は具象型で呼び出す必要がありますが、場合によってはMoveコンパイラが正しい型を推論できます。
 
 ```move file=packages/samples/sources/move-basics/generics.move anchor=test_container
 
 ```
 
-In the test function `test_container`, we demonstrate three equivalent ways to create a new
-`Container` with a `u8` value. Because numeric constants have ambiguous types, we must specify the
-type of the number literal somewhere (in the type of the container, the parameter to `new`, or the
-number literal itself); once we specify one of these the compiler can infer the others.
+テスト関数`test_container`では、`u8`値を持つ新しい`Container`を作成する3つの同等な方法を示しています。数値定数は曖昧な型を持つため、どこかで数値リテラルの型を指定する必要があります（コンテナの型、`new`のパラメータ、または数値リテラル自体で）。これらの一つを指定すると、コンパイラは他を推論できます。
 
-## Multiple Type Parameters
+## 複数の型パラメータ
 
-You can define a type or function with multiple type parameters. The type parameters are separated
-by commas.
+複数の型パラメータを持つ型や関数を定義できます。型パラメータはカンマで区切られます。
 
 ```move file=packages/samples/sources/move-basics/generics.move anchor=pair
 
 ```
 
-In the example above, `Pair` is a generic type with two type parameters `T` and `U`, and the
-`new_pair` function is a generic function with two type parameters `T` and `U`. The function returns
-a `Pair` with the given values. The order of the type parameters is important, and should match the
-order of the type parameters in the type signature.
+上記の例では、`Pair`は2つの型パラメータ`T`と`U`を持つジェネリック型で、`new_pair`関数は2つの型パラメータ`T`と`U`を持つジェネリック関数です。この関数は与えられた値を持つ`Pair`を返します。型パラメータの順序は重要で、型シグネチャの型パラメータの順序と一致する必要があります。
 
 ```move file=packages/samples/sources/move-basics/generics.move anchor=test_pair
 
 ```
 
-If we added another instance where we swapped type parameters in the `new_pair` function, and tried
-to compare two types, we'd see that the type signatures are different, and cannot be compared.
+`new_pair`関数で型パラメータを入れ替えた別のインスタンスを追加し、2つの型を比較しようとすると、型シグネチャが異なり、比較できないことがわかります。
 
 ```move file=packages/samples/sources/move-basics/generics.move anchor=test_pair_swap
 
 ```
 
-Since the types for `pair1` and `pair2` are different, the comparison `pair1 == pair2` will not
-compile.
+`pair1`と`pair2`の型が異なるため、比較`pair1 == pair2`はコンパイルされません。
 
-## Why Generics?
+## なぜジェネリクスが必要なのか？
 
-In the examples above we focused on instantiating generic types and calling generic functions to
-create instances of these types. However, the real power of generics lies in their ability to define
-shared behavior for the base, generic type, and then use it independently of the concrete types.
-This is especially useful when working with collections, abstract implementations, and other
-advanced features in Move.
+上記の例では、ジェネリック型をインスタンス化し、ジェネリック関数を呼び出してこれらの型のインスタンスを作成することに焦点を当てました。しかし、ジェネリクスの真の力は、基本的なジェネリック型に対して共有の動作を定義し、具象型とは独立してそれを使用できることにあります。これは、コレクション、抽象実装、およびMoveの他の高度な機能を扱う際に特に有用です。
 
 ```move file=packages/samples/sources/move-basics/generics.move anchor=user
 
 ```
 
-In the example above, `User` is a generic type with a single type parameter `T`, with shared fields
-`name`, `age`, and the generic `metadata` field, which can store any type. No matter what `metadata`
-is, all instances of `User` will contain the same fields and methods.
+上記の例では、`User`は単一の型パラメータ`T`を持つジェネリック型で、共有フィールド`name`、`age`、および任意の型を格納できるジェネリック`metadata`フィールドを持っています。`metadata`が何であっても、`User`のすべてのインスタンスは同じフィールドとメソッドを含みます。
 
 ```move file=packages/samples/sources/move-basics/generics.move anchor=update_user
 
 ```
 
-## Phantom Type Parameters
+## ファントム型パラメータ
 
-In some cases, you may want to define a generic type with a type parameter that is not used in the
-fields or methods of the type. This is called a _phantom type parameter_. Phantom type parameters
-are useful when you want to define a type that can hold any other type, but you want to enforce some
-constraints on the type parameter.
+場合によっては、型のフィールドやメソッドで使用されない型パラメータを持つジェネリック型を定義したいことがあります。これは_ファントム型パラメータ_と呼ばれます。ファントム型パラメータは、他の任意の型を保持できる型を定義したいが、型パラメータにいくつかの制約を強制したい場合に有用です。
 
 ```move file=packages/samples/sources/move-basics/generics.move anchor=phantom
 
 ```
 
-The `Coin` type here does not contain any fields or methods that use the type parameter `T`. It is
-used to differentiate between different types of coins, and to enforce some constraints on the type
-parameter `T`.
+ここでの`Coin`型は、型パラメータ`T`を使用するフィールドやメソッドを含んでいません。これは異なる種類のコインを区別し、型パラメータ`T`にいくつかの制約を強制するために使用されます。
 
 ```move file=packages/samples/sources/move-basics/generics.move anchor=test_phantom
 
 ```
 
-In the example above, we demonstrate how to create two different instances of `Coin` with different
-phantom type parameters `USD` and `EUR`. The type parameter `T` is not used in the fields or methods
-of the `Coin` type, but it is used to differentiate between different types of coins. This helps
-ensure that the `USD` and `EUR` coins are not mistakenly mixed up.
+上記の例では、異なるファントム型パラメータ`USD`と`EUR`を持つ2つの異なる`Coin`インスタンスを作成する方法を示しています。型パラメータ`T`は`Coin`型のフィールドやメソッドでは使用されませんが、異なる種類のコインを区別するために使用されます。これにより、`USD`と`EUR`のコインが誤って混同されないことが保証されます。
 
-## Constraints on Type Parameters
+## 型パラメータの制約
 
-Type parameters can be constrained to have certain abilities. This is useful when you need the inner
-type to allow certain behaviors, such as _copy_ or _drop_. The syntax for constraining a type
-parameter is `T: <ability> + <ability>`.
+型パラメータは特定のアビリティを持つように制約できます。これは、内部型が_copy_や_drop_などの特定の動作を許可する必要がある場合に有用です。型パラメータを制約する構文は`T: <ability> + <ability>`です。
 
 ```move file=packages/samples/sources/move-basics/generics.move anchor=constraints
 
 ```
 
-The Move Compiler will enforce that the type parameter `T` has the specified abilities. If the type
-parameter does not have the specified abilities, the code will not compile.
+Moveコンパイラは、型パラメータ`T`が指定されたアビリティを持つことを強制します。型パラメータが指定されたアビリティを持たない場合、コードはコンパイルされません。
 
 <!-- TODO: failure case -->
 
@@ -126,6 +90,6 @@ parameter does not have the specified abilities, the code will not compile.
 
 ```
 
-## Further Reading
+## 参考文献
 
-- [Generics](./../../reference/generics) in the Move Reference.
+- Move Referenceの[Generics](./../../reference/generics)。

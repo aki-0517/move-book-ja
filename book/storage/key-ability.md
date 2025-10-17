@@ -1,71 +1,56 @@
-# Ability: Key
+# アビリティ: Key
 
-In the [Basic Syntax][basic-syntax] chapter, we already covered two out of four abilities:
-[Drop][drop-ability] and [Copy][copy-ability]. They affect the behavior of a value in a scope and
-are not directly related to storage. Now it is time to cover the `key` ability, which allows a
-struct to be _stored_.
+[基本構文][basic-syntax]の章では、4つのアビリティのうち2つ、[Drop][drop-ability]と[Copy][copy-ability]について既に説明しました。これらはスコープ内での値の動作に影響し、ストレージと直接関係ありません。今度は`key`アビリティについて説明します。これは構造体を_ストア_できるようにします。
 
-Historically, the `key` ability was created to mark a type as a _key in storage_. A type with the
-`key` ability could be stored at the top level in global storage and could be _owned_ by an account
-or address. With the introduction of the [Object Model][object-model], the `key` ability became the
-defining ability for _objects_.
+歴史的に、`key`アビリティは型を_ストレージ内のキー_としてマークするために作成されました。`key`アビリティを持つ型は、グローバルストレージのトップレベルに保存でき、アカウントやアドレスによって_所有_されることができました。[オブジェクトモデル][object-model]の導入により、`key`アビリティは_オブジェクト_の定義アビリティとなりました。
 
-> Later in the book, we will refer to any struct with the `key` ability as an Object.
+> 本書の後半では、`key`アビリティを持つ任意の構造体をオブジェクトと呼びます。
 
-## Object Definition
+## オブジェクトの定義
 
-A struct with the `key` ability is considered _an object_ and can be used in storage functions. The
-Sui Verifier requires the first field of the struct to be named `id` and to have the type `UID`.
-Additionally, it requires all fields to have the `store` ability — we’ll explore it in detail [on
-the next page][store-ability].
+`key`アビリティを持つ構造体は_オブジェクト_とみなされ、ストレージ関数で使用できます。Sui Verifierは、構造体の最初のフィールドが`id`という名前で、`UID`型を持つことを要求します。さらに、すべてのフィールドが`store`アビリティを持つことを要求します。これについては[次のページ][store-ability]で詳しく説明します。
 
 ```move
-/// `User` object definition.
+/// `User`オブジェクトの定義。
 public struct User has key {
-    id: UID, // required by Sui Bytecode Verifier
-    name: String, // field types must have `store`
+    id: UID, // Suiバイトコード検証器によって要求される
+    name: String, // フィールド型は`store`を持つ必要がある
 }
 
-/// Creates a new instance of the `User` type.
-/// Uses the special struct `TxContext` to derive a Unique ID (UID).
+/// `User`型の新しいインスタンスを作成。
+/// 特別な構造体`TxContext`を使用してユニークID（UID）を導出。
 public fun new(name: String, ctx: &mut TxContext): User {
     User {
-        id: object::new(ctx), // creates a new UID
+        id: object::new(ctx), // 新しいUIDを作成
         name,
     }
 }
 ```
 
-## Relation to `copy` and `drop`
+## `copy`と`drop`との関係
 
-`UID` is a type that does not have the [`drop`][drop-ability] or [`copy`][copy-ability] abilities.
-Since it is required as a field of any type with the `key` ability, this means that types with `key`
-can never have `drop` or `copy`.
+`UID`は[`drop`][drop-ability]や[`copy`][copy-ability]アビリティを持たない型です。`key`アビリティを持つ任意の型のフィールドとして必要であるため、これは`key`を持つ型が`drop`や`copy`を持つことができないことを意味します。
 
-This property can be leveraged in [ability constraints][generics]: requiring `drop` or `copy`
-automatically excludes `key`, and conversely, requiring `key` excludes types with `drop` or `copy`.
+この特性は[アビリティ制約][generics]で活用できます：`drop`や`copy`を要求することは自動的に`key`を除外し、逆に`key`を要求することは`drop`や`copy`を持つ型を除外します。
 
-## Types with the `key` Ability
+## `key`アビリティを持つ型
 
-Due to the `UID` requirement for types with `key`, none of the native types in Move can have the
-`key` ability, nor can any of the types in the [Standard Library][standard-library]. The `key`
-ability is present only in some [Sui Framework][sui-framework] types and in custom types.
+`key`を持つ型の`UID`要件により、Moveのネイティブ型のいずれも`key`アビリティを持つことができず、[Standard Library][standard-library]の型も同様です。`key`アビリティは、一部の[Sui Framework][sui-framework]型とカスタム型にのみ存在します。
 
-## Summary
+## まとめ
 
-- The `key` ability defines an object
-- The first field of an object must be `id` with type `UID`
-- Fields of a `key` type must the have [`store`][store-ability] ability
-- Objects cannot have [`drop`][drop-ability] or [`copy`][copy-ability]
+- `key`アビリティはオブジェクトを定義する
+- オブジェクトの最初のフィールドは`UID`型の`id`でなければならない
+- `key`型のフィールドは[`store`][store-ability]アビリティを持たなければならない
+- オブジェクトは[`drop`][drop-ability]や[`copy`][copy-ability]を持つことができない
 
-## Next Steps
+## 次のステップ
 
-The `key` ability defines objects in Move and forces the fields to have `store`. In the next section
-we cover the `store` ability to later explain how [storage operations](./storage-functions.md) work.
+`key`アビリティはMoveでオブジェクトを定義し、フィールドに`store`を強制します。次のセクションでは[ストレージ操作](./storage-functions.md)の仕組みを説明するために、[`store`アビリティ](./store-ability.md)について説明します。
 
-## Further Reading
+## さらなる学習
 
-- [Type Abilities](./../../reference/abilities) in the Move Reference.
+- Moveリファレンスの[型アビリティ](./../../reference/abilities)。
 
 [drop-ability]: ./../move-basics/drop-ability
 [copy-ability]: ./../move-basics/copy-ability

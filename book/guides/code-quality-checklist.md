@@ -1,196 +1,197 @@
-# Code Quality Checklist
+# コード品質チェックリスト
 
-The rapid evolution of the Move language and its ecosystem has rendered many older practices
-outdated. This guide serves as a checklist for developers to review their code and ensure it aligns
-with current best practices in Move development. Please read carefully and apply as many
-recommendations as possible to your code.
+Move言語とそのエコシステムの急速な進化により、多くの古い実践が時代遅れになっています。
+このガイドは、開発者がコードをレビューし、Move開発の現在のベストプラクティスに
+合致していることを確認するためのチェックリストとして機能します。注意深く読み、
+可能な限り多くの推奨事項をコードに適用してください。
 
-## Code Organization
+## コード組織
 
-Some of the issues mentioned in this guide can be fixed by using
-[Move Formatter](https://www.npmjs.com/package/@mysten/prettier-plugin-move) either as a CLI tool,
-or [as a CI check](https://github.com/marketplace/actions/move-formatter), or
-[as a plugin for VSCode (Cursor)](https://marketplace.visualstudio.com/items?itemName=mysten.prettier-move).
+このガイドで言及されている問題の一部は、
+[Move Formatter](https://www.npmjs.com/package/@mysten/prettier-plugin-move)をCLIツールとして、
+または[CIチェックとして](https://github.com/marketplace/actions/move-formatter)、
+または[VSCode（Cursor）のプラグインとして](https://marketplace.visualstudio.com/items?itemName=mysten.prettier-move)
+使用することで修正できます。
 
-## Package Manifest
+## パッケージマニフェスト
 
-### Use Right Edition
+### 正しいエディションを使用する
 
-All of the features in this guide require Move 2024 Edition, and it has to be specified in the
-package manifest.
+このガイドのすべての機能にはMove 2024エディションが必要であり、
+パッケージマニフェストで指定する必要があります。
 
 ```toml
 [package]
 name = "my_package"
-edition = "2024.beta" # or (just) "2024"
+edition = "2024.beta" # または（単に）"2024"
 ```
 
-### Implicit Framework Dependency
+### 暗黙的なフレームワーク依存関係
 
-Starting with Sui 1.45 you no longer need to specify framework dependency in the `Move.toml`:
+Sui 1.45から、`Move.toml`でフレームワーク依存関係を指定する必要がなくなりました：
 
 ```toml
-# old, pre 1.45
+# 古い、1.45以前
 [dependencies]
 Sui = { ... }
 
-# modern day, Sui, Bridge, MoveStdlib and SuiSystem are imported implicitly!
+# 現代では、Sui、Bridge、MoveStdlib、SuiSystemが暗黙的にインポートされます！
 [dependencies]
 ```
 
-### Prefix Named Addresses
+### 名前付きアドレスにプレフィックスを付ける
 
-If your package has a generic name (e.g., `token`) – especially if your project includes multiple
-packages – make sure to add a prefix to the named address:
+パッケージに汎用的な名前（例：`token`）がある場合、特にプロジェクトに複数の
+パッケージが含まれている場合は、名前付きアドレスにプレフィックスを追加してください：
 
 ```toml
-# bad! not indicative of anything, and can conflict
+# 悪い！何も示しておらず、競合する可能性があります
 [addresses]
 math = "0x0"
 
-# good! clearly states project, unlikely to conflict
+# 良い！プロジェクトを明確に示し、競合する可能性が低いです
 [addresses]
 my_protocol_math = "0x0"
 ```
 
-## Imports, Module and Constants
+## インポート、モジュール、定数
 
-### Using Module Label
+### モジュールラベルの使用
 
 ```move
-// bad: increases indentation, legacy style
+// 悪い：インデントが増加し、レガシースタイル
 module my_package::my_module {
     public struct A {}
 }
 
-// good!
+// 良い！
 module my_package::my_module;
 
 public struct A {}
 ```
 
-### No Single `Self` in `use` Statements
+### `use`文で単一の`Self`を使用しない
 
 ```move
-// correct, member + self import
+// 正しい、メンバー + self インポート
 use my_package::other::{Self, OtherMember};
 
-// bad! `{Self}` is redundant
+// 悪い！`{Self}`は冗長です
 use my_package::my_module::{Self};
 
-// good!
+// 良い！
 use my_package::my_module;
 ```
 
-### Group `use` Statements with `Self`
+### `Self`で`use`文をグループ化する
 
 ```move
-// bad!
+// 悪い！
 use my_package::my_module;
 use my_package::my_module::OtherMember;
 
-// good!
+// 良い！
 use my_package::my_module::{Self, OtherMember};
 ```
 
-### Error Constants are in `EPascalCase`
+### エラー定数は`EPascalCase`
 
 ```move
-// bad! all-caps are used for regular constants
+// 悪い！大文字は通常の定数に使用されます
 const NOT_AUTHORIZED: u64 = 0;
 
-// good! clear indication it's an error constant
+// 良い！エラー定数であることが明確に示されています
 const ENotAuthorized: u64 = 0;
 ```
 
-### Regular Constant are `ALL_CAPS`
+### 通常の定数は`ALL_CAPS`
 
 ```move
-// bad! PascalCase is associated with error consts
+// 悪い！PascalCaseはエラー定数に関連付けられています
 const MyConstant: vector<u8> = b"my const";
 
-// good! clear indication that it's a constant value
+// 良い！定数値であることが明確に示されています
 const MY_CONSTANT: vector<u8> = b"my const";
 ```
 
-## Structs
+## 構造体
 
-### Capabilities are Suffixed with `Cap`
+### ケーパビリティは`Cap`で終わる
 
 ```move
-// bad! if it's a capability, add a `Cap` suffix
+// 悪い！ケーパビリティの場合は`Cap`サフィックスを追加してください
 public struct Admin has key, store {
     id: UID,
 }
 
-// good! reviewer knows what to expect from type
+// 良い！レビュアーは型から何を期待するかがわかります
 public struct AdminCap has key, store {
     id: UID,
 }
 ```
 
-### No `Potato` in Names
+### 名前に`Potato`を使用しない
 
 ```move
-// bad! it has no abilities, we already know it's a Hot-Potato type
+// 悪い！アビリティがなく、Hot-Potato型であることはすでにわかっています
 public struct PromisePotato {}
 
-// good!
+// 良い！
 public struct Promise {}
 ```
 
-### Events Should Be Named in Past Tense
+### イベントは過去形で命名する
 
 ```move
-// bad! not clear what this struct does
+// 悪い！この構造体が何をするかが明確ではありません
 public struct RegisterUser has copy, drop { user: address }
 
-// good! clear, it's an event
+// 良い！明確で、イベントです
 public struct UserRegistered has copy, drop { user: address }
 ```
 
-### Use Positional Structs for Dynamic Field Keys + `Key` Suffix
+### 動的フィールドキーには位置構造体 + `Key`サフィックスを使用する
 
 ```move
-// not as bad, but goes against canonical style
+// それほど悪くはありませんが、標準スタイルに反します
 public struct DynamicField has copy, drop, store {}
 
-// good! canonical style, Key suffix
+// 良い！標準スタイル、Keyサフィックス
 public struct DynamicFieldKey() has copy, drop, store;
 ```
 
-## Functions
+## 関数
 
-### No `public entry`, Only `public` or `entry`
+### `public entry`は使用せず、`public`または`entry`のみ
 
 ```move
-// bad! entry is not required for a function to be callable in a transaction
+// 悪い！トランザクションで関数を呼び出し可能にするためにentryは必要ありません
 public entry fun do_something() { /* ... */ }
 
-// good! public functions are more permissive, can return value
+// 良い！public関数はより寛容で、値を返すことができます
 public fun do_something_2(): T { /* ... */ }
 ```
 
-### Write Composable Functions for PTBs
+### PTB用のコンポーザブル関数を書く
 
 ```move
-// bad! not composable, harder to test!
+// 悪い！コンポーザブルではなく、テストが困難！
 public fun mint_and_transfer(ctx: &mut TxContext) {
     /* ... */
     transfer::transfer(nft, ctx.sender());
 }
 
-// good! composable!
+// 良い！コンポーザブル！
 public fun mint(ctx: &mut TxContext): NFT { /* ... */ }
 
-// good! intentionally not composable
+// 良い！意図的にコンポーザブルではありません
 entry fun mint_and_keep(ctx: &mut TxContext) { /* ... */ }
 ```
 
-### Objects Go First (Except for Clock)
+### オブジェクトを最初に（Clockを除く）
 
 ```move
-// bad! hard to read!
+// 悪い！読みにくい！
 public fun call_app(
     value: u8,
     app: &mut App,
@@ -200,7 +201,7 @@ public fun call_app(
     ctx: &mut TxContext,
 ) { /* ... */ }
 
-// good!
+// 良い！
 public fun call_app(
     app: &mut App,
     cap: &AppCap,
@@ -211,166 +212,166 @@ public fun call_app(
 ) { /* ... */ }
 ```
 
-### Capabilities Go Second
+### ケーパビリティを2番目に
 
 ```move
-// bad! breaks method associativity
+// 悪い！メソッドの結合性を破ります
 public fun authorize_action(cap: &AdminCap, app: &mut App) { /* ... */ }
 
-// good! keeps Cap visible in the signature and maintains `.calls()`
+// 良い！署名でCapを可視に保ち、`.calls()`を維持します
 public fun authorize_action(app: &mut App, cap: &AdminCap) { /* ... */ }
 ```
 
-### Getters Named After Field + `_mut`
+### フィールド名 + `_mut`でゲッターを命名する
 
 ```move
-// bad! unnecessary `get_`
+// 悪い！不要な`get_`
 public fun get_name(u: &User): String { /* ... */ }
 
-// good! clear that it accesses field `name`
+// 良い！フィールド`name`にアクセスすることが明確です
 public fun name(u: &User): String { /* ... */ }
 
-// good! for mutable references use `_mut`
+// 良い！可変参照には`_mut`を使用
 public fun details_mut(u: &mut User): &mut Details { /* ... */ }
 ```
 
-## Function Body: Struct Methods
+## 関数本体：構造体メソッド
 
-### Common Coin Operations
+### 一般的なコイン操作
 
 ```move
-// bad! legacy code, hard to read!
+// 悪い！レガシーコード、読みにくい！
 let paid = coin::split(&mut payment, amount, ctx);
 let balance = coin::into_balance(paid);
 
-// good! struct methods make it easier!
+// 良い！構造体メソッドで簡単になります！
 let balance = payment.split(amount, ctx).into_balance();
 
-// even better (in this example - no need to create temporary coin)
+// さらに良い（この例では - 一時的なコインを作成する必要がありません）
 let balance = payment.balance_mut().split(amount);
 
-// also can do this!
+// これもできます！
 let coin = balance.into_coin(ctx);
 ```
 
-### Do Not Import `std::string::utf8`
+### `std::string::utf8`をインポートしない
 
 ```move
-// bad! unfortunately, very common!
+// 悪い！残念ながら、非常に一般的です！
 use std::string::utf8;
 
 let str = utf8(b"hello, world!");
 
-// good!
+// 良い！
 let str = b"hello, world!".to_string();
 
-// also, for ASCII string
+// ASCII文字列の場合も
 let ascii = b"hello, world!".to_ascii_string();
 ```
 
-### UID has `delete`
+### UIDには`delete`がある
 
 ```move
-// bad!
+// 悪い！
 object::delete(id);
 
-// good!
+// 良い！
 id.delete();
 ```
 
-### `ctx` has `sender()`
+### `ctx`には`sender()`がある
 
 ```move
-// bad!
+// 悪い！
 tx_context::sender(ctx);
 
-// good!
+// 良い！
 ctx.sender()
 ```
 
-### Vector Has a Literal. And Associated Functions
+### Vectorにはリテラルがある。そして関連関数も
 
 ```move
-// bad!
+// 悪い！
 let mut my_vec = vector::empty();
 vector::push_back(&mut my_vec, 10);
 let first_el = vector::borrow(&my_vec);
 assert!(vector::length(&my_vec) == 1);
 
-// good!
+// 良い！
 let mut my_vec = vector[10];
 let first_el = my_vec[0];
 assert!(my_vec.length() == 1);
 ```
 
-### Collections Support Index Syntax
+### コレクションはインデックス構文をサポートする
 
 ```move
 let x: VecMap<u8, String> = /* ... */;
 
-// bad!
+// 悪い！
 x.get(&10);
 x.get_mut(&10);
 
-// good!
+// 良い！
 &x[&10];
 &mut x[&10];
 ```
 
-## Option -> Macros
+## Option -> マクロ
 
-### Destroy And Call Function
+### 破棄して関数を呼び出す
 
 ```move
-// bad!
+// 悪い！
 if (opt.is_some()) {
     let inner = opt.destroy_some();
     call_function(inner);
 };
 
-// good! there's a macro for it!
+// 良い！そのためのマクロがあります！
 opt.do!(|value| call_function(value));
 ```
 
-### Destroy Some With Default
+### デフォルトでSomeを破棄する
 
 ```move
 let opt = option::none();
 
-// bad!
+// 悪い！
 let value = if (opt.is_some()) {
     opt.destroy_some()
 } else {
     abort EError
 };
 
-// good! there's a macro!
+// 良い！マクロがあります！
 let value = opt.destroy_or!(default_value);
 
-// you can even do abort on `none`
+// `none`でアボートすることもできます
 let value = opt.destroy_or!(abort ECannotBeEmpty);
 ```
 
-## Loops -> Macros
+## ループ -> マクロ
 
-### Do Operation N Times
+### 操作をN回実行する
 
 ```move
-// bad! hard to read!
+// 悪い！読みにくい！
 let mut i = 0;
 while (i < 32) {
     do_action();
     i = i + 1;
 };
 
-// good! any uint has this macro!
+// 良い！任意のuintにこのマクロがあります！
 32u8.do!(|_| do_action());
 ```
 
-### New Vector From Iteration
+### 反復から新しいベクターを作成する
 
 ```move
-// harder to read!
+// 読みにくい！
 let mut i = 0;
 let mut elements = vector[];
 while (i < 32) {
@@ -378,40 +379,40 @@ while (i < 32) {
     i = i + 1;
 };
 
-// easy to read!
+// 読みやすい！
 vector::tabulate!(32, |i| i);
 ```
 
-### Do Operation on Every Element of a Vector
+### ベクターのすべての要素に対して操作を実行する
 
 ```move
-// bad!
+// 悪い！
 let mut i = 0;
 while (i < vec.length()) {
     call_function(&vec[i]);
     i = i + 1;
 };
 
-// good!
+// 良い！
 vec.do_ref!(|e| call_function(e));
 ```
 
-### Destroy a Vector and Call a Function on Each Element
+### ベクターを破棄して各要素に関数を呼び出す
 
 ```move
-// bad!
+// 悪い！
 while (!vec.is_empty()) {
     call(vec.pop_back());
 };
 
-// good!
+// 良い！
 vec.destroy!(|e| call(e));
 ```
 
-### Fold Vector Into a Single Value
+### ベクターを単一の値に畳み込む
 
 ```move
-// bad!
+// 悪い！
 let mut aggregate = 0;
 let mut i = 0;
 
@@ -420,18 +421,18 @@ while (i < source.length()) {
     i = i + 1;
 };
 
-// good!
+// 良い！
 let aggregate = source.fold!(0, |acc, v| {
     acc + v
 });
 ```
 
-### Filter Elements of the Vector
+### ベクターの要素をフィルタリングする
 
-> Note: `T: drop` in the `source` vector
+> 注意：`source`ベクターで`T: drop`
 
 ```move
-// bad!
+// 悪い！
 let mut filtered = [];
 let mut i = 0;
 while (i < source.length()) {
@@ -441,47 +442,47 @@ while (i < source.length()) {
     i = i + 1;
 };
 
-// good!
+// 良い！
 let filtered = source.filter!(|e| e > 10);
 ```
 
-## Other
+## その他
 
-### Ignored Values In Unpack Can Be Ignored Altogether
+### アンパックで無視される値は完全に無視できる
 
 ```move
-// bad! very sparse!
+// 悪い！非常に冗長！
 let MyStruct { id, field_1: _, field_2: _, field_3: _ } = value;
 id.delete();
 
-// good! 2024 syntax
+// 良い！2024構文
 let MyStruct { id, .. } = value;
 id.delete();
 ```
 
-## Testing
+## テスト
 
-### Merge `#[test]` and `#[expected_failure(...)]`
+### `#[test]`と`#[expected_failure(...)]`をマージする
 
 ```move
-// bad!
+// 悪い！
 #[test]
 #[expected_failure]
 fun value_passes_check() {
     abort
 }
 
-// good!
+// 良い！
 #[test, expected_failure]
 fun value_passes_check() {
     abort
 }
 ```
 
-### Do Not Clean Up `expected_failure` Tests
+### `expected_failure`テストをクリーンアップしない
 
 ```move
-// bad! clean up is not necessary
+// 悪い！クリーンアップは必要ありません
 #[test, expected_failure(abort_code = my_app::EIncorrectValue)]
 fun try_take_missing_object_fail() {
     let mut test = test_scenario::begin(@0);
@@ -489,104 +490,104 @@ fun try_take_missing_object_fail() {
     test.end();
 }
 
-// good! easy to see where test is expected to fail
+// 良い！テストがどこで失敗することが期待されるかがわかりやすい
 #[test, expected_failure(abort_code = my_app::EIncorrectValue)]
 fun try_take_missing_object_fail() {
     let mut test = test_scenario::begin(@0);
     my_app::call_function(test.ctx());
 
-    abort // will differ from EIncorrectValue
+    abort // EIncorrectValueと異なります
 }
 ```
 
-### Do Not Prefix Tests With `test_` in Testing Modules
+### テストモジュールでテストに`test_`プレフィックスを付けない
 
 ```move
-// bad! the module is already called _tests
+// 悪い！モジュールはすでに_testsと呼ばれています
 module my_package::my_module_tests;
 
 #[test]
 fun test_this_feature() { /* ... */ }
 
-// good! better function name as the result
+// 良い！結果としてより良い関数名
 #[test]
 fun this_feature_works() { /* ... */ }
 ```
 
-### Do Not Use `TestScenario` Where Not Necessary
+### 必要でない場所で`TestScenario`を使用しない
 
 ```move
-// bad! no need, only using ctx
+// 悪い！必要ありません、ctxのみを使用
 let mut test = test_scenario::begin(@0);
 let nft = app::mint(test.ctx());
 app::destroy(nft);
 test.end();
 
-// good! there's a dummy context for simple cases
+// 良い！簡単なケース用のダミーコンテキストがあります
 let ctx = &mut tx_context::dummy();
 app::mint(ctx).destroy();
 ```
 
-### Do Not Use Abort Codes in `assert!` in Tests
+### テストで`assert!`にアボートコードを使用しない
 
 ```move
-// bad! may match application error codes by accident
+// 悪い！アプリケーションのエラーコードと偶然一致する可能性があります
 assert!(is_success, 0);
 
-// good!
+// 良い！
 assert!(is_success);
 ```
 
-### Use `assert_eq!` Whenever Possible
+### 可能な限り`assert_eq!`を使用する
 
 ```move
-// bad! old-style code
+// 悪い！古いスタイルのコード
 assert!(result == b"expected_value", 0);
 
-// good! will print both values if fails
+// 良い！失敗した場合に両方の値を表示します
 use std::unit_test::assert_eq;
 
 assert_eq!(result, expected_value);
 ```
 
-### Use "Black Hole" `destroy` Function
+### 「ブラックホール」`destroy`関数を使用する
 
 ```move
-// bad!
+// 悪い！
 nft.destroy_for_testing();
 app.destroy_for_testing();
 
-// good! - no need to define special functions for cleanup
+// 良い！ - クリーンアップ用の特別な関数を定義する必要がありません
 use sui::test_utils::destroy;
 
 destroy(nft);
 destroy(app);
 ```
 
-## Comments
+## コメント
 
-### Doc Comments Start With `///`
+### ドキュメントコメントは`///`で始まる
 
 ```move
-// bad! tooling doesn't support JavaDoc-style comments
+// 悪い！ツールはJavaDocスタイルのコメントをサポートしていません
 /**
  * Cool method
  * @param ...
  */
 public fun do_something() { /* ... */ }
 
-// good! will be rendered as a doc comment in docgen and IDE's
+// 良い！docgenとIDEでドキュメントコメントとしてレンダリングされます
 /// Cool method!
 public fun do_something() { /* ... */ }
 ```
 
-### Complex Logic? Leave a Comment `//`
+### 複雑なロジック？コメント`//`を残す
 
-Being friendly and helping reviewers understand the code!
+親切で、レビュアーがコードを理解するのを助けましょう！
 
 ```move
-// good!
-// Note: can underflow if a value is smaller than 10.
-// TODO: add an `assert!` here
+// 良い！
+// 注意：値が10より小さい場合、アンダーフローする可能性があります。
+// TODO: ここに`assert!`を追加する
 let value = external_call(value, ctx);
 ```

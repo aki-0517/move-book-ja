@@ -1,5 +1,5 @@
-# Guides
+# ガイド
 
-This section contains a collection of guides that cover various aspects of programming on Sui. They
-are intended to provide a deeper understanding of Sui blockchain and Move language, while also
-aiming at practical challenges and solutions.
+このセクションには、Suiでのプログラミングの様々な側面をカバーするガイドのコレクションが含まれています。これらは
+SuiブロックチェーンとMove言語のより深い理解を提供することを目的としており、同時に
+実践的な課題と解決策を目指しています。

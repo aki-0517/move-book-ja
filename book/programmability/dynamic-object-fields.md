@@ -1,93 +1,90 @@
-# Dynamic Object Fields
+# 動的オブジェクトフィールド
 
-> This section expands on the [Dynamic Fields](./dynamic-fields). Please, read it first to
-> understand the basics of dynamic fields.
+> このセクションは[Dynamic Fields](./dynamic-fields)を拡張しています。
+> 動的フィールドの基本を理解するために、まずそれを読んでください。
 
-Another variation of dynamic fields is _dynamic object fields_, which have certain differences from
-regular dynamic fields. In this section, we will cover the specifics of dynamic object fields and
-explain how they differ from regular dynamic fields.
+動的フィールドの別のバリエーションは_動的オブジェクトフィールド_で、通常の動的フィールドとは
+特定の違いがあります。このセクションでは、動的オブジェクトフィールドの詳細を説明し、
+通常の動的フィールドとどのように異なるかを説明します。
 
-> General recommendation is to avoid using dynamic object fields in favor of (just) dynamic fields,
-> especially if there's no need for direct discovery through the ID. The extra costs of dynamic
-> object fields may not be justified by the benefits they provide.
+> 一般的な推奨事項は、特にIDを通じた直接的な発見の必要がない場合は、
+> （単なる）動的フィールドを優先して動的オブジェクトフィールドの使用を避けることです。
+> 動的オブジェクトフィールドの追加コストは、それらが提供する利点によって正当化されない
+> 可能性があります。
 
-## Definition
+## 定義
 
-Dynamic Object Fields are defined in the `sui::dynamic_object_fields` module in the
-[Sui Framework](./sui-framework). They are similar to dynamic fields in many ways, but unlike them,
-dynamic object fields have an extra constraint on the `Value` type. The `Value` must have a
-combination of `key` and `store`, not just `store` as in the case of dynamic fields.
+動的オブジェクトフィールドは[Sui Framework](./sui-framework)の`sui::dynamic_object_fields`モジュールで
+定義されています。これらは多くの点で動的フィールドと似ていますが、動的フィールドとは異なり、
+動的オブジェクトフィールドは`Value`型に追加の制約があります。`Value`は動的フィールドの場合のように
+`store`だけでなく、`key`と`store`の組み合わせを持たなければなりません。
 
-They're less explicit in their framework definition, as the concept itself is more abstract:
+概念自体がより抽象的であるため、フレームワーク定義ではそれほど明示的ではありません：
 
 ```move
 module sui::dynamic_object_field;
 
-/// Internal object used for storing the field and the name associated with the
-/// value. The separate type is necessary to prevent key collision with direct
-/// usage of dynamic_field
+/// フィールドと値に関連付けられた名前を格納するために使用される内部オブジェクト。
+/// 動的フィールドの直接使用とのキー衝突を防ぐために、別の型が必要です
 public struct Wrapper<Name> has copy, drop, store {
     name: Name,
 }
 ```
 
-Unlike `Field` type in the [Dynamic Fields](./dynamic-fields#definition) section, the `Wrapper` type
-only stores the name of the field. The value is the object itself, and is _not wrapped_.
+[Dynamic Fields](./dynamic-fields#definition)セクションの`Field`型とは異なり、`Wrapper`型は
+フィールドの名前のみを格納します。値はオブジェクト自体であり、_ラップされていません_。
 
-The constraints on the `Value` type become visible in the methods available for dynamic object
-fields. Here's the signature for the `add` function:
+`Value`型の制約は、動的オブジェクトフィールドで利用可能なメソッドで明らかになります。
+`add`関数のシグネチャは以下の通りです：
 
 ```move
-/// Adds a dynamic object field to the object `object: &mut UID` at field
-/// specified by `name: Name`. Aborts with `EFieldAlreadyExists` if the object
-/// already has that field with that name.
+/// オブジェクト`object: &mut UID`に`name: Name`で指定されたフィールドに
+/// 動的オブジェクトフィールドを追加します。オブジェクトがすでにその名前の
+/// フィールドを持っている場合は`EFieldAlreadyExists`でアボートします。
 public fun add<Name: copy + drop + store, Value: key + store>(
-    // we use &mut UID in several spots for access control
+    // アクセス制御のために複数の場所で&mut UIDを使用します
     object: &mut UID,
     name: Name,
     value: Value,
 ) { /* implementation omitted */ }
 ```
 
-The rest of the methods which are identical to the ones in the
-[Dynamic Fields](./dynamic-fields#usage) section have the same constraints on the `Value` type.
-Let's list them for reference:
+[Dynamic Fields](./dynamic-fields#usage)セクションのものと同一の残りのメソッドは、
+`Value`型に同じ制約を持ちます。参考のためにリストアップします：
 
-- `add` - adds a dynamic object field to the object
-- `remove` - removes a dynamic object field from the object
-- `borrow` - borrows a dynamic object field from the object
-- `borrow_mut` - borrows a mutable reference to a dynamic object field from the object
-- `exists_` - checks if a dynamic object field exists
-- `exists_with_type` - checks if a dynamic object field exists with a specific type
+- `add` - オブジェクトに動的オブジェクトフィールドを追加する
+- `remove` - オブジェクトから動的オブジェクトフィールドを削除する
+- `borrow` - オブジェクトから動的オブジェクトフィールドを借用する
+- `borrow_mut` - オブジェクトから動的オブジェクトフィールドへの可変参照を借用する
+- `exists_` - 動的オブジェクトフィールドが存在するかチェックする
+- `exists_with_type` - 特定の型で動的オブジェクトフィールドが存在するかチェックする
 
-Additionally, there is an `id` method which returns the `ID` of the `Value` object without
-specifying its type.
+さらに、型を指定することなく`Value`オブジェクトの`ID`を返す`id`メソッドがあります。
 
-## Usage & Differences with Dynamic Fields
+## 使用法と動的フィールドとの違い
 
-The main difference between dynamic fields and dynamic object fields is that the latter allows
-storing _only objects_ as values. This means that you can't store primitive types like `u64` or
-`bool`. It may be considered a limitation, if not for the fact that dynamic object fields are _not
-wrapped_ into a separate object.
+動的フィールドと動的オブジェクトフィールドの主な違いは、後者が値として_オブジェクトのみ_を
+格納できることです。これは、`u64`や`bool`のようなプリミティブ型を格納できないことを
+意味します。動的オブジェクトフィールドが別のオブジェクトに_ラップされていない_という事実が
+なければ、これは制限と見なされるかもしれません。
 
-> The relaxed requirement for wrapping keeps the object available for off-chain discovery via its
-> ID. However, this property may not be outstanding if wrapped object indexing is implemented,
-> making the dynamic object fields a redundant feature.
+> ラッピングの緩い要件により、オブジェクトはIDを通じてオフチェーン発見に利用可能なままです。
+> ただし、ラップされたオブジェクトインデックスが実装された場合、この特性は目立たない可能性があり、
+> 動的オブジェクトフィールドを冗長な機能にしてしまいます。
 
 ```move file=packages/samples/sources/programmability/dynamic-object-fields.move anchor=usage
 
 ```
 
-## Pricing Differences
+## 価格の違い
 
-Dynamic Object Fields come a little more expensive than dynamic fields. Because of their internal
-structure, they require 2 objects: the Wrapper for Name and the Value. Because of this, the cost of
-adding and accessing object fields (loading 2 objects compared to 1 for dynamic fields) is higher.
+動的オブジェクトフィールドは、動的フィールドよりも少し高価です。内部構造のため、
+2つのオブジェクトが必要です：Name用のWrapperとValueです。このため、オブジェクトフィールドの
+追加とアクセス（動的フィールドの1つと比較して2つのオブジェクトを読み込み）のコストが高くなります。
 
-## Next Steps
+## 次のステップ
 
-Both dynamic field and dynamic object fields are powerful features which allow for innovative
-solutions in applications. However, they are relatively low-level and require careful handling to
-avoid orphaned fields. In the next section, we will introduce a higher-level abstraction -
-[Dynamic Collections](./dynamic-collections) - which can help with managing dynamic fields and
-objects more effectively.
+動的フィールドと動的オブジェクトフィールドの両方は、アプリケーションで革新的なソリューションを
+可能にする強力な機能です。ただし、これらは比較的低レベルであり、孤立したフィールドを避けるために
+注意深い処理が必要です。次のセクションでは、より効果的に動的フィールドとオブジェクトを
+管理するのに役立つ高レベルな抽象化 - [Dynamic Collections](./dynamic-collections) - を紹介します。

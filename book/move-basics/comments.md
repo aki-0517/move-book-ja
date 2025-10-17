@@ -1,4 +1,4 @@
-# Comments
+# コメント
 
 <!--
 
@@ -12,45 +12,36 @@ Notes:
     - give an example of how doc comments are translated
  -->
 
-Comments are a way to add notes or document your code. They are ignored by the compiler and don't
-result in Move bytecode. You can use comments to explain what your code does, add notes to yourself
-or other developers, temporarily remove a part of your code, or generate documentation. There are
-three types of comments in Move: line comments, block comments, and doc comments.
+コメントは、コードにメモやドキュメントを追加する方法です。コメントはコンパイラによって無視され、Moveバイトコードには変換されません。コメントを使用して、コードが何をするかを説明したり、自分や他の開発者にメモを残したり、コードの一部を一時的に削除したり、ドキュメントを生成したりできます。Moveには3種類のコメントがあります：行コメント、ブロックコメント、ドキュメントコメント。
 
-## Line Comment
+## 行コメント
 
-You can use a double slash `//` to comment out the rest of the line. Everything after `//` will be
-ignored by the compiler.
+ダブルスラッシュ`//`を使用して、行の残りをコメントアウトできます。`//`以降のすべてはコンパイラによって無視されます。
 
 ```move file=packages/samples/sources/move-basics/comments-line.move anchor=main
 
 ```
 
-## Block Comment
+## ブロックコメント
 
-Block comments are used to comment out a block of code. They start with `/*` and end with `*/`.
-Everything between `/*` and `*/` will be ignored by the compiler. You can use block comments to
-comment out a single line or multiple lines. You can even use them to comment out a part of a line.
+ブロックコメントは、コードのブロックをコメントアウトするために使用されます。`/*`で始まり`*/`で終わります。`/*`と`*/`の間のすべてはコンパイラによって無視されます。ブロックコメントを使用して、1行または複数行をコメントアウトできます。行の一部をコメントアウトすることもできます。
 
 ```move file=packages/samples/sources/move-basics/comments-block.move anchor=main
 
 ```
 
-This example is a bit extreme, but it shows all the ways that you can use block comments.
+この例は少し極端ですが、ブロックコメントのすべての使用方法を示しています。
 
-## Doc Comment
+## ドキュメントコメント
 
-Documentation comments are special comments that are used to generate documentation for your code.
-They are similar to block comments but start with three slashes `///` and are placed before the
-definition of the item they document.
+ドキュメントコメントは、コードのドキュメントを生成するために使用される特別なコメントです。ブロックコメントに似ていますが、3つのスラッシュ`///`で始まり、ドキュメント化するアイテムの定義の前に配置されます。
 
 ```move file=packages/samples/sources/move-basics/comments-doc.move anchor=main
 
 ```
 
-## Whitespace
+## 空白文字
 
-Unlike some languages, whitespace (spaces, tabs, and newlines) have no impact on the meaning of the
-program.
+一部の言語とは異なり、空白文字（スペース、タブ、改行）はプログラムの意味に影響しません。
 
 <!-- TODO: docgen, which members are in the documentation -->

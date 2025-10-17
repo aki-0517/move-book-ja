@@ -1,8 +1,6 @@
 # Option
 
-`Option` is a type that represents an optional value which may or may not exist. The concept of
-`Option` in Move is borrowed from Rust, and it is a very useful primitive in Move. `Option` is
-defined in the [Standard Library](./standard-library), and is defined as follows:
+`Option`は、存在するかしないかのオプションの値を表す型です。Moveの`Option`の概念はRustから借用されており、Moveで非常に有用なプリミティブです。`Option`は[標準ライブラリ](./standard-library)で定義されており、以下のように定義されています：
 
 ```move
 module std::option;

@@ -1,42 +1,33 @@
-# Install MVR
+# MVRのインストール
 
-[Move Registry (MVR)](https://moveregistry.com) is a package manager for Move. It allows anyone to
-publish and use published packages in new applications written in Move. Local binary allows
-searching packages in the registry as well as installing them as a part of the Sui CLI build
-process.
+[Move Registry (MVR)](https://moveregistry.com)は、Move用のパッケージマネージャーです。誰でもMoveで書かれた新しいアプリケーションで公開されたパッケージを公開し、使用できます。ローカルバイナリは、レジストリでパッケージを検索し、Sui CLIビルドプロセスの一部としてそれらをインストールすることを可能にします。
 
-## Installing via suiup
+## suiupを使用したインストール
 
-The best way to install MVR is by using [`suiup`](https://github.com/MystenLabs/suiup). Suiup
-provides an easy way to update and manage different versions of binaries.
+MVRをインストールする最良の方法は、[`suiup`](https://github.com/MystenLabs/suiup)を使用することです。Suiupは、バイナリの異なるバージョンを更新・管理する簡単な方法を提供します。
 
-Installation instructions for `suiup` can be found
-[in the repository README](https://github.com/MystenLabs/suiup).
+`suiup`のインストール手順は[リポジトリのREADME](https://github.com/MystenLabs/suiup)で見つけることができます。
 
-To install Move Registry CLI, run the following command:
+Move Registry CLIをインストールするには、以下のコマンドを実行してください：
 
 ```bash
 suiup install mvr
 ```
 
-After installation, Move Registry will be available as `mvr`.
+インストール後、Move Registryは`mvr`として利用可能になります。
 
-## Download Binary
+## バイナリのダウンロード
 
-You can download the latest MVR binary from the
-[releases page](https://github.com/MystenLabs/mvr/releases). The binary is available for macOS,
-Linux and Windows. Unlike [Sui](./install-sui.md), the MVR binary is not changing between
-environments and supports both `testnet` and `mainnet`.
+[リリースページ](https://github.com/MystenLabs/mvr/releases)から最新のMVRバイナリをダウンロードできます。バイナリはmacOS、Linux、Windowsで利用可能です。[Sui](./install-sui.md)とは異なり、MVRバイナリは環境間で変更されず、`testnet`と`mainnet`の両方をサポートします。
 
-## Install Using Cargo
+## Cargoを使用したインストール
 
-You can install and build MVR locally by using Cargo (requires Rust)
+Cargo（Rustが必要）を使用してMVRをローカルにインストール・ビルドできます
 
 ```bash
 cargo install --locked --git https://github.com/mystenlabs/mvr --branch release mvr
 ```
 
-## Troubleshooting
+## トラブルシューティング
 
-For troubleshooting the installation process, please refer to the
-[Install MVR](https://docs.suins.io/move-registry/tooling/mvr-cli#installation) Guide.
+インストールプロセスのトラブルシューティングについては、[MVRのインストール](https://docs.suins.io/move-registry/tooling/mvr-cli#installation)ガイドを参照してください。

@@ -1,24 +1,17 @@
 ---
-title: 'Structs | Reference'
+title: '構造体 | リファレンス'
 description: ''
 ---
 
-# Structs and Resources
+# 構造体とリソース
 
-A _struct_ is a user-defined data structure containing typed fields. Structs can store any
-non-reference, non-tuple type, including other structs.
+_構造体_は型付きフィールドを含むユーザー定義のデータ構造です。構造体は、他の構造体を含む、参照でない、タプルでない任意の型を格納できます。
 
-Structs can be used to define all "asset" values or unrestricted values, where the operations
-performed on those values can be controlled by the struct's [abilities](./abilities). By default,
-structs are linear and ephemeral. By this we mean that they: cannot be copied, cannot be dropped,
-and cannot be stored in storage. This means that all values have to have ownership transferred
-(linear) and the values must be dealt with by the end of the program's execution (ephemeral). We can
-relax this behavior by giving the struct [abilities](./abilities) which allow values to be copied
-or dropped and also to be stored in storage or to define storage schemas.
+構造体は、すべての「アセット」値または制限のない値を定義するために使用でき、それらの値に対して実行される操作は構造体の[アビリティ](./abilities)によって制御できます。デフォルトでは、構造体は線形であり一時的です。これは、コピーできない、ドロップできない、ストレージに保存できないことを意味します。これは、すべての値が所有権を転送され（線形）、プログラムの実行終了までに値を処理する必要がある（一時的）ことを意味します。構造体に[アビリティ](./abilities)を付与することで、値をコピーまたはドロップしたり、ストレージに保存したり、ストレージスキーマを定義したりできるように、この動作を緩和できます。
 
-## Defining Structs
+## 構造体の定義
 
-Structs must be defined inside a module, and the struct's fields can either be named or positional:
+構造体はモジュール内で定義する必要があり、構造体のフィールドは名前付きまたは位置指定のどちらかであることができます：
 
 ```move
 module a::m;
@@ -26,35 +19,32 @@ module a::m;
 public struct Foo { x: u64, y: bool }
 public struct Bar {}
 public struct Baz { foo: Foo, }
-//                          ^ note: it is fine to have a trailing comma
+//                          ^ 注意: 末尾のカンマがあっても問題ありません
 
 public struct PosFoo(u64, bool)
 public struct PosBar()
 public struct PosBaz(Foo)
 ```
 
-Structs cannot be recursive, so the following definitions are invalid:
+構造体は再帰的にできないため、以下の定義は無効です：
 
 ```move
 public struct Foo { x: Foo }
-//                     ^ ERROR! recursive definition
+//                     ^ ERROR! 再帰定義
 
 public struct A { b: B }
 public struct B { a: A }
-//                   ^ ERROR! recursive definition
+//                   ^ ERROR! 再帰定義
 
 public struct D(D)
-//              ^ ERROR! recursive definition
+//              ^ ERROR! 再帰定義
 ```
 
-### Visibility
+### 可視性
 
-As you may have noticed, all structs are declared as `public`. This means that the type of the
-struct can be referred to from any other module. However, the fields of the struct, and the ability
-to create or destroy the struct, are still internal to the module that defines the struct.
+お気づきかもしれませんが、すべての構造体は`public`として宣言されています。これは、構造体の型を他のモジュールから参照できることを意味します。ただし、構造体のフィールドと、構造体を作成または破棄する能力は、構造体を定義するモジュールの内部にとどまります。
 
-In the future, we plan on adding to declare structs as `public(package)` or as internal, much like
-[functions](./functions#visibility).
+将来的には、[関数](./functions#visibility)と同様に、構造体を`public(package)`または内部として宣言する機能を追加する予定です。
 
 ### Abilities
 

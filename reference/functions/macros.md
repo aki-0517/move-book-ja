@@ -1,39 +1,25 @@
 ---
-title: 'Macro Functions | Reference'
+title: 'マクロ関数 | リファレンス'
 description: ''
 ---
 
-# Macro Functions
+# マクロ関数
 
-Macro functions are a way of defining functions that are expanded during compilation at each call
-site. The arguments of the macro are not evaluated eagerly like a normal function, and instead are
-substituted by expression. In addition, the caller can supply code to the macro via
-[lambdas](#lambdas).
+マクロ関数は、各呼び出しサイトでコンパイル時に展開される関数を定義する方法です。マクロの引数は通常の関数のように熱心に評価されるのではなく、式によって置換されます。さらに、呼び出し元は[ラムダ](#lambdas)を介してマクロにコードを提供できます。
 
-These expression substitution mechanics make `macro` functions similar
-[to macros found in other programming languages](<https://en.wikipedia.org/wiki/Macro_(computer_science)>);
-however, they are more constrained in Move than you might expect from other languages. The
-parameters and return values of `macro` functions are still typed--though this can be partially
-relaxed with the [`_` type](./../generics#_-type). The upside of this restriction however, is that
-`macro` functions can be used anywhere a normal function can be used, which is notably helpful with
-[method syntax](./../method-syntax).
+これらの式置換メカニズムにより、`macro`関数は[他のプログラミング言語で見つかるマクロ](<https://en.wikipedia.org/wiki/Macro_(computer_science)>)と類似しています。ただし、Moveでは他の言語から期待されるよりも制約があります。`macro`関数のパラメータと戻り値は依然として型付けされていますが、これは[`_`型](./../generics#_-type)で部分的に緩和できます。ただし、この制限の利点は、`macro`関数が通常の関数が使用できる場所ならどこでも使用できることで、これは[メソッド構文](./../method-syntax)で特に有用です。
 
-A more extensive
-[syntactic macro](<https://en.wikipedia.org/wiki/Macro_(computer_science)#Syntactic_macros>) system
-may come in the future.
+より包括的な[構文マクロ](<https://en.wikipedia.org/wiki/Macro_(computer_science)#Syntactic_macros>)システムが将来追加される可能性があります。
 
-## Syntax
+## 構文
 
-`macro` functions have a similar syntax to normal functions. However, all type parameter names and
-all parameter names must start with a `$`. Note that `_` can still be used by itself, but not as a
-prefix, and `$_` must be used instead.
+`macro`関数は通常の関数と同様の構文を持ちます。ただし、すべての型パラメータ名とすべてのパラメータ名は`$`で始まる必要があります。`_`は単独で使用できますが、プレフィックスとしては使用できず、代わりに`$_`を使用する必要があることに注意してください。
 
 ```text
 <visibility>? macro fun <identifier><[$type_parameters: constraint],*>([$identifier: type],*): <return_type> <function_body>
 ```
 
-For example, the following `macro` function takes a vector and a lambda, and applies the lambda to
-each element of the vector to construct a new vector.
+例えば、以下の`macro`関数はベクターとラムダを取り、ベクターの各要素にラムダを適用して新しいベクターを構築します。
 
 ```move
 macro fun map<$T, $U>($v: vector<$T>, $f: |$T| -> $U): vector<$U> {
@@ -55,13 +41,9 @@ their normal, non-macro counterparts. For type parameters, they can be instantia
 parameters, they will not be evaluated eagerly, and instead the argument expression will be
 substituted at each usage.
 
-## Lambdas
+## ラムダ
 
-Lambdas are a new type of expression that can only be used with `macro`s. These are used to pass
-code from the caller into the body of the `macro`. While the substitution is done at compile time,
-they are used similarly to [anonymous functions](https://en.wikipedia.org/wiki/Anonymous_function),
-[lambdas](https://en.wikipedia.org/wiki/Lambda_calculus), or
-[closures](<https://en.wikipedia.org/wiki/Closure_(computer_programming)>) in other languages.
+ラムダは`macro`でのみ使用できる新しい型の式です。これらは呼び出し元から`macro`の本体にコードを渡すために使用されます。置換はコンパイル時に行われますが、他の言語の[匿名関数](https://en.wikipedia.org/wiki/Anonymous_function)、[ラムダ](https://en.wikipedia.org/wiki/Lambda_calculus)、または[クロージャ](<https://en.wikipedia.org/wiki/Closure_(computer_programming)>)と同様に使用されます。
 
 As seen in the example above (`$f: |$T| -> $U`), lambda types are defined with the syntax
 
@@ -76,24 +58,24 @@ A few examples
 |&mut vector<u8>| -> &mut u8 // a lambda that takes a &mut vector<u8> and returns a &mut u8
 ```
 
-If the return type is not annotated, it is unit `()` by default.
+戻り値の型が注釈されていない場合、デフォルトでユニット`()`です。
 
 ```move
-// the following are equivalent
+// 以下は同等です
 |&mut vector<u8>, u64|
 |&mut vector<u8>, u64| -> ()
 ```
 
-Lambda expressions are then defined at the call site of the `macro` with the syntax
+ラムダ式は、`macro`の呼び出しサイトで以下の構文で定義されます
 
 ```text
 |(<identifier> (: <type>)?),*| <expression>
 |(<identifier> (: <type>)?),*| -> <type> { <expression> }
 ```
 
-Note that if the return type is annotated, the body of the lambda must be enclosed in `{}`.
+戻り値の型が注釈されている場合、ラムダの本体は`{}`で囲む必要があることに注意してください。
 
-Using the `map` macro defined above
+上記で定義された`map`マクロを使用
 
 ```move
 let v = vector[1, 2, 3];
@@ -101,10 +83,10 @@ let doubled: vector<u64> = map!(v, |x| 2 * x);
 let bytes: vector<vector<u8>> = map!(v, |x| std::bcs::to_bytes(&x));
 ```
 
-And with type annotations
+型注釈付きで
 
 ```move
-let doubled: vector<u64> = map!(v, |x: u64| 2 * x); // return type annotation optional
+let doubled: vector<u64> = map!(v, |x: u64| 2 * x); // 戻り値の型注釈はオプション
 let bytes: vector<vector<u8>> = map!(v, |x: u64| -> vector<u8> { std::bcs::to_bytes(&x) });
 ```
 

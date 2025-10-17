@@ -1,4 +1,4 @@
-# Address Type
+# Address型
 
 <!--
 
@@ -18,44 +18,37 @@ Links:
 
  -->
 
-Move uses a special type called [address](./../concepts/address) to represent addresses. It is a
-32-byte value that can represent any address on the blockchain. Addresses can be written in two
-forms: hexadecimal addresses prefixed with 0x and named addresses.
+Moveは、アドレスを表現するために[address](./../concepts/address)という特別な型を使用します。これはブロックチェーン上の任意のアドレスを表現できる32バイトの値です。アドレスは2つの形式で記述できます：0xで始まる16進数アドレスと名前付きアドレスです。
 
 ```move file=packages/samples/sources/move-basics/address.move anchor=address_literal
 
 ```
 
-An address literal starts with the `@` symbol followed by a hexadecimal number or an identifier. The
-hexadecimal number is interpreted as a 32 byte value. The identifier is looked up in the
-[Move.toml](./../concepts/manifest) file and replaced with the corresponding address by the
-compiler. If the identifier is not found in the Move.toml file, the compiler will throw an error.
+アドレスリテラルは`@`記号で始まり、その後に16進数または識別子が続きます。16進数は32バイト値として解釈されます。識別子は[Move.toml](./../concepts/manifest)ファイルで検索され、コンパイラによって対応するアドレスに置き換えられます。識別子がMove.tomlファイルで見つからない場合、コンパイラはエラーを投げます。
 
-## Conversion
+## 変換
 
-Sui Framework offers a set of helper functions to work with addresses. Given that the address type
-is a 32 byte value, it can be converted to a `u256` type and vice versa. It can also be converted to
-and from a `vector<u8>` type.
+Sui Frameworkはアドレスを操作するためのヘルパー関数のセットを提供します。address型は32バイト値であるため、`u256`型に変換したり、その逆も可能です。また、`vector<u8>`型との相互変換も可能です。
 
-Example: Convert an address to a `u256` type and back.
+例：アドレスを`u256`型に変換して戻す。
 
 ```move file=packages/samples/sources/move-basics/address.move anchor=to_u256
 
 ```
 
-Example: Convert an address to a `vector<u8>` type and back.
+例：アドレスを`vector<u8>`型に変換して戻す。
 
 ```move file=packages/samples/sources/move-basics/address.move anchor=to_bytes
 
 ```
 
-Example: Convert an address into a string.
+例：アドレスを文字列に変換する。
 
 ```move file=packages/samples/sources/move-basics/address.move anchor=to_string
 
 ```
 
-## Further Reading
+## さらなる読み物
 
-- [Address](./../../reference/primitive-types/address) in the Move Reference.
-- [sui::address](https://docs.sui.io/references/framework/sui/address) module documentation.
+- Move Referenceの[Address](./../../reference/primitive-types/address)
+- [sui::address](https://docs.sui.io/references/framework/sui/address)モジュールドキュメント

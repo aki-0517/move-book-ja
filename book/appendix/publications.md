@@ -1,6 +1,6 @@
-# Appendix D: Publications
+# 付録D: 出版物
 
-This section lists publications related to Move and Sui.
+このセクションでは、MoveとSuiに関連する出版物をリストアップしています。
 
 - [The Move Borrow Checker](https://arxiv.org/abs/2205.05181) by Sam Blackshear, John Mitchell, Todd
   Nowacki, Shaz Qadeer.

@@ -1,48 +1,23 @@
-# Foreword
+# 序文
 
-This book is dedicated to Move, a smart contract language that captures the essence of safe
-programming with digital assets. Move is designed around the following values:
+この本は、デジタル資産の安全なプログラミングの本質を捉えたスマートコントラクト言語であるMoveに捧げられています。Moveは以下の価値観に基づいて設計されています：
 
-1. **Secure by default:** Insecure languages are a serious barrier both to accessible smart contract
-   development and to mainstream adoption of digital assets. The first duty of a smart contract
-   language is to prevent as many potential safety issues as possible (e.g. re-entrancy, missing
-   access control checks, arithmetic overflow, ...) by construction. Any changes to Move should
-   preserve or enhance its existing security guarantees.
+1. **デフォルトで安全：** 安全でない言語は、アクセスしやすいスマートコントラクト開発とデジタル資産の主流採用の両方にとって深刻な障壁となります。スマートコントラクト言語の第一の責務は、可能な限り多くの潜在的な安全性の問題（例：再入攻撃、アクセス制御チェックの不備、算術オーバーフロー、...）を設計によって防ぐことです。Moveへの変更は、既存のセキュリティ保証を維持または強化する必要があります。
 
-2. **Expressive by nature:** Move must enable programmers to write any smart contract they can
-   imagine. But we care as much about the way it _feels_ to write Move as we do about what Move
-   allows you to do - the language should be rich enough that the features needed for a task are
-   available, and minimal enough that the choice is obvious. The Move toolchain should be a
-   productivity enhancer and a thought partner.
+2. **本質的に表現力豊か：** Moveは、プログラマーが想像できるあらゆるスマートコントラクトを書けるようにしなければなりません。しかし、私たちはMoveが何を可能にするかと同じくらい、Moveを書く時の_感覚_についても気にかけています - 言語は、タスクに必要な機能が利用可能になるほど豊富で、選択肢が明確になるほど最小限である必要があります。Moveツールチェーンは生産性の向上ツールであり、思考のパートナーであるべきです。
 
-3. **Intuitive for all:** Smart contracts are only one part of a useful application. Move should
-   understand the broader context of its usage and design with both the smart contract developer and
-   the application developer in mind. It should be easy for developers to learn how to read
-   Move-managed state, build Move powered transactions, and write new Move code.
+3. **すべての人にとって直感的：** スマートコントラクトは、有用なアプリケーションの一部分に過ぎません。Moveは、その使用のより広いコンテキストを理解し、スマートコントラクト開発者とアプリケーション開発者の両方を念頭に置いて設計する必要があります。開発者がMoveが管理する状態を読み取り、Moveを活用したトランザクションを構築し、新しいMoveコードを書く方法を学ぶのは簡単でなければなりません。
 
-The core technical elements of Move are:
+Moveの中核技術要素は以下の通りです：
 
-- Safe, familiar, and flexible abstractions for digital assets via programmable _objects_.
-- A rich _ability_ system (inspired by linear types) that gives programmers extreme control of how
-  values are created, destroyed, stored, copied, and transferred.
-- A _module_ system with strong encapsulation features to enable code reuse while maintaining this
-  control.
-- _Dynamic fields_ for creating hierarchical relationships between objects.
-- _Programmable transaction blocks_ (PTBs) to enable atomic client-side composition of Move-powered
-  APIs.
+- プログラマブル_オブジェクト_を通じたデジタル資産のための安全で馴染みがあり柔軟な抽象化。
+- 豊富な_能力（ability）_システム（線形型からインスピレーションを得た）により、プログラマーが値の作成、破棄、保存、コピー、転送の方法を極めて細かく制御できます。
+- この制御を維持しながらコードの再利用を可能にする強力なカプセル化機能を持つ_モジュール_システム。
+- オブジェクト間の階層関係を作成するための_動的フィールド_。
+- MoveベースのAPIの原子的なクライアント側合成を可能にする_プログラマブルトランザクションブロック_（PTB）。
 
-Move was born in 2018 as part of Facebook's Libra project. It was publicly revealed in 2019, the
-first Move-powered network launched in 2020. As of April 2024, there are numerous Move-powered
-chains in production with several more in the works. Move is an embedded language with a
-platform-agnostic core, which means it takes on a slightly different personality in each chain that
-uses it.
+Moveは2018年にFacebookのLibraプロジェクトの一部として誕生しました。2019年に公開され、最初のMoveベースのネットワークが2020年に開始されました。2024年4月の時点で、多数のMoveベースのチェーンが本番環境で稼働しており、さらに多くが開発中です。Moveはプラットフォーム非依存のコアを持つ組み込み言語であり、これはそれを使用する各チェーンで少し異なる特性を持つことを意味します。
 
-Creating a new programming language and bootstrapping a community around it is an ambitious, long
-term project. A language has to be an order of magnitude better than alternatives in relevant ways
-to have a chance, but even then the quality of the community matters more than the technical
-fundamentals. Move is a young language, but it's off to a good start in terms of both
-differentiation and community. A small, but fanatical group of smart contract programmers and core
-contributors united by the Move values are pushing the boundaries of what smart contracts can do,
-the applications they can enable, and who can (safely) write them. If that inspires you, read on!
+新しいプログラミング言語を作成し、その周りにコミュニティを立ち上げることは、野心的で長期的なプロジェクトです。言語は、チャンスを得るために関連する方法で代替案よりも一桁優れている必要がありますが、それでもコミュニティの質は技術的基盤よりも重要です。Moveは若い言語ですが、差別化とコミュニティの両面で良いスタートを切っています。Moveの価値観によって結ばれた少数だが熱狂的なスマートコントラクトプログラマーとコアコントリビューターのグループが、スマートコントラクトが何をできるか、それらが可能にするアプリケーション、そして誰が（安全に）それらを書けるかの境界を押し広げています。それがあなたにインスピレーションを与えるなら、読み進めてください！
 
-— Sam Blackshear, creator of Move
+— Sam Blackshear、Moveの作成者

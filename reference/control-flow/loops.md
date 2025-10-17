@@ -1,14 +1,11 @@
 ---
-title: 'Loops | Reference'
+title: 'ループ | リファレンス'
 description: ''
 ---
 
-# Loop Constructs in Move
+# Moveのループ構文
 
-Many programs require iteration over values, and Move provides `while` and `loop` forms to allow you
-to write code in these situations. In addition, you can also modify control flow of these loops
-during execution by using `break` (to exit the loop) and `continue` (to skip the remainder of this
-iteration and return to the top of the control flow structure).
+多くのプログラムは値の反復を必要とし、Moveはこれらの状況でコードを書くことを可能にする`while`と`loop`形式を提供します。さらに、`break`（ループを終了する）と`continue`（この反復の残りをスキップして制御フロー構造のトップに戻る）を使用して、実行中にこれらのループの制御フローを変更することもできます。
 
 ## `while` Loops
 

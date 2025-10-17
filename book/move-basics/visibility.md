@@ -1,29 +1,24 @@
-# Visibility Modifiers
+# 可視性修飾子
 
-Every module member has a visibility. By default, all module members are _private_ - meaning they
-are only accessible within the module they are defined in. However, you can add a visibility
-modifier to make a module member _public_ - visible outside the module, or _public(package)_ -
-visible in the modules within the same package, or _entry_ - can be called from a transaction but
-can't be called from other modules.
+すべてのモジュールメンバーには可視性があります。デフォルトでは、すべてのモジュールメンバーは_プライベート_です - つまり、定義されたモジュール内でのみアクセス可能です。しかし、可視性修飾子を追加することで、モジュールメンバーを_パブリック_（モジュール外部で見える）、_public(package)_（同じパッケージ内のモジュールで見える）、または_エントリ_（トランザクションから呼び出せるが他のモジュールからは呼び出せない）にできます。
 
-## Internal Visibility
+## 内部可視性
 
-A function or a struct defined in a module which has no visibility modifier is _private_ to the
-module. It can't be called from other modules.
+モジュールで定義された関数や構造体で可視性修飾子がないものは、そのモジュールに対して_プライベート_です。他のモジュールから呼び出すことはできません。
 
 ```move
 module book::internal_visibility;
 
-// This function can be called from other functions in the same module
+// この関数は同じモジュール内の他の関数から呼び出せる
 fun internal() { /* ... */ }
 
-// Same module -> can call internal()
+// 同じモジュール -> internal()を呼び出せる
 fun call_internal() {
     internal();
 }
 ```
 
-The following code will not compile:
+以下のコードはコンパイルされません：
 
 <!-- TODO: add failure flag to example -->
 
@@ -32,47 +27,43 @@ module book::try_calling_internal;
 
 use book::internal_visibility;
 
-// Different module -> can't call internal()
+// 異なるモジュール -> internal()を呼び出せない
 fun try_calling_internal() {
     internal_visibility::internal();
 }
 ```
 
-Note that just because a struct field is not visible from Move does not mean that its value is kept
-confidential &mdash; it is always possible to read the contents of an on-chain object from outside
-of Move. You should never store unencrypted secrets inside of objects.
+構造体のフィールドがMoveから見えないからといって、その値が機密に保たれるわけではありません &mdash; Move外部からオンチェーンオブジェクトの内容を読み取ることは常に可能です。暗号化されていないシークレットをオブジェクト内に保存すべきではありません。
 
-## Public Visibility
+## パブリック可視性
 
-A struct or a function can be made _public_ by adding the `public` keyword before the `fun` or
-`struct` keyword.
+構造体や関数は、`fun`または`struct`キーワードの前に`public`キーワードを追加することで_パブリック_にできます。
 
 ```move
 module book::public_visibility;
 
-// This function can be called from other modules
+// この関数は他のモジュールから呼び出せる
 public fun public_fun() { /* ... */ }
 ```
 
-A public function can be imported and called from other modules. The following code will compile:
+パブリック関数は他のモジュールからインポートして呼び出すことができます。以下のコードはコンパイルされます：
 
 ```move
 module book::try_calling_public;
 
 use book::public_visibility;
 
-// Different module -> can call public_fun()
+// 異なるモジュール -> public_fun()を呼び出せる
 fun try_calling_public() {
     public_visibility::public_fun();
 }
 ```
 
-Unlike some languages, struct fields cannot be made public.
+一部の言語とは異なり、構造体のフィールドをパブリックにすることはできません。
 
-## Package Visibility
+## パッケージ可視性
 
-A function with _package_ visibility can be called from any module within the same package, but not
-from modules in other packages. In other words, it is _internal_ to the package.
+_パッケージ_可視性を持つ関数は、同じパッケージ内の任意のモジュールから呼び出せますが、他のパッケージのモジュールからは呼び出せません。つまり、パッケージに対して_内部_です。
 
 ```move
 module book::package_visibility;
@@ -80,26 +71,22 @@ module book::package_visibility;
 public(package) fun package_only() { /* ... */ }
 ```
 
-A package function can be called from any module within the same package:
+パッケージ関数は同じパッケージ内の任意のモジュールから呼び出せます：
 
 ```move
 module book::try_calling_package;
 
 use book::package_visibility;
 
-// Same package `book` -> can call package_only()
+// 同じパッケージ `book` -> package_only()を呼び出せる
 fun try_calling_package() {
     package_visibility::package_only();
 }
 ```
 
-## Native Functions
+## ネイティブ関数
 
-Some functions in the [framework](./../programmability/sui-framework) and
-[standard library](./standard-library) are marked with the `native` modifier. These functions are
-natively provided by the Move VM and do not have a body in Move source code. To learn more about the
-native modifier, refer to the
-[Move Reference](./../../reference/functions?highlight=native#native-functions).
+[フレームワーク](./../programmability/sui-framework)と[標準ライブラリ](./standard-library)の一部の関数は`native`修飾子でマークされています。これらの関数はMove VMによってネイティブに提供され、Moveソースコードに本体を持ちません。native修飾子について詳しくは、[Move Reference](./../../reference/functions?highlight=native#native-functions)を参照してください。
 
 ```move
 module std::type_name;
@@ -107,9 +94,8 @@ module std::type_name;
 public native fun get<T>(): TypeName;
 ```
 
-This is an example from `std::type_name`, learn more about this module in the
-[reflection chapter](./type-reflection).
+これは`std::type_name`からの例です。このモジュールについて詳しくは[リフレクション章](./type-reflection)をご覧ください。
 
-## Further Reading
+## 参考文献
 
-- [Visibility](./../../reference/functions#visibility) in the Move Reference.
+- Move Referenceの[Visibility](./../../reference/functions#visibility)。

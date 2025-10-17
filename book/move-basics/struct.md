@@ -1,17 +1,12 @@
-# Custom Types with Struct
+# Structでのカスタム型
 
-Move's type system shines when it comes to defining custom types. User defined types can be custom
-tailored to the specific needs of the application, not only on the data level, but also in its
-behavior. In this section we introduce the struct definition and how to use it.
+Moveの型システムはカスタム型の定義において光ります。ユーザー定義型は、データレベルだけでなく、その動作においてもアプリケーションの特定のニーズにカスタマイズできます。このセクションでは、構造体の定義とその使用方法を紹介します。
 
 ## Struct
 
-To define a custom type, you can use the `struct` keyword followed by the name of the type. After
-the name, you can define the fields of the struct. Each field is defined with the
-`field_name: field_type` syntax. Field definitions must be separated by commas. The fields can be of
-any type, including other structs.
+カスタム型を定義するには、`struct`キーワードの後に型の名前を続けます。名前の後に、構造体のフィールドを定義できます。各フィールドは`field_name: field_type`構文で定義されます。フィールド定義はカンマで区切る必要があります。フィールドは他の構造体を含む任意の型であることができます。
 
-> Move does not support recursive structs, meaning a struct cannot contain itself as a field.
+> Moveは再帰的な構造体をサポートしません。つまり、構造体は自分自身をフィールドとして含むことはできません。
 
 ```move file=packages/samples/sources/move-basics/struct.move anchor=def
 

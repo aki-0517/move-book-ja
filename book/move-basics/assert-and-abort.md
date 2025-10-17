@@ -1,4 +1,4 @@
-# Aborting Execution
+# 実行の中止
 
 <!-- Consider "aborting execution" -->
 
@@ -20,62 +20,45 @@ Links:
     - constants (previous section)
  -->
 
-A transaction can either succeed or fail. Successful execution applies all changes made to objects
-and on-chain data, and the transaction is committed to the blockchain. Alternatively, if a
-transaction aborts, changes are not applied. Use the `abort` keyword to abort a transaction and
-revert any changes that were made.
+トランザクションは成功するか失敗するかのどちらかです。実行が成功すると、オブジェクトとオンチェーンデータに加えられたすべての変更が適用され、トランザクションがブロックチェーンにコミットされます。一方、トランザクションが中止された場合、変更は適用されません。`abort`キーワードを使用してトランザクションを中止し、行われた変更を元に戻します。
 
-> It is important to note that there is no catch mechanism in Move. If a transaction aborts, the
-> changes made so far are reverted, and the transaction is considered failed.
+> Moveにはキャッチメカニズムがないことに注意することが重要です。トランザクションが中止されると、これまでに行われた変更は元に戻され、トランザクションは失敗したと見なされます。
 
 ## Abort
 
-The `abort` keyword is used to abort the execution of a transaction. It is used in combination with
-an abort code, which is returned to the caller of the transaction. The abort code is an
-[integer](./primitive-types) of type `u64`.
+`abort`キーワードは、トランザクションの実行を中止するために使用されます。これは中止コードと組み合わせて使用され、中止コードはトランザクションの呼び出し元に返されます。中止コードは`u64`型の[整数](./primitive-types)です。
 
 ```move file=packages/samples/sources/move-basics/assert-and-abort.move anchor=abort
 
 ```
 
-The code above will, of course, abort with abort code `1`.
+上記のコードは、当然ながら中止コード`1`で中止されます。
 
 ## assert!
 
-The `assert!` macro is a built-in macro that can be used to assert a condition. If the condition is
-false, the transaction will abort with the given abort code. The `assert!` macro is a convenient way
-to abort a transaction if a condition is not met. The macro shortens the code otherwise written with
-an `if` expression + `abort`. The `code` argument is optional, but has to be a `u64` value or an
-`#[error]` (see below for more information).
+`assert!`マクロは、条件をアサートするために使用できる組み込みマクロです。条件がfalseの場合、トランザクションは指定された中止コードで中止されます。`assert!`マクロは、条件が満たされない場合にトランザクションを中止する便利な方法です。このマクロは、`if`式＋`abort`で書かれるコードを短縮します。`code`引数はオプションですが、`u64`値または`#[error]`（詳細については以下を参照）である必要があります。
 
 ```move file=packages/samples/sources/move-basics/assert-and-abort.move anchor=assert
 
 ```
 
-## Error constants
+## エラー定数
 
-To make error codes more descriptive, it is a good practice to define
-[error constants](./constants). Error constants are defined as `const` declarations and are usually
-prefixed with `E` followed by a camel case name. Error constants are similar to other constants and
-do not have any special handling. However, they are commonly used to improve code readability and
-make abort scenarios easier to understand.
+エラーコードをより説明的にするために、[エラー定数](./constants)を定義することは良い習慣です。エラー定数は`const`宣言として定義され、通常は`E`で始まり、その後にキャメルケースの名前が続きます。エラー定数は他の定数と似ており、特別な処理はありません。しかし、コードの可読性を向上させ、中止シナリオを理解しやすくするために一般的に使用されます。
 
 ```move file=packages/samples/sources/move-basics/assert-and-abort.move anchor=error_const
 
 ```
 
-## Error messages
+## エラーメッセージ
 
-Move 2024 introduces a special type of error constant, marked with the `#[error]` attribute. This
-attribute allows the error constant to be of type `vector<u8>` and can be used to store an error
-message.
+Move 2024では、`#[error]`属性でマークされた特別なタイプのエラー定数が導入されました。この属性により、エラー定数は`vector<u8>`型にすることができ、エラーメッセージを格納するために使用できます。
 
 ```move file=packages/samples/sources/move-basics/assert-and-abort.move anchor=error_attribute
 
 ```
 
-## Further Reading
+## さらなる読み物
 
-- [Abort and Assert](./../../reference/abort-and-assert) in the Move Reference.
-- We suggest reading the [Better Error Handling](./../guides/better-error-handling) guide to learn
-  about best practices for error handling in Move.
+- Move Referenceの[Abort and Assert](./../../reference/abort-and-assert)
+- Moveでのエラーハンドリングのベストプラクティスについて学ぶため、[Better Error Handling](./../guides/better-error-handling)ガイドを読むことをお勧めします。

@@ -1,35 +1,28 @@
 ---
-title: 'Sui Object | Reference'
+title: 'Suiオブジェクト | リファレンス'
 ---
 
-# Sui Objects
+# Suiオブジェクト
 
-For Sui, `key` is used to signify an _object_. Objects the only way to store data in Sui--allowing
-the data to persist between transactions.
+Suiでは、`key`は_オブジェクト_を示すために使用されます。オブジェクトはSuiでデータを保存する唯一の方法であり、データがトランザクション間で永続化されることを可能にします。
 
-For more details, see the Sui documentation on
+詳細については、Suiドキュメントを参照してください：
 
-- [The Object Model](https://docs.sui.io/concepts/object-model)
-- [Move Rules for Objects](https://docs.sui.io/concepts/sui-move-concepts#global-unique)
-- [Transferring Objects](https://docs.sui.io/concepts/transfers)
+- [オブジェクトモデル](https://docs.sui.io/concepts/object-model)
+- [オブジェクトのMoveルール](https://docs.sui.io/concepts/sui-move-concepts#global-unique)
+- [オブジェクトの転送](https://docs.sui.io/concepts/transfers)
 
-## Object Rules
+## オブジェクトルール
 
-An object is a [`struct`](../structs.md) with the [`key`](../abilities.md#key) ability. The first
-field of the struct must be `id: sui::object::UID`. This 32-byte field (a strongly typed wrapper
-around an [`address`](../primitive-types/address.md)) is then used to uniquely identify the object.
+オブジェクトは[`key`](../abilities.md#key)アビリティを持つ[`struct`](../structs.md)です。構造体の最初のフィールドは`id: sui::object::UID`である必要があります。この32バイトフィールド（[`address`](../primitive-types/address.md)の強型ラッパー）は、オブジェクトを一意に識別するために使用されます。
 
-Note that since `sui::object::UID` has only the `store` ability (it does not have `copy` or `drop`),
-no object has `copy` or `drop`.
+`sui::object::UID`は`store`アビリティのみを持ち（`copy`や`drop`は持たない）ため、オブジェクトは`copy`や`drop`を持たないことに注意してください。
 
-## Transfer Rules
+## 転送ルール
 
-Objects can be have their ownership changed and transferred in the `sui::transfer` module. Many
-functions in the module have "public" and "private" variant, where the "private" variant can only be
-called inside of the module that defines the object's type. The "public" variants can be called only
-if the object has `store`.
+オブジェクトは`sui::transfer`モジュールで所有権を変更し、転送することができます。モジュール内の多くの関数には「public」と「private」のバリアントがあり、「private」バリアントはオブジェクトの型を定義するモジュール内でのみ呼び出すことができます。「public」バリアントは、オブジェクトが`store`を持つ場合にのみ呼び出すことができます。
 
-For example if we had two objects `A` and `B` defined in the module `my_module`:
+例えば、モジュール`my_module`で定義された2つのオブジェクト`A`と`B`がある場合：
 
 ```move
 module a::my_module;
@@ -43,6 +36,4 @@ public struct B has key, store {
 }
 ```
 
-`A` can only be transferred using the `sui::transfer::transfer` inside of `a::my_module`, while `B`
-can be transferred anywhere using `sui::transfer::public_transfer`. These rules are enforced by a
-custom type system (bytecode verifier) rule in Sui.
+`A`は`a::my_module`内でのみ`sui::transfer::transfer`を使用して転送できますが、`B`は`sui::transfer::public_transfer`を使用してどこでも転送できます。これらのルールは、Suiのカスタム型システム（バイトコード検証器）ルールによって強制されます。

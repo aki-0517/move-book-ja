@@ -1,16 +1,13 @@
 ---
-title: 'Enumerations | Reference'
+title: '列挙型 | リファレンス'
 description: ''
 ---
 
-# Enumerations
+# 列挙型
 
-An _enum_ is a user-defined data structure containing one or more _variants_. Each variant can
-optionally contain typed fields. The number, and types of these fields can differ for each variant
-in the enumeration. Fields in enums can store any non-reference, non-tuple type, including other
-structs or enums.
+_enum_（列挙型）は、1つ以上の_バリアント_を含むユーザー定義のデータ構造です。各バリアントはオプションで型付きフィールドを含むことができます。これらのフィールドの数と型は、列挙型の各バリアントで異なる可能性があります。列挙型のフィールドは、他の構造体や列挙型を含む、参照でない、タプルでない任意の型を保存できます。
 
-As a simple example, consider the following enum definition in Move:
+簡単な例として、Moveでの以下の列挙型定義を考えてみてください：
 
 ```move
 public enum Action {
@@ -21,25 +18,20 @@ public enum Action {
 }
 ```
 
-This declares an enum `Action` that represents different actions that can be taken by a game -- you
-can `Stop`, `Pause` for a given duration, `MoveTo` a specific location, or `Jump` to a specific
-height.
+これは、ゲームで実行できる異なるアクションを表す列挙型`Action`を宣言しています。`Stop`、指定された期間`Pause`、特定の場所へ`MoveTo`、または特定の高さへ`Jump`することができます。
 
-Similar to structs, enums can have [abilities](./abilities) that control what operations can be
-performed on them. It is important to note however that enums cannot have the `key` ability since
-they cannot be top-level objects.
+構造体と同様に、列挙型にはどのような操作を実行できるかを制御する[アビリティ](./abilities)を持たせることができます。ただし、列挙型はトップレベルオブジェクトになることができないため、`key`アビリティを持つことはできないことに注意することが重要です。
 
-## Defining Enums
+## 列挙型の定義
 
-Enums must be defined in a module, an enum must contain at least one variant, and each variant of an
-enum can either have no fields, positional fields, or named fields. Here are some examples of each:
+列挙型はモジュール内で定義される必要があり、列挙型は少なくとも1つのバリアントを含む必要があり、列挙型の各バリアントはフィールドなし、位置フィールド、または名前付きフィールドを持つことができます。以下にそれぞれの例を示します：
 
 ```move
 module a::m;
 
 public enum Foo has drop {
     VariantWithNoFields,
-    //                 ^ note: it is fine to have a trailing comma after variant declarations
+    //                 ^ 注：バリアント宣言の後に末尾コンマを付けても問題ありません
 }
 public enum Bar has copy, drop {
     VariantWithPositionalFields(u64, bool),

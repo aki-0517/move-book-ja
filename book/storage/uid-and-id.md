@@ -1,141 +1,112 @@
-# UID and ID
+# UIDとID
 
-The use of the `UID` type is required by the Sui Verifier on all types that have the
-[`key`](./key-ability.md) ability. Here we go deeper into `UID` and its usage.
+`UID`型の使用は、[`key`](./key-ability.md)アビリティを持つすべての型に対してSui Verifierによって要求されます。ここでは`UID`とその使用法について詳しく説明します。
 
-## Definition
+## 定義
 
-The `UID` type is defined in the `sui::object` module and is a wrapper around an `ID` which, in
-turn, wraps the `address` type. The UIDs on Sui are guaranteed to be unique, and can't be reused
-after the object was deleted.
+`UID`型は`sui::object`モジュールで定義されており、`ID`のラッパーです。`ID`は`address`型をラップします。SuiのUIDは一意であることが保証され、オブジェクトが削除された後に再利用されることはありません。
 
 ```move
 module sui::object;
 
-/// UID is a unique identifier of an object
+/// UIDはオブジェクトの一意の識別子
 public struct UID has store {
     id: ID
 }
 
-/// ID is a wrapper around an address
+/// IDはアドレスのラッパー
 public struct ID has store, drop {
     bytes: address
 }
 ```
 
-## Fresh UID Generation
+## 新しいUIDの生成
 
-- `UID` is _derived_ from the `tx_hash` and an `index` which is incremented for each new UID.
-- The `derive_id` function is implemented in the `sui::tx_context` module, and that is why
-  [TxContext](./../programmability/transaction-context.md) is required for `UID` generation.
-- Sui Verifier will not allow using a UID that wasn't created in the same function. That prevents
-  UIDs from being pre-generated or reused after the object was unpacked.
+- `UID`は`tx_hash`と各新しいUIDに対してインクリメントされる`index`から_導出_されます。
+- `derive_id`関数は`sui::tx_context`モジュールに実装されており、そのため[TxContext](./../programmability/transaction-context.md)が`UID`生成に必要です。
+- Sui Verifierは、同じ関数で作成されなかったUIDの使用を許可しません。これにより、UIDが事前生成されたり、オブジェクトがアンパックされた後に再利用されることを防ぎます。
 
-New UID is created with the `object::new` function. It takes a mutable reference to `TxContext`, and
-returns a new `UID`.
+新しいUIDは`object::new`関数で作成されます。これは`TxContext`への可変参照を取り、新しい`UID`を返します。
 
 ```move
 public fun uid(ctx: &mut TxContext) {
-  let id = object::new(ctx); // Create a fresh UID from TxContext.
-  id.delete(); // Delete the UID.
+  let id = object::new(ctx); // TxContextから新しいUIDを作成。
+  id.delete(); // UIDを削除。
 }
 ```
 
-`UID` acts as a representation of an object, and allows defining behaviors and features of an
-object. One of the key features - [Dynamic Fields](./../programmability/dynamic-fields) - is
-possible because of the `UID` type being explicit. Additionally, it allows receiving objects sent to
-other objects. This feature is called [Transfer to Object (TTO)](./transfer-to-object.md), and we
-will explain later in this chapter.
+`UID`はオブジェクトの表現として機能し、オブジェクトの動作と機能を定義することを可能にします。主要な機能の一つ - [動的フィールド](./../programmability/dynamic-fields) - は、`UID`型が明示的であるために可能です。さらに、他のオブジェクトに送信されたオブジェクトを受信することを可能にします。この機能は[Transfer to Object (TTO)](./transfer-to-object.md)と呼ばれ、この章の後半で説明します。
 
-## UID Derivation
+## UID導出
 
-Sui allows deriving UID's from other UIDs using _derivation keys_. This functionality is implemented
-in the [`sui::derived_object`][derived-object] module and allows generating predictable and
-deterministic `UIDs` for easier off-chain discovery. UID for each pair of parent + key can be
-generated only once!
+Suiは_導出キー_を使用して他のUIDからUIDを導出することを可能にします。この機能は[`sui::derived_object`][derived-object]モジュールに実装されており、オフチェーン発見を容易にするための予測可能で決定論的な`UID`の生成を可能にします。各親+キーのペアのUIDは一度だけ生成できます！
 
 ```move
 use sui::derived_object;
 
-/// Some central application object.
+/// 何らかの中央アプリケーションオブジェクト。
 public struct Base has key { id: UID }
 
-/// Derived Object.
+/// 導出オブジェクト。
 public struct Derived has key { id: UID }
 
-/// Create and share a new Derived object using `address` as a `key`.
+/// `address`を`key`として使用して新しい導出オブジェクトを作成し、共有。
 public fun derive(base: &mut Base, key: address) {
     let id = derived_object::claim(&mut base.id, key);
     transfer::share_object(Derived { id })
 }
 ```
 
-Derived addresses reduce the load on off-chain indexers, since it is enough to store the ID of the
-parent object and get derived IDs using a derivation function. ID derivation function is part of the
-most SDKs, and also present in Move:
+導出アドレスは、親オブジェクトのIDを保存し、導出関数を使用して導出IDを取得するだけで十分であるため、オフチェーンインデクサーの負荷を軽減します。ID導出関数はほとんどのSDKの一部であり、Moveにも存在します：
 
 ```move
 module sui::derived_object;
 
-/// Checks if a UID was derived with `key` at `parent`.
+/// UIDが`parent`で`key`と導出されたかどうかをチェック。
 public fun exists<K: copy + drop + store>(parent: &UID, key: K): bool;
 
-/// Derive inner `address` of a UID, regardless of whether it was created.
+/// UIDが作成されたかどうかに関係なく、UIDの内部`address`を導出。
 public fun derive_address<K: copy + drop + store>(parent: ID, key: K): address;
 ```
 
-The same derivation functionality is used to generate UIDs for
-[dynamic fields](./../programmability/dynamic-fields.md).
+同じ導出機能は[動的フィールド](./../programmability/dynamic-fields.md)のUID生成にも使用されます。
 
-## UID Lifecycle
+## UIDライフサイクル
 
-The `UID` type is created with the `object::new` function, and deleted with the `object::delete`
-function. The `object::delete` consumes the UID _by value_, hence, it is only possible to delete
-object's UID after the object [was unpacked](./../move-basics/struct.md#unpacking-a-struct).
+`UID`型は`object::new`関数で作成され、`object::delete`関数で削除されます。`object::delete`はUIDを_値で_消費するため、オブジェクト[がアンパックされた](./../move-basics/struct.md#unpacking-a-struct)後にのみオブジェクトのUIDを削除することが可能です。
 
 ```move
 public struct Character has key { id: UID }
 
 public fun character(ctx: &mut TxContext) {
-    // Instantiate `Character` object.
+    // `Character`オブジェクトをインスタンス化。
     let char = Character { id: object::new(ctx) };
 
-    // Unpack object to get its UID.
+    // オブジェクトをアンパックしてUIDを取得。
     let Character { id } = char;
 
-    // Delete the UID.
+    // UIDを削除。
     id.delete();
 }
 ```
 
-## Keeping the UID
+## UIDの保持
 
-The `UID` does not need to be deleted immediately after the object struct is unpacked. Sometimes it
-may carry [Dynamic Fields](./../programmability/dynamic-fields) or objects transferred to it via
-[Transfer To Object](./transfer-to-object.md). In such cases, the UID may be kept and stored in a
-separate object.
+`UID`はオブジェクト構造体がアンパックされた直後に削除する必要はありません。時には[動的フィールド](./../programmability/dynamic-fields)を保持しているか、[Transfer To Object](./transfer-to-object.md)を通じて転送されたオブジェクトを保持している場合があります。そのような場合、UIDは保持され、別のオブジェクトに保存されることがあります。
 
-## Proof of Deletion
+## 削除の証明
 
-The ability to return the UID of an object may be utilized in pattern called _proof of deletion_. It
-is a rarely used technique, but it may be useful in some cases, for example, the creator or an
-application may incentivize the deletion of an object by exchanging the deleted IDs for some reward.
+オブジェクトのUIDを返す能力は、_削除の証明_と呼ばれるパターンで活用されることがあります。これはまれに使用される技術ですが、一部のケースで有用な場合があります。例えば、作成者やアプリケーションが削除されたIDを何らかの報酬と交換することで、オブジェクトの削除を奨励する場合があります。
 
-In framework development this method could be used to ignore / bypass certain restrictions on
-"taking" the object. If there's a container that enforces certain logic on transfers, like Kiosk
-does, there could be a special scenario of skipping the checks by providing a proof of deletion.
+フレームワーク開発では、この方法を使用してオブジェクトを「取得」することに関する特定の制限を無視/バイパスすることができます。Kioskのように転送に特定のロジックを強制するコンテナがある場合、削除の証明を提供することでチェックをスキップする特別なシナリオがあるかもしれません。
 
-This is one of the open topics for exploration and research, and it may be used in various ways.
+これは探求と研究のためのオープンなトピックの一つであり、様々な方法で使用される可能性があります。
 
 ## ID
 
-When talking about `UID` we should also mention the `ID` type. It is a wrapper around the `address`
-type, and is used to represent an address-pointer. Usually, `ID` is used to point at an object,
-however, there is no restriction, and no guarantee that the `ID` points to an existing object.
+`UID`について話すとき、`ID`型についても言及すべきです。これは`address`型のラッパーであり、アドレスポインタを表現するために使用されます。通常、`ID`はオブジェクトを指すために使用されますが、制限はなく、`ID`が既存のオブジェクトを指すという保証もありません。
 
-> ID can be received as a transaction argument in a
-> [Transaction Block](./../concepts/what-is-a-transaction). Alternatively, ID can be created from an
-> `address` value using `to_id()` function.
+> IDは[トランザクションブロック](./../concepts/what-is-a-transaction)でトランザクション引数として受信できます。または、`to_id()`関数を使用して`address`値からIDを作成できます。
 
 ```move
 public fun conversion_methods(ctx: &mut TxContext) {
@@ -149,23 +120,17 @@ public fun conversion_methods(ctx: &mut TxContext) {
 }
 ```
 
-This example demonstrates different conversion methods: `UID.to_inner` creates a copy of underlying
-`ID`, and `UID.to_address` returns inner address. Another often useful method `ID.to_address` copies
-inner value from the `ID` type.
+この例は異なる変換方法を示しています：`UID.to_inner`は基盤となる`ID`のコピーを作成し、`UID.to_address`は内部アドレスを返します。もう一つのよく使われる方法`ID.to_address`は`ID`型から内部値をコピーします。
 
-## Fresh Object Address
+## 新しいオブジェクトアドレス
 
-[`TxContext`](./../programmability/transaction-context.md) provides the `fresh_object_address`
-function which can be utilized to create unique addresses and `ID` - it may be useful in some
-application that assign unique identifiers to user actions - for example, an order_id in a
-marketplace.
+[`TxContext`](./../programmability/transaction-context.md)は、一意のアドレスと`ID`を作成するために活用できる`fresh_object_address`関数を提供します - これは、ユーザーのアクションに一意の識別子を割り当てるアプリケーション（例えば、マーケットプレイスのorder_id）で有用な場合があります。
 
-## Links
+## リンク
 
-- [`sui::object`][object] module documentation
-- [`sui::derived_object`][derived-object] module documentation
-- [Derived Objects](https://docs.sui.io/concepts/sui-move-concepts/derived-objects) in Sui
-  Documentation
+- [`sui::object`][object]モジュールドキュメント
+- [`sui::derived_object`][derived-object]モジュールドキュメント
+- Suiドキュメントの[Derived Objects](https://docs.sui.io/concepts/sui-move-concepts/derived-objects)
 
 [object]: https://docs.sui.io/references/framework/sui_sui/object
 [derived-object]: https://docs.sui.io/references/framework/sui_sui/derived_object

@@ -1,35 +1,31 @@
 ---
-title: 'Uses and Aliases | Reference'
+title: 'Uses とエイリアス | リファレンス'
 description: ''
 ---
 
-# Uses and Aliases
+# Uses とエイリアス
 
-The `use` syntax can be used to create aliases to members in other modules. `use` can be used to
-create aliases that last either for the entire module, or for a given expression block scope.
+`use`構文を使用して、他のモジュールのメンバーへのエイリアスを作成できます。`use`は、モジュール全体、または特定の式ブロックスコープのいずれかで有効なエイリアスを作成するために使用できます。
 
-## Syntax
+## 構文
 
-There are several different syntax cases for `use`. Starting with the most simple, we have the
-following for creating aliases to other modules
+`use`にはいくつかの異なる構文ケースがあります。最もシンプルなものから始めて、他のモジュールへのエイリアスを作成するために以下があります
 
 ```move
 use <address>::<module name>;
 use <address>::<module name> as <module alias name>;
 ```
 
-For example
+例えば
 
 ```move
 use std::vector;
 use std::option as o;
 ```
 
-`use std::vector;` introduces an alias `vector` for `std::vector`. This means that anywhere you
-would want to use the module name `std::vector` (assuming this `use` is in scope), you could use
-`vector` instead. `use std::vector;` is equivalent to `use std::vector as vector;`
+`use std::vector;`は`std::vector`のエイリアス`vector`を導入します。これは、`std::vector`というモジュール名を使用したい場所（この`use`がスコープ内にあると仮定）で、代わりに`vector`を使用できることを意味します。`use std::vector;`は`use std::vector as vector;`と同等です
 
-Similarly `use std::option as o;` would let you use `o` instead of `std::option`
+同様に`use std::option as o;`は、`std::option`の代わりに`o`を使用できるようにします
 
 ```move
 use std::vector;

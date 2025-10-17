@@ -1,27 +1,14 @@
-# Evolution of Move
+# Moveの進化
 
-While Move was created to manage digital assets, its initial storage model was bulky and not
-well-suited for many use cases. For instance, if Alice wanted to transfer an asset X to Bob, Bob had
-to create a new "empty" resource, and then Alice could transfer asset X to Bob. This process was not
-intuitive and presented implementation challenges, partly due to the restrictive design of
-[Diem](https://www.diem.com/en-us). Another drawback of the original design was the lack of built-in
-support for a "transfer" operation, requiring every module to implement its own storage transfer
-logic. Additionally, managing heterogeneous collections of assets in a single account was
-particularly challenging.
+Moveはデジタルアセットを管理するために作成されましたが、初期のストレージモデルは重く、多くのユースケースに適していませんでした。例えば、アリスがアセットXをボブに転送したい場合、ボブは新しい「空の」リソースを作成し、その後アリスがアセットXをボブに転送する必要がありました。このプロセスは直感的ではなく、一部は[Diem](https://www.diem.com/en-us)の制限的な設計により、実装上の課題を提示していました。元の設計のもう一つの欠点は、「転送」操作の組み込みサポートの欠如であり、すべてのモジュールが独自のストレージ転送ロジックを実装する必要がありました。さらに、単一のアカウント内で異種のアセットコレクションを管理することは特に困難でした。
 
-Sui addressed these challenges by redesigning the storage and ownership model of objects to more
-closely resemble real-world object interactions. With a native concept of ownership and _transfer_,
-Alice can directly transfer asset X to Bob. Furthermore, Bob can maintain a collection of different
-assets without any preparatory steps. These improvements laid the foundation for the Object Model in
-Sui.
+Suiは、現実世界のオブジェクト相互作用により近くなるよう、オブジェクトのストレージと所有権モデルを再設計することで、これらの課題に対処しました。所有権と_転送_のネイティブ概念により、アリスは直接アセットXをボブに転送できます。さらに、ボブは準備段階なしに異なるアセットのコレクションを維持できます。これらの改善により、SuiにおけるObject Modelの基盤が築かれました。
 
-## Summary
+## まとめ
 
-- Move's initial storage model was not well-suited for managing digital assets, requiring complex
-  and restrictive transfer operations.
-- Sui introduced the Object Model, which provides a native concept of ownership, simplifying asset
-  management and enabling heterogeneous collections.
+- Moveの初期ストレージモデルは、デジタルアセットの管理に適しておらず、複雑で制限的な転送操作を必要としていました。
+- SuiはObject Modelを導入し、所有権のネイティブ概念を提供することで、アセット管理を簡素化し、異種コレクションを可能にしました。
 
-## Further Reading
+## 参考文献
 
 - [Why We Created Sui Move](https://blog.sui.io/why-we-created-sui-move/) by Sam Blackshear

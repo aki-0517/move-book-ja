@@ -1,39 +1,38 @@
-# Binary Canonical Serialization
+# バイナリ正規シリアライゼーション
 
-Binary Canonical Serialization (BCS) is a binary encoding format for structured data. It was
-originally designed in Diem, and became the standard serialization format for Move. BCS is simple,
-efficient, deterministic, and easy to implement in any programming language.
+バイナリ正規シリアライゼーション（BCS）は、構造化データのためのバイナリエンコーディング形式です。
+これは元々Diemで設計され、Moveの標準シリアライゼーション形式になりました。BCSはシンプルで、
+効率的、決定的、そして任意のプログラミング言語で実装しやすいものです。
 
-> The full format specification is available in the
-> [BCS repository](https://github.com/zefchain/bcs).
+> 完全な形式仕様は[BCSリポジトリ](https://github.com/zefchain/bcs)で利用可能です。
 
-## Format
+## 形式
 
-BCS is a binary format that supports unsigned integers up to 256 bits, options, booleans, unit
-(empty value), fixed and variable-length sequences, and maps. The format is designed to be
-deterministic, meaning that the same data will always be serialized to the same bytes.
+BCSは、256ビットまでの符号なし整数、オプション、ブール値、ユニット（空の値）、
+固定長および可変長シーケンス、マップをサポートするバイナリ形式です。この形式は
+決定的になるように設計されており、同じデータは常に同じバイトにシリアライゼーションされます。
 
-> "BCS is not a self-describing format. As such, in order to deserialize a message, one must know
-> the message type and layout ahead of time" from the [README](https://github.com/zefchain/bcs)
+> 「BCSは自己記述形式ではありません。そのため、メッセージをデシリアライゼーションするには、
+> 事前にメッセージタイプとレイアウトを知っている必要があります」[README](https://github.com/zefchain/bcs)より
 
-Integers are stored in little-endian format, and variable-length integers are encoded using a
-variable-length encoding scheme. Sequences are prefixed with their length as ULEB128, enumerations
-are stored as the index of the variant followed by the data, and maps are stored as an ordered
-sequence of key-value pairs.
+整数はリトルエンディアン形式で格納され、可変長整数は可変長エンコーディングスキームを使用して
+エンコードされます。シーケンスは長さをULEB128としてプレフィックスし、列挙型は
+バリアントのインデックスに続いてデータを格納し、マップはキーと値のペアの順序付きシーケンスとして
+格納されます。
 
-Structs are treated as a sequence of fields, and the fields are serialized in the order they are
-defined in the struct. The fields are serialized using the same rules as the top-level data.
+構造体はフィールドのシーケンスとして扱われ、フィールドは構造体で定義された順序で
+シリアライゼーションされます。フィールドはトップレベルデータと同じルールを使用して
+シリアライゼーションされます。
 
-## Using BCS
+## BCSの使用
 
-The [Sui Framework](./sui-framework) includes the [`sui::bcs`][sui-bcs] module for encoding and
-decoding data. Encoding functions are native to the VM, and decoding functions are implemented in
-Move.
+[Sui Framework](./sui-framework)には、データのエンコードとデコードのための[`sui::bcs`][sui-bcs]モジュールが
+含まれています。エンコード関数はVMネイティブであり、デコード関数はMoveで実装されています。
 
-## Encoding
+## エンコード
 
-To encode data, use the `bcs::to_bytes` function, which converts data references into byte vectors.
-This function supports encoding any types, including structs.
+データをエンコードするには、データ参照をバイトベクターに変換する`bcs::to_bytes`関数を使用します。
+この関数は、構造体を含む任意の型のエンコードをサポートします。
 
 ```move
 module std::bcs;
@@ -41,103 +40,104 @@ module std::bcs;
 public native fun to_bytes<T>(t: &T): vector<u8>;
 ```
 
-The following example shows how to encode a struct using BCS. The `to_bytes` function can take any
-value and encode it as a vector of bytes.
+以下の例は、BCSを使用して構造体をエンコードする方法を示しています。`to_bytes`関数は任意の
+値を取り、それをバイトのベクターとしてエンコードできます。
 
 ```move file=packages/samples/sources/programmability/bcs.move anchor=encode
 
 ```
 
-### Encoding a Struct
+### 構造体のエンコード
 
-Structs encode similarly to simple types. Here is how to encode a struct using BCS:
+構造体は単純な型と同様にエンコードされます。以下は、BCSを使用して構造体をエンコードする方法です：
 
 ```move file=packages/samples/sources/programmability/bcs.move anchor=encode_struct
 
 ```
 
-## Decoding
+## デコード
 
-Because BCS is not a self-describing format, decoding requires prior knowledge of the data type. The
-[`sui::bcs`][sui-bcs] module provides various functions to assist with this process.
+BCSは自己記述形式ではないため、デコードにはデータ型の事前知識が必要です。
+[`sui::bcs`][sui-bcs]モジュールは、このプロセスを支援するための様々な関数を提供します。
 
-### Wrapper API
+### ラッパーAPI
 
-BCS is implemented as a wrapper in Move. The decoder takes the bytes by value, and then allows the
-caller to _peel off_ the data by calling different decoding functions, prefixed with `peel_*`. The
-data is extracted from the bytes, and the remaining bytes are kept in the wrapper until the
-`into_remainder_bytes` function is called.
+BCSはMoveでラッパーとして実装されています。デコーダーはバイトを値で受け取り、
+`peel_*`でプレフィックスされた異なるデコード関数を呼び出すことで、呼び出し元がデータを
+「剥がす」ことを可能にします。データはバイトから抽出され、`into_remainder_bytes`関数が
+呼び出されるまで、残りのバイトはラッパーに保持されます。
 
 ```move file=packages/samples/sources/programmability/bcs.move anchor=decode
 
 ```
 
-There is a common practice to use multiple variables in a single `let` statement during decoding. It
-makes code a little bit more readable and helps to avoid unnecessary copying of the data.
+デコード中に単一の`let`文で複数の変数を使用するのは一般的な実践です。これにより
+コードが少し読みやすくなり、データの不要なコピーを避けるのに役立ちます。
 
 ```move file=packages/samples/sources/programmability/bcs.move anchor=chain_decode
 
 ```
 
-### Decoding Vectors
+### ベクターのデコード
 
-While most of the primitive types have a dedicated decoding function, vectors need special handling,
-which depends on the type of the elements. For vectors, first you need to decode the length of the
-vector, and then decode each element in a loop.
+ほとんどのプリミティブ型には専用のデコード関数がありますが、ベクターは要素の型に依存する
+特別な処理が必要です。ベクターの場合、まずベクターの長さをデコードし、
+次にループで各要素をデコードする必要があります。
 
 ```move file=packages/samples/sources/programmability/bcs.move anchor=decode_vector
 
 ```
 
-This functionality is provided by the library as a macro `peel_vec!`. It calls the inner expression
-as many times as the vector length and aggregates the result into a single vector.
+この機能は、ライブラリによって`peel_vec!`マクロとして提供されています。これは
+ベクターの長さと同じ回数だけ内部式を呼び出し、結果を単一のベクターに集約します。
 
 ```move
 let u64_vec = bcs.peel_vec!(|bcs| bcs.peel_u64());
 let address_vec = bcs.peel_vec!(|bcs| bcs.peel_address());
 
-// Caution: this is only possible if `MyStruct` is defined in the current module!
+// 注意：これは`MyStruct`が現在のモジュールで定義されている場合のみ可能です！
 let my_struct = bcs.peel_vec!(|bcs| MyStruct {
     user_addr: bcs.peel_address(),
     age: bcs.peel_u8(),
 });
 ```
 
-### Decoding Option
+### Optionのデコード
 
 <!--
-> Coincidentally, Option, being a vector in Move, overlaps with the representation of an enum with a
-> single variant in BCS, and makes Option in Rust fully compatible with the one in Move.
+> 偶然にも、MoveのOptionはベクターであるため、BCSの単一バリアントを持つ列挙型の表現と
+> 重複し、RustのOptionをMoveのものと完全に互換性を持たせています。
 -->
 
-[Option](./../move-basics/option) in Move is represented as a vector of either 0 or 1 element. To
-read an option, you would treat it like a vector and check its length (first byte - either 1 or 0).
+Moveの[Option](./../move-basics/option)は、0または1の要素を持つベクターとして表現されます。
+オプションを読み取るには、それをベクターのように扱い、その長さ（最初のバイト - 1または0）を
+チェックします。
 
 ```move file=packages/samples/sources/programmability/bcs.move anchor=decode_option
 
 ```
 
-Like with [vector](#decoding-vectors), there is a wrapper macro `peel_option!` which checks the
-variant index and evaluates the expression if the underlying value is _some_.
+[ベクター](#decoding-vectors)と同様に、バリアントインデックスをチェックし、
+基になる値が_some_の場合に式を評価するラッパーマクロ`peel_option!`があります。
 
 ```move
 let u8_opt = bcs.peel_option!(|bcs| bcs.peel_u8());
 let bool_opt = bcs.peel_option!(|bcs| bcs.peel_bool());
 ```
 
-### Decoding Structs
+### 構造体のデコード
 
-Structs are decoded field by field, and there is no way to automatically decode bytes into a Move
-struct. To parse bytes into a struct, you need to decode each field and instantiate the type.
+構造体はフィールドごとにデコードされ、バイトをMove構造体に自動的にデコードする方法はありません。
+バイトを構造体にパースするには、各フィールドをデコードし、型をインスタンス化する必要があります。
 
 ```move file=packages/samples/sources/programmability/bcs.move anchor=decode_struct
 
 ```
 
-## Summary
+## まとめ
 
-Binary Canonical Serialization is an efficient binary format for structured data, ensuring
-consistent serialization across platforms. The Sui Framework provides comprehensive tools for
-working with BCS, allowing extensive functionality through built-in functions.
+バイナリ正規シリアライゼーションは、構造化データのための効率的なバイナリ形式であり、
+プラットフォーム間での一貫したシリアライゼーションを保証します。Sui Frameworkは
+BCSを扱うための包括的なツールを提供し、組み込み関数を通じて広範な機能を可能にします。
 
 [sui-bcs]: https://docs.sui.io/references/framework/sui_sui/bcs

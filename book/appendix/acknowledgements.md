@@ -1,6 +1,3 @@
-# Appendix F: Acknowledgements
+# 付録F: 謝辞
 
-[The Rust Book](https://doc.rust-lang.org/book) has been a great inspiration for this book. I am
-personally grateful to the authors of the book, Steve Klabnik and Carol Nichols, for their work, as
-I have learned a lot from it. This book is a small tribute to their work and an attempt to bring a
-similar learning experience to the Move community.
+[The Rust Book](https://doc.rust-lang.org/book)は、この本の大きなインスピレーションでした。私は個人的に、この本の著者であるSteve KlabnikとCarol Nicholsの作品に感謝しており、そこから多くを学びました。この本は彼らの作品への小さな賛辞であり、Moveコミュニティに同様の学習体験をもたらす試みです。

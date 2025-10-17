@@ -1,24 +1,18 @@
-# Expression
+# 式
 
-In programming languages, an expression is a unit of code that returns a value. In Move, almost
-everything is an expression, with the sole exception of the `let` statement, which is a declaration.
-In this section, we cover the types of expressions and introduce the concept of scope.
+プログラミング言語において、式は値を返すコードの単位です。Moveでは、宣言である`let`文を唯一の例外として、ほぼすべてが式です。このセクションでは、式の種類を取り上げ、スコープの概念を紹介します。
 
-> Expressions are sequenced with semicolons `;`. If there's "no expression" after the semicolon, the
-> compiler will insert a `unit ()`, which represents an empty expression.
+> 式はセミコロン`;`で連続されます。セミコロンの後に「式がない」場合、コンパイラは空の式を表す`unit ()`を挿入します。
 
-## Literals
+## リテラル
 
-In the [Primitive types](./primitive-types) section, we introduced the basic types of Move. And to
-illustrate them, we used literals. A literal is a notation for representing a fixed value in source
-code. Literals can be used to initialize variables or directly pass fixed values as arguments to
-functions. Move has the following literals:
+[プリミティブ型](./primitive-types)セクションで、Moveの基本型を紹介しました。それらを説明するために、リテラルを使用しました。リテラルは、ソースコードで固定値を表現するための記法です。リテラルは変数を初期化したり、固定値を関数の引数として直接渡したりするために使用できます。Moveには以下のリテラルがあります：
 
-- Boolean values: `true` and `false`
-- Integer values: `0`, `1`, `123123`
-- Hexadecimal values: Numbers prefixed with 0x to represent integers, such as `0x0`, `0x1`, `0x123`
-- Byte vector values: Prefixed with `b`, such as `b"bytes_vector"`
-- Byte values: Hexadecimal literals prefixed with `x`, such as `x"0A"`
+- ブール値：`true`と`false`
+- 整数値：`0`、`1`、`123123`
+- 16進数値：整数を表すために0xで始まる数値、例えば`0x0`、`0x1`、`0x123`
+- バイトベクター値：`b`で始まる、例えば`b"bytes_vector"`
+- バイト値：`x`で始まる16進数リテラル、例えば`x"0A"`
 
 ```move file=packages/samples/sources/move-basics/expression.move anchor=literals
 

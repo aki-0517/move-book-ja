@@ -1,110 +1,114 @@
-# Object Display
+# オブジェクトディスプレイ
 
-Objects on Sui are explicit in their structure and behavior and can be displayed in an
-understandable way. However, to support richer metadata for clients, there's a standard and
-efficient way of "describing" them to the client - the `Display` object defined in the
-[Sui Framework](./sui-framework).
+Sui上のオブジェクトは、その構造と動作が明確で、理解しやすい方法で表示できます。
+ただし、クライアントにより豊富なメタデータをサポートするために、
+クライアントにそれらを「記述」する標準的で効率的な方法があります
+- [Sui Framework](./sui-framework)で定義された`Display`オブジェクトです。
 
-## Background
+## 背景
 
-Historically, there were different attempts to agree on a standard structure of an object so it can
-be displayed in a user interface. One of the approaches was to define certain fields in the object
-struct which, when present, would be used in the UI. This approach was not flexible enough and
-required developers to define the same fields in every object, and sometimes the fields did not make
-sense for the object.
+歴史的に、オブジェクトをユーザーインターフェースで表示できるようにするための
+標準構造について合意するための様々な試みがありました。アプローチの一つは、
+オブジェクト構造体に特定のフィールドを定義し、それらが存在する場合に
+UIで使用することでした。このアプローチは十分に柔軟ではなく、
+開発者はすべてのオブジェクトで同じフィールドを定義する必要があり、
+時にはフィールドがオブジェクトにとって意味をなさない場合もありました。
 
 ```move file=packages/samples/sources/programmability/display.move anchor=background
 
 ```
 
-If any of the fields contained static data, it would be duplicated in every object. And, since Move
-does not have interfaces, it is not possible to know if an object has a specific field without
-"manually" checking the object's type, which makes the client fetching more complex.
+フィールドのいずれかが静的データを含んでいた場合、それはすべてのオブジェクトで
+重複していました。そして、Moveにはインターフェースがないため、
+オブジェクトの型を「手動で」チェックすることなく、オブジェクトが特定のフィールドを
+持っているかどうかを知ることはできません。これにより、クライアントの取得がより複雑になります。
 
-## Object Display
+## オブジェクトディスプレイ
 
-To address these issues, Sui introduces a standard way of describing an object for display. Instead
-of defining fields in the object struct, the display metadata is stored in a separate object, which
-is associated with the type. This way, the display metadata is not duplicated, and it is easy to
-extend and maintain.
+これらの問題に対処するために、Suiは表示用のオブジェクトを記述する標準的な方法を
+導入しました。オブジェクト構造体にフィールドを定義する代わりに、
+表示メタデータは別のオブジェクトに格納され、それが型に関連付けられます。
+このようにして、表示メタデータは重複せず、拡張とメンテナンスが容易になります。
 
-Another important feature of Sui Display is the ability to define templates and use object fields in
-those templates. Not only it allows for a more flexible display, but it also frees the developer
-from the need to define the same fields with the same names and types in every object.
+Sui Displayのもう一つの重要な機能は、テンプレートを定義し、それらのテンプレートで
+オブジェクトフィールドを使用する機能です。これにより、より柔軟な表示が可能になるだけでなく、
+開発者はすべてのオブジェクトで同じ名前と型の同じフィールドを定義する必要がなくなります。
 
-> The Object Display is natively supported by the
-> [Sui Full Node](https://docs.sui.io/guides/operator/sui-full-node), and the client can fetch the
-> display metadata for any object if the object type has a Display associated with it.
+> オブジェクトディスプレイは[Sui Full Node](https://docs.sui.io/guides/operator/sui-full-node)によって
+> ネイティブにサポートされており、オブジェクト型に関連付けられたDisplayがある場合、
+> クライアントは任意のオブジェクトの表示メタデータを取得できます。
 
 ```move file=packages/samples/sources/programmability/display.move anchor=hero
 
 ```
 
-## Creator Privilege
+## 作成者特権
 
-While the objects can be owned by accounts and may be a subject to
-[True Ownership](./../object/ownership#account-owner-or-single-owner), the Display can be owned by
-the creator of the object. This way, the creator can update the display metadata and apply the
-changes globally without the need to update every object. The creator can also transfer Display to
-another account or even build an application around the object with custom functionality to manage
-the metadata.
+オブジェクトはアカウントによって所有され、[真の所有権](./../object/ownership#account-owner-or-single-owner)の
+対象となる場合がありますが、Displayはオブジェクトの作成者によって所有されることができます。
+このようにして、作成者は表示メタデータを更新し、すべてのオブジェクトを更新する必要なしに
+変更をグローバルに適用できます。作成者はDisplayを別のアカウントに転送したり、
+メタデータを管理するカスタム機能を持つオブジェクト周辺のアプリケーションを
+構築することもできます。
 
-## Standard Fields
+## 標準フィールド
 
-The fields that are supported most widely are:
+最も広くサポートされているフィールドは以下の通りです：
 
-- `name` - A name for the object. The name is displayed when users view the object.
-- `description` - A description for the object. The description is displayed when users view the
-  object.
-- `link` - A link to the object to use in an application.
-- `image_url` - A URL or a blob with the image for the object.
-- `thumbnail_url` - A URL to a smaller image to use in wallets, explorers, and other products as a
-  preview.
-- `project_url` - A link to a website associated with the object or creator.
-- `creator` - A string that indicates the object creator.
+- `name` - オブジェクトの名前。ユーザーがオブジェクトを表示する際に表示されます。
+- `description` - オブジェクトの説明。ユーザーがオブジェクトを表示する際に表示されます。
+- `link` - アプリケーションで使用するオブジェクトへのリンク。
+- `image_url` - オブジェクトの画像のURLまたはblob。
+- `thumbnail_url` - ウォレット、エクスプローラー、その他の製品でプレビューとして使用する
+  より小さな画像のURL。
+- `project_url` - オブジェクトまたは作成者に関連するウェブサイトへのリンク。
+- `creator` - オブジェクト作成者を示す文字列。
 
-> Please, refer to the [Sui Documentation](https://docs.sui.io/standards/display) for the most
-> up-to-date list of supported fields.
+> サポートされているフィールドの最新のリストについては、
+> [Sui Documentation](https://docs.sui.io/standards/display)を参照してください。
 
-While there's a standard set of fields, the Display object does not enforce them. The developer can
-define any fields they need, and the client can use them as they see fit. Some applications may
-require additional fields, and omit other, and the Display is flexible enough to support them.
+標準的なフィールドセットがありますが、Displayオブジェクトはそれらを強制しません。
+開発者は必要な任意のフィールドを定義でき、クライアントはそれらを適切に使用できます。
+一部のアプリケーションでは追加のフィールドが必要で、他のフィールドを省略する場合があり、
+Displayはそれらをサポートするのに十分柔軟です。
 
-## Working with Display
+## Displayの操作
 
-The `Display` object is defined in the `sui::display` module. It is a generic struct that takes a
-phantom type as a parameter. The phantom type is used to associate the `Display` object with the
-type it describes. The `fields` of the `Display` object are a `VecMap` of key-value pairs, where the
-key is the field name and the value is the field value. The `version` field is used to version the
-display metadata, and is updated on the `update_display` call.
+`Display`オブジェクトは`sui::display`モジュールで定義されています。これは
+ファントム型をパラメータとして取るジェネリック構造体です。ファントム型は
+`Display`オブジェクトをそれが記述する型に関連付けるために使用されます。
+`Display`オブジェクトの`fields`は、キーがフィールド名で値がフィールド値である
+キーと値のペアの`VecMap`です。`version`フィールドは表示メタデータのバージョン管理に使用され、
+`update_display`呼び出し時に更新されます。
 
 ```move
 module sui::display;
 
 public struct Display<phantom T: key> has key, store {
     id: UID,
-    /// Contains fields for display. Currently supported
-    /// fields are: name, link, image and description.
+    /// 表示用のフィールドを含む。現在サポートされている
+    /// フィールドは：name、link、image、description。
     fields: VecMap<String, String>,
-    /// Version that can only be updated manually by the Publisher.
+    /// Publisherによって手動でのみ更新できるバージョン。
     version: u16
 }
 ```
 
-The [Publisher](./publisher) object is required to a new Display, since it serves as the proof of
-ownership of type.
+[Publisher](./publisher)オブジェクトは新しいDisplayに必要です。これは型の所有権の
+証明として機能するためです。
 
-## Template Syntax
+## テンプレート構文
 
-Currently, Display supports simple string interpolation and can use struct fields (and paths) in its
-templates. The syntax is trivial - `{path}` is replaced with the value of the field at the path. The
-path is a dot-separated list of field names, starting from the root object in case of nested fields.
+現在、Displayは単純な文字列補間をサポートし、テンプレートで構造体フィールド（およびパス）を
+使用できます。構文は簡単です - `{path}`はパスのフィールドの値に置き換えられます。
+パスは、ネストされたフィールドの場合はルートオブジェクトから始まる、
+ドットで区切られたフィールド名のリストです。
 
 ```move file=packages/samples/sources/programmability/display.move anchor=nested
 
 ```
 
-The Display for the type `LittlePony` above could be defined as follows:
+上記の`LittlePony`型のDisplayは以下のように定義できます：
 
 ```json
 {
@@ -114,12 +118,12 @@ The Display for the type `LittlePony` above could be defined as follows:
 }
 ```
 
-## Multiple Display Objects
+## 複数のDisplayオブジェクト
 
-There's no restriction to how many `Display<T>` objects can be created for a specific `T`. However,
-the most recently updated `Display<T>` will be used by the full node.
+特定の`T`に対して作成できる`Display<T>`オブジェクトの数に制限はありません。ただし、
+最も最近更新された`Display<T>`がフルノードによって使用されます。
 
-## Further Reading
+## さらなる読み物
 
-- [Sui Object Display](https://docs.sui.io/standards/display) is Sui Documentation
-- [Publisher](./publisher) - the representation of the creator
+- [Sui Object Display](https://docs.sui.io/standards/display) - Sui Documentation
+- [Publisher](./publisher) - 作成者の表現

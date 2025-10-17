@@ -1,1 +1,1 @@
-# Cryptography and Hashing
+# 暗号化とハッシュ化

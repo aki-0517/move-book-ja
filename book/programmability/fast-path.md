@@ -1,39 +1,39 @@
-# Fast Path
+# ファストパス
 
-Due to the object model and the data organization model of Sui, some operations can be performed in
-a more efficient and parallelized way. This is called the **fast path**. Transaction that touches
-shared state requires consensus because it can be accessed by multiple parties at the same time.
-However, if the transaction only touches the private state (owned objects), there is no need for
-consensus. This is the fast path.
+Suiのオブジェクトモデルとデータ組織モデルにより、一部の操作はより効率的で並列化された方法で
+実行できます。これを**ファストパス**と呼びます。共有状態に触れるトランザクションは、
+複数の当事者が同時にアクセスできるため、コンセンサスが必要です。しかし、トランザクションが
+プライベート状態（所有オブジェクト）のみに触れる場合、コンセンサスは必要ありません。
+これがファストパスです。
 
-We have a favorite example for this: a coffee machine and a coffee cup. The coffee machine placed in
-the office is a shared resource - everyone can use it, but there can be only one user at a time. The
-coffee cup, on the other hand, is a private resource - it belongs to a specific person, and only
-that person can use it. To make coffee, one needs to use the coffee machine and wait if there's
-someone else using it. However, once the coffee is made and poured into the cup, the person can take
-the cup and drink the coffee without waiting for anyone else.
+これについてのお気に入りの例があります：コーヒーマシンとコーヒーカップです。オフィスに
+設置されたコーヒーマシンは共有リソースです - 誰でも使用できますが、一度に一人のユーザーしか
+いません。一方、コーヒーカップはプライベートリソースです - 特定の人のものであり、
+その人だけが使用できます。コーヒーを作るには、コーヒーマシンを使用し、他の誰かが使用している
+場合は待つ必要があります。しかし、コーヒーが作られてカップに注がれたら、その人は
+他の誰も待たずにカップを持ってコーヒーを飲むことができます。
 
-The same principle applies to Sui. If a transaction only touches the private state (the cup with
-coffee), it can be executed without consensus. If it touches the shared state (the coffee machine),
-it requires consensus. This is the fast path.
+同じ原理がSuiに適用されます。トランザクションがプライベート状態（コーヒーの入ったカップ）のみに
+触れる場合、コンセンサスなしで実行できます。共有状態（コーヒーマシン）に触れる場合、
+コンセンサスが必要です。これがファストパスです。
 
-## Frozen objects
+## 凍結オブジェクト
 
-Consensus is only required for mutating the shared state. If the object is immutable, it is treated
-as a "constant" and can be accessed in parallel. Frozen objects can be used to share unchangeable
-data between multiple parties without requiring consensus.
+コンセンサスは共有状態の変更にのみ必要です。オブジェクトが不変の場合、「定数」として扱われ、
+並列にアクセスできます。凍結オブジェクトは、コンセンサスを必要とせずに複数の当事者間で
+変更不可能なデータを共有するために使用できます。
 
-## In Practice
+## 実際の使用
 
 ```move file=packages/samples/sources/programmability/fast-path.move anchor=main
 
 ```
 
-## Special Case: Clock
+## 特別なケース：Clock
 
-The `Clock` object with the reserved address `0x6` is a special case of a shared object which cannot
-be passed by a mutable reference in a regular transaction. An attempt to do so will not succeed, and
-the transaction will be rejected. Because of this limitation, the `Clock` object can only be
-accessed immutably, which allows executing transactions in parallel without consensus.
+予約済みアドレス`0x6`を持つ`Clock`オブジェクトは、通常のトランザクションで可変参照として
+渡すことができない共有オブジェクトの特別なケースです。そうしようとする試みは成功せず、
+トランザクションは拒否されます。この制限により、`Clock`オブジェクトは不変でしか
+アクセスできず、コンセンサスなしでトランザクションを並列実行できます。
 
-<!-- Add more on why and how -->
+<!-- なぜ、どのようにについてもっと追加 -->

@@ -1,4 +1,4 @@
-# Constants
+# 定数
 
 <!--
 
@@ -18,57 +18,46 @@ Links:
 
  -->
 
-Constants are immutable values that are defined at the module level. They often serve as a way to
-give names to static values that are used throughout a module. For example, if there's a default
-price for a product, you might define a constant for it. Constants are stored in the module's
-bytecode, and each time they are used, the value is copied.
+定数はモジュールレベルで定義される不変の値です。定数は、モジュール全体で使用される静的値に名前を付ける方法としてしばしば使用されます。たとえば、製品のデフォルト価格がある場合、それに対して定数を定義するかもしれません。定数はモジュールのバイトコードに格納され、使用されるたびに値がコピーされます。
 
 ```move file=packages/samples/sources/move-basics/constants-shop-price.move anchor=shop_price
 
 ```
 
-## Naming Convention
+## 命名規約
 
-Constants must start with a capital letter - this is enforced at the compiler level. For constants
-used as a value, the convention is to use all uppercase letters and underscores between words, which
-makes constants stand out from other identifiers in the code. An exception is made for
-[error constants](./assert-and-abort#error-constants), which are written in ECamelCase.
+定数は大文字で始まる必要があります - これはコンパイラレベルで強制されます。値として使用される定数の場合、すべて大文字と単語間のアンダースコアを使用するのが慣例で、これにより定数がコード内の他の識別子から際立つようになります。[エラー定数](./assert-and-abort#error-constants)はECamelCaseで書かれる例外です。
 
 ```move file=packages/samples/sources/move-basics/constants-naming.move anchor=naming
 
 ```
 
-## Constants are Immutable
+## 定数は不変
 
-Constants can't be changed and assigned new values. As part of the package bytecode, they are
-inherently immutable.
+定数は変更されたり、新しい値が代入されたりすることはありません。パッケージバイトコードの一部として、本質的に不変です。
 
 ```move
 module book::immutable_constants;
 
 const ITEM_PRICE: u64 = 100;
 
-// emits an error
+// エラーが発生します
 fun change_price() {
     ITEM_PRICE = 200;
 }
 ```
 
-## Using Config Pattern
+## 設定パターンの使用
 
-A common use case for an application is to define a set of constants that are used throughout the
-codebase. But due to constants being private to the module, they can't be accessed from other
-modules. One way to solve this is to define a "config" module that exports the constants.
+アプリケーションの一般的な用途は、コードベース全体で使用される定数のセットを定義することです。しかし、定数はモジュールプライベートであるため、他のモジュールからアクセスできません。これを解決する一つの方法は、定数をエクスポートする「config」モジュールを定義することです。
 
 ```move file=packages/samples/sources/move-basics/constants-config.move anchor=config
 
 ```
 
-This way other modules can import and read the constants, and the update process is simplified. If
-the constants need to be changed, only the config module needs to be updated during the package
-upgrade.
+この方法で、他のモジュールが定数をインポートして読み取ることができ、更新プロセスが簡素化されます。定数を変更する必要がある場合、パッケージのアップグレード時にconfigモジュールのみを更新する必要があります。
 
-## Links
+## リンク
 
-- [Constants](./../../reference/constants) in the Move Reference
-- [Coding conventions for constants](./../guides/code-quality-checklist#regular-constant-are-all_caps)
+- Move Referenceの[Constants](./../../reference/constants)
+- [定数のコーディング規約](./../guides/code-quality-checklist#regular-constant-are-all_caps)

@@ -1,13 +1,11 @@
 ---
-title: 'Labeled Control Flow | Reference'
+title: 'ラベル付き制御フロー | リファレンス'
 description: ''
 ---
 
-# Labeled Control Flow
+# ラベル付き制御フロー
 
-Move supports labeled control flow when writing both loops and blocks of code, allowing you
-to `break` and `continue` loops and `return` from blocks (which can be particularly helpful in the
-presence of macros).
+Moveは、ループとコードブロックの両方を書く際にラベル付き制御フローをサポートし、ループの`break`と`continue`、ブロックからの`return`を可能にします（これはマクロの存在下で特に有用です）。
 
 ## Loops
 

@@ -1,16 +1,12 @@
 # Object Model
 
-This chapter describes the Object Model of Sui. It focuses on the theory and concepts behind the
-Object Model, preparing you for a practical dive into Sui Storage operations and resource ownership.
-For convenience and easier lookup, we split the chapter into several sections, each covering a
-specific aspect of the Object Model.
+この章では、SuiのObject Modelについて説明します。Object Modelの背後にある理論と概念に焦点を当て、Suiストレージ操作とリソース所有権への実践的な理解の準備をします。利便性と検索の容易さのため、この章をいくつかのセクションに分割し、それぞれがObject Modelの特定の側面をカバーしています。
 
 <div class="warning">
 
-In no way should this chapter be considered a comprehensive guide to the Object Model. It is only a
-high-level overview of the concepts and principles behind the Object Model.
+この章は決してObject Modelの包括的なガイドと見なすべきではありません。これはObject Modelの背後にある概念と原則の高レベルな概要に過ぎません。
 
-For a more detailed description, refer to the
-[Sui Documentation](https://docs.sui.io/concepts/object-model).
+より詳細な説明については、
+[Sui Documentation](https://docs.sui.io/concepts/object-model)を参照してください。
 
 </div>

@@ -1,27 +1,21 @@
-# Abilities: Introduction
+# アビリティ：導入
 
-Move has a unique type system which allows customizing _type abilities_.
-[In the previous section](./struct), we introduced the `struct` definition and how to use it.
-However, the instances of the `Artist` and `Record` structs had to be unpacked for the code to
-compile. This is default behavior of a struct without _abilities_.
+Moveには、_型のアビリティ_をカスタマイズできる独特な型システムがあります。
+[前のセクション](./struct)では、`struct`の定義とその使用方法を紹介しました。
+しかし、`Artist`と`Record`構造体のインスタンスは、コードをコンパイルするためにアンパックする必要がありました。これは_アビリティ_を持たない構造体のデフォルトの動作です。
 
-> Throughout the book you will see chapters with name `Ability: <name>`, where `<name>` is the name
-> of the ability. These chapters will cover the ability in detail, how it works, and how to use it
-> in Move.
+> この本では、`Ability: <name>`という名前の章を見ることがあります。ここで`<name>`はアビリティの名前です。これらの章では、アビリティの詳細、その動作方法、Moveでの使用方法について説明します。
 
-## What are Abilities?
+## アビリティとは何か？
 
-Abilities are a way to allow certain behaviors for a type. They are a part of the struct declaration
-and define which behaviors are allowed for the instances of the struct.
+アビリティは、型に対して特定の動作を許可する方法です。構造体宣言の一部であり、構造体のインスタンスに対してどのような動作が許可されるかを定義します。
 
-## Abilities Syntax
+## アビリティの構文
 
-Abilities are set in the struct definition using the `has` keyword followed by a list of abilities.
-The abilities are separated by commas. Move supports 4 abilities: `copy`, `drop`, `key`, and
-`store`. Each ability defines a specific behavior for the struct instances.
+アビリティは、`has`キーワードに続いてアビリティのリストを使用して構造体定義で設定されます。アビリティはカンマで区切られます。Moveは4つのアビリティをサポートしています：`copy`、`drop`、`key`、`store`。各アビリティは、構造体インスタンスに対する特定の動作を定義します。
 
 ```move
-/// This struct has the `copy` and `drop` abilities.
+/// この構造体は`copy`と`drop`のアビリティを持っています。
 public struct VeryAble has copy, drop {
     // field: Type1,
     // field2: Type2,
@@ -29,33 +23,23 @@ public struct VeryAble has copy, drop {
 }
 ```
 
-## Overview
+## 概要
 
-A quick overview of the abilities:
+アビリティの簡単な概要：
 
-> All of the built-in types except [references](references) have `copy`, `drop`, and `store`
-> abilities. References have `copy` and `drop`.
+> [参照](references)を除くすべての組み込み型は、`copy`、`drop`、`store`のアビリティを持ちます。参照は`copy`と`drop`を持ちます。
 
-- `copy` - allows the struct to be _copied_. Explained in the [Ability: Copy](./copy-ability)
-  chapter.
-- `drop` - allows the struct to be _dropped_ or _discarded_. Explained in the
-  [Ability: Drop](./drop-ability) chapter.
-- `key` - allows the struct to be used as a _key_ in a storage. Explained in the
-  [Ability: Key](./../storage/key-ability) chapter.
-- `store` - allows the struct to be _stored_ in structs that have the _key_ ability. Explained in
-  the [Ability: Store](./../storage/store-ability) chapter.
+- `copy` - 構造体を_コピー_することを許可します。[Ability: Copy](./copy-ability)の章で説明されています。
+- `drop` - 構造体を_ドロップ_または_破棄_することを許可します。[Ability: Drop](./drop-ability)の章で説明されています。
+- `key` - 構造体をストレージの_キー_として使用することを許可します。[Ability: Key](./../storage/key-ability)の章で説明されています。
+- `store` - 構造体を_key_アビリティを持つ構造体に_格納_することを許可します。[Ability: Store](./../storage/store-ability)の章で説明されています。
 
-While it is important to briefly mention them here, we will go into more detail about each ability
-in the following chapters and give proper context on how to use them.
+ここで簡潔に言及することは重要ですが、続く章で各アビリティについてより詳しく説明し、それらの使用方法について適切な文脈を提供します。
 
-## No Abilities
+## アビリティなし
 
-A struct without abilities cannot be discarded, copied, or stored in storage. We call such a struct
-a _Hot Potato_. A lighthearted name, but it is a good way to remember that a struct without
-abilities is like a hot potato - it can only be passed around and requires special handling. The Hot
-Potato is one of the most powerful patterns in Move, and we go into more detail about it in the
-[Hot Potato Pattern](./../programmability/hot-potato-pattern) chapter.
+アビリティを持たない構造体は、破棄、コピー、またはストレージへの格納ができません。このような構造体を_Hot Potato_と呼びます。親しみやすい名前ですが、アビリティを持たない構造体が熱いジャガイモのように - ただ受け渡すことしかできず、特別な処理が必要であることを覚えるのに良い方法です。Hot PotatoはMoveで最も強力なパターンの一つであり、[Hot Potato Pattern](./../programmability/hot-potato-pattern)の章でより詳しく説明します。
 
-## Further Reading
+## さらなる読み物
 
-- [Type Abilities](./../../reference/abilities) in the Move Reference.
+- Move Referenceの[Type Abilities](./../../reference/abilities)

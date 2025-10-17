@@ -1,14 +1,11 @@
 ---
-title: 'References | Reference'
+title: '参照 | リファレンス'
 description: ''
 ---
 
-# References
+# 参照
 
-Move has two types of references: immutable `&` and mutable `&mut`. Immutable references are read
-only, and cannot modify the underlying value (or any of its fields). Mutable references allow for
-modifications via a write through that reference. Move's type system enforces an ownership
-discipline that prevents reference errors.
+Moveには2つの型の参照があります：不変`&`と可変`&mut`。不変参照は読み取り専用であり、基になる値（またはそのフィールド）を変更することはできません。可変参照は、その参照を通じた書き込みによる変更を可能にします。Moveの型システムは、参照エラーを防ぐ所有権の規律を強制します。
 
 ## Reference Operators
 

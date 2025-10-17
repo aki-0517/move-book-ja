@@ -1,15 +1,11 @@
 ---
-title: 'Tuples and Unit | Reference'
+title: 'タプルとユニット | リファレンス'
 description: ''
 ---
 
-# Tuples and Unit
+# タプルとユニット
 
-Move does not fully support tuples as one might expect coming from another language with them as a
-[first-class value](https://en.wikipedia.org/wiki/First-class_citizen). However, in order to support
-multiple return values, Move has tuple-like expressions. These expressions do not result in a
-concrete value at runtime (there are no tuples in the bytecode), and as a result they are very
-limited:
+Moveは、[第一級値](https://en.wikipedia.org/wiki/First-class_citizen)としてタプルを持つ他の言語から期待されるように、タプルを完全にサポートしていません。ただし、複数の戻り値をサポートするために、Moveにはタプル風の式があります。これらの式は実行時に具体的な値を生成せず（バイトコードにタプルは存在しません）、その結果非常に制限されています：
 
 - They can only appear in expressions (usually in the return position for a function).
 - They cannot be bound to local variables.

@@ -1,22 +1,22 @@
 ---
-title: 'Equality | Reference'
+title: '等価性 | リファレンス'
 description: ''
 ---
 
-# Equality
+# 等価性
 
-Move supports two equality operations `==` and `!=`
+Moveは2つの等価演算子`==`と`!=`をサポートします
 
-## Operations
+## 操作
 
-| Syntax | Operation | Description                                                                 |
+| 構文 | 操作 | 説明                                                                 |
 | ------ | --------- | --------------------------------------------------------------------------- |
-| `==`   | equal     | Returns `true` if the two operands have the same value, `false` otherwise   |
-| `!=`   | not equal | Returns `true` if the two operands have different values, `false` otherwise |
+| `==`   | 等価     | 2つのオペランドが同じ値を持つ場合`true`を返し、そうでなければ`false`を返します   |
+| `!=`   | 非等価 | 2つのオペランドが異なる値を持つ場合`true`を返し、そうでなければ`false`を返します |
 
-### Typing
+### 型付け
 
-Both the equal (`==`) and not-equal (`!=`) operations only work if both operands are the same type
+等価（`==`）と非等価（`!=`）の両方の操作は、両方のオペランドが同じ型である場合にのみ機能します
 
 ```move
 0 == 0; // `true`
@@ -24,7 +24,7 @@ Both the equal (`==`) and not-equal (`!=`) operations only work if both operands
 b"hello" != x"00"; // `true`
 ```
 
-Equality and non-equality also work over _all_ user defined types!
+等価性と非等価性は、_すべて_のユーザー定義型でも機能します！
 
 ```move
 module 0::example;
@@ -42,7 +42,7 @@ fun always_false(): bool {
 }
 ```
 
-If the operands have different types, there is a type checking error
+オペランドが異なる型を持つ場合、型チェックエラーが発生します
 
 ```move
 1u8 == 1u128; // ERROR!
@@ -51,11 +51,9 @@ b"" != 0; // ERROR!
 //     ^ expected an argument of type 'vector<u8>'
 ```
 
-### Typing with references
+### 参照での型付け
 
-When comparing [references](./primitive-types/references), the type of the reference (immutable or
-mutable) does not matter. This means that you can compare an immutable `&` reference with a mutable
-one `&mut` of the same underlying type.
+[参照](./primitive-types/references)を比較する場合、参照の型（不変または可変）は関係ありません。これは、不変`&`参照を同じ基本型の可変`&mut`参照と比較できることを意味します。
 
 ```move
 let i = &0;
@@ -67,7 +65,7 @@ m == m; // `true`
 i == i; // `true`
 ```
 
-The above is equivalent to applying an explicit freeze to each mutable reference where needed
+上記は、必要に応じて各可変参照に明示的なfreezeを適用することと同等です
 
 ```move
 let i = &0;
@@ -79,7 +77,7 @@ m == m; // `true`
 i == i; // `true`
 ```
 
-But again, the underlying type must be the same type
+ただし、基本型は同じ型である必要があります
 
 ```move
 let i = &0;
@@ -89,32 +87,25 @@ i == s; // ERROR!
 //   ^ expected an argument of type '&u64'
 ```
 
-### Automatic Borrowing
+### 自動借用
 
-Starting in Move 2024 edition, the `==` and `!=` operators automatically borrow their operands if
-one of the operands is a reference and the other is not. This means that the following code works
-without any errors:
+Move 2024エディションから、`==`と`!=`演算子は、オペランドの1つが参照で他方がそうでない場合、オペランドを自動的に借用します。これは、以下のコードがエラーなしで動作することを意味します：
 
 ```move
 let r = &0;
 
-// In all cases, `0` is automatically borrowed as `&0`
+// すべての場合で、`0`は`&0`として自動的に借用されます
 r == 0; // `true`
 0 == r; // `true`
 r != 0; // `false`
 0 != r; // `false`
 ```
 
-This automatic borrow is always an immutable borrow.
+この自動借用は常に不変借用です。
 
-## Restrictions
+## 制限
 
-Both `==` and `!=` consume the value when comparing them. As a result, the type system enforces that
-the type must have [`drop`](./abilities). Recall that without the [`drop` ability](./abilities),
-ownership must be transferred by the end of the function, and such values can only be explicitly
-destroyed within their declaring module. If these were used directly with either equality `==` or
-non-equality `!=`, the value would be destroyed which would break [`drop` ability](./abilities)
-safety guarantees!
+`==`と`!=`の両方は、比較する際に値を消費します。その結果、型システムは型が[`drop`](./abilities)を持つことを強制します。[`drop`アビリティ](./abilities)なしでは、所有権は関数の終了までに転送される必要があり、そのような値は宣言モジュール内でのみ明示的に破棄できることを思い出してください。これらが等価`==`または非等価`!=`で直接使用された場合、値が破棄され、[`drop`アビリティ](./abilities)の安全性保証が破られることになります！
 
 ```move
 module 0::example;
@@ -122,27 +113,25 @@ module 0::example;
 public struct Coin has store { value: u64 }
 fun invalid(c1: Coin, c2: Coin) {
     c1 == c2 // ERROR!
-//  ^^    ^^ These assets would be destroyed!
+//  ^^    ^^ これらのアセットは破棄されるでしょう！
 }
 ```
 
-But, a programmer can _always_ borrow the value first instead of directly comparing the value, and
-reference types have the [`drop` ability](./abilities). For example
+しかし、プログラマーは値を直接比較する代わりに、常に値を最初に借用することができ、参照型は[`drop`アビリティ](./abilities)を持ちます。例えば
 
 ```move
 module 0::example;
 
 public struct Coin has store { value: u64 }
 fun swap_if_equal(c1: Coin, c2: Coin): (Coin, Coin) {
-    let are_equal = &c1 == c2; // valid, note `c2` is automatically borrowed
+    let are_equal = &c1 == c2; // 有効、`c2`が自動的に借用されることに注意
     if (are_equal) (c2, c1) else (c1, c2)
 }
 ```
 
-## Avoid Extra Copies
+## 余分なコピーを避ける
 
-While a programmer _can_ compare any value whose type has [`drop`](./abilities), a programmer should
-often compare by reference to avoid expensive copies.
+プログラマーは[`drop`](./abilities)を持つ型の任意の値を比較_できます_が、プログラマーは高価なコピーを避けるために参照で比較することがよくあります。
 
 ```move
 let v1: vector<u8> = function_that_returns_vector();
@@ -158,8 +147,7 @@ assert!(copy s1 == copy s2, 42);
 use_two_foos(s1, s2);
 ```
 
-This code is perfectly acceptable (assuming `Foo` has [`drop`](./abilities)), just not efficient.
-The highlighted copies can be removed and replaced with borrows
+このコードは完全に受け入れ可能ですが（`Foo`が[`drop`](./abilities)を持つと仮定）、効率的ではありません。ハイライトされたコピーは削除して借用に置き換えることができます
 
 ```move
 let v1: vector<u8> = function_that_returns_vector();
@@ -175,5 +163,4 @@ assert!(&s1 == &s2, 42);
 use_two_foos(s1, s2);
 ```
 
-The efficiency of the `==` itself remains the same, but the `copy`s are removed and thus the program
-is more efficient.
+`==`自体の効率は同じままですが、`copy`が削除されるため、プログラムはより効率的になります。

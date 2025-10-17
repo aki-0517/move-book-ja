@@ -1,53 +1,44 @@
 # Vector
 
-Vectors are a native way to store collections of elements in Move. They are similar to arrays in
-other programming languages, but with a few differences. In this section, we introduce the `vector`
-type and its operations.
+VectorはMoveで要素のコレクションを格納するネイティブな方法です。他のプログラミング言語の配列に似ていますが、いくつかの違いがあります。このセクションでは、`vector`型とその操作を紹介します。
 
-## Vector syntax
+## Vectorの構文
 
-The `vector` type is written using the `vector` keyword followed by the type of the elements in
-angle brackets. The type of the elements can be any valid Move type, including other vectors.
+`vector`型は、`vector`キーワードの後に山括弧内に要素の型を記述して書きます。要素の型は、他のvectorを含む任意の有効なMove型であることができます。
 
-Move has a vector literal syntax that allows you to create vectors using the `vector` keyword
-followed by square brackets containing the elements (or no elements for an empty vector).
+Moveにはvectorリテラル構文があり、`vector`キーワードの後に要素を含む角括弧（または空のvectorの場合は要素なし）を使用してvectorを作成できます。
 
 ```move file=packages/samples/sources/move-basics/vector.move anchor=literal
 
 ```
 
-The `vector` type is a built-in type in Move, and does not need to be imported from a module.
-Vector operations are defined in the `std::vector` module, which is implicitly imported
-and can be used directly without explicit `use` import.
+`vector`型はMoveの組み込み型であり、モジュールからインポートする必要はありません。Vectorの操作は`std::vector`モジュールで定義されており、暗黙的にインポートされ、明示的な`use`インポートなしで直接使用できます。
 
-## Vector operations
+## Vectorの操作
 
-The standard library provides methods to manipulate vectors. The following are some of the most
-commonly used operations:
+標準ライブラリはvectorを操作するメソッドを提供します。以下は最もよく使用される操作のいくつかです：
 
-- `push_back`: Adds an element to the end of the vector.
-- `pop_back`: Removes the last element from the vector.
-- `length`: Returns the number of elements in the vector.
-- `is_empty`: Returns true if the vector is empty.
-- `remove`: Removes an element at a given index.
+- `push_back`: vectorの末尾に要素を追加します。
+- `pop_back`: vectorから最後の要素を削除します。
+- `length`: vector内の要素数を返します。
+- `is_empty`: vectorが空の場合にtrueを返します。
+- `remove`: 指定されたインデックスの要素を削除します。
 
 ```move file=packages/samples/sources/move-basics/vector.move anchor=methods
 
 ```
 
-## Destroying a Vector of non-droppable types
+## ドロップ不可能な型のVectorの破棄
 
-A vector of non-droppable types cannot be discarded. If you define a vector of types without the
-`drop` ability, the vector value cannot be ignored. If the vector is empty, the compiler requires an
-explicit call to the `destroy_empty` function.
+ドロップ不可能な型のvectorは破棄できません。`drop`アビリティを持たない型のvectorを定義した場合、vectorの値は無視できません。vectorが空の場合、コンパイラは`destroy_empty`関数の明示的な呼び出しを要求します。
 
 ```move file=packages/samples/sources/move-basics/vector.move anchor=no_drop
 
 ```
 
-The `destroy_empty` function will fail at runtime if you call it on a non-empty vector.
+`destroy_empty`関数は、空でないvectorに対して呼び出した場合、実行時に失敗します。
 
-## Further Reading
+## さらなる読み物
 
-- [Vector](./../../reference/primitive-types/vector) in the Move Reference.
-- [std::vector](https://docs.sui.io/references/framework/std/vector) module documentation.
+- Move Referenceの[Vector](./../../reference/primitive-types/vector)
+- [std::vector](https://docs.sui.io/references/framework/std/vector)モジュールドキュメント

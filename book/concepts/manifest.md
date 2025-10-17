@@ -1,8 +1,7 @@
-# Package Manifest
+# パッケージマニフェスト（Package Manifest）
 
-The `Move.toml` is a manifest file that describes the [package](./packages) and its dependencies.
-It is written in [TOML](https://toml.io/en/) format and contains multiple sections, the most
-important of which are `[package]`, `[dependencies]` and `[addresses]`.
+`Move.toml`は[パッケージ](./packages)とその依存関係を記述するマニフェストファイルです。
+[TOML](https://toml.io/en/)形式で記述され、複数のセクションが含まれており、最も重要なセクションは`[package]`、`[dependencies]`、`[addresses]`です。
 
 ```toml
 [package]
@@ -21,50 +20,37 @@ alice = "0xA11CE"
 alice = "0xB0B"
 ```
 
-## Sections
+## セクション
 
 ### Package
 
-The `[package]` section is used to describe the package. None of the fields in this section are
-published on chain, but they are used in tooling and release management; they also specify the Move
-edition for the compiler.
+`[package]`セクションはパッケージを記述するために使用されます。このセクションのフィールドはチェーン上に公開されませんが、ツールやリリース管理で使用され、コンパイラのMove版も指定します。
 
-- `name` - the name of the package when it is imported;
-- `version` - the version of the package, can be used in release management;
-- `edition` - the edition of the Move language; currently, the only valid value is `2024`.
+- `name` - インポート時のパッケージ名
+- `version` - パッケージのバージョン、リリース管理で使用可能
+- `edition` - Move言語の版。現在は`2024`のみが有効な値
 
 <!-- published-at -->
 
 ### Dependencies
 
-The `[dependencies]` section is used to specify the dependencies of the project. Each dependency is
-specified as a key-value pair, where the key is the name of the dependency, and the value is the
-dependency specification. The dependency specification can be a git repository URL or a path to the
-local directory.
+`[dependencies]`セクションはプロジェクトの依存関係を指定するために使用されます。各依存関係はキーと値のペアで指定され、キーは依存関係の名前、値は依存関係の仕様です。依存関係の仕様はgitリポジトリのURLまたはローカルディレクトリへのパスを指定できます。
 
 ```toml
-# git repository
+# gitリポジトリ
 Example = { git = "https://github.com/example/example.git", subdir = "path/to/package", rev = "framework/testnet" }
 
-# local directory
+# ローカルディレクトリ
 MyPackage = { local = "../my-package" }
 ```
 
-Packages also import addresses from other packages. For example, the Sui dependency adds the `std`
-and `sui` addresses to the project. These addresses can be used in the code as aliases for the
-addresses.
+パッケージは他のパッケージからアドレスもインポートします。例えば、Sui依存関係はプロジェクトに`std`と`sui`のアドレスを追加します。これらのアドレスはコード内でアドレスのエイリアスとして使用できます。
 
-Starting with version 1.45 of the Sui CLI, the Sui system packages (`std`, `sui`, `system`,
-`bridge`, and `deepbook`) are automatically added as dependencies if none of them are explicitly
-listed.
+Sui CLI バージョン1.45以降では、Suiシステムパッケージ（`std`、`sui`、`system`、`bridge`、`deepbook`）が明示的にリストされていない場合、自動的に依存関係として追加されます。
 
-### Resolving Version Conflicts with Override
+### オーバーライドによるバージョン競合の解決
 
-Sometimes dependencies have conflicting versions of the same package. For example, if you have two
-dependencies that use different versions of the Example package, you can override the dependency in
-the `[dependencies]` section. To do so, add the `override` field to the dependency. The version of
-the dependency specified in the `[dependencies]` section will be used instead of the one specified
-in the dependency itself.
+依存関係で同じパッケージの競合するバージョンがある場合があります。例えば、Exampleパッケージの異なるバージョンを使用する2つの依存関係がある場合、`[dependencies]`セクションで依存関係をオーバーライドできます。これを行うには、依存関係に`override`フィールドを追加します。`[dependencies]`セクションで指定された依存関係のバージョンが、依存関係自体で指定されたものの代わりに使用されます。
 
 ```toml
 [dependencies]
@@ -73,39 +59,29 @@ Example = { override = true, git = "https://github.com/example/example.git", sub
 
 ### Dev-dependencies
 
-It is possible to add `[dev-dependencies]` section to the manifest. It is used to override
-dependencies in the dev and test modes. For example, if you want to use a different version of the
-Sui package in the dev mode, you can add a custom dependency specification to the
-`[dev-dependencies]` section.
+マニフェストに`[dev-dependencies]`セクションを追加することができます。これは開発およびテストモードで依存関係をオーバーライドするために使用されます。例えば、開発モードで異なるバージョンのSuiパッケージを使用したい場合、カスタム依存関係の仕様を`[dev-dependencies]`セクションに追加できます。
 
 ### Addresses
 
-The `[addresses]` section is used to add aliases for the addresses. Any address can be specified in
-this section, and then used in the code as an alias. For example, if you add `alice = "0xA11CE"` to
-this section, you can use `alice` as `0xA11CE` in the code.
+`[addresses]`セクションはアドレスのエイリアスを追加するために使用されます。このセクションで任意のアドレスを指定し、コード内でエイリアスとして使用できます。例えば、このセクションに`alice = "0xA11CE"`を追加すると、コード内で`alice`を`0xA11CE`として使用できます。
 
 ### Dev-addresses
 
-The `[dev-addresses]` section is the same as `[addresses]`, but only works for the test and dev
-modes. Important to note that it is impossible to introduce new aliases in this section, only
-override the existing ones. So in the example above, if you add `alice = "0xB0B"` to this section,
-the `alice` address will be `0xB0B` in the test and dev modes, and `0xA11CE` in the regular build.
+`[dev-addresses]`セクションは`[addresses]`と同じですが、テストおよび開発モードでのみ動作します。重要な点は、このセクションで新しいエイリアスを導入することはできず、既存のもののみをオーバーライドできることです。上記の例で、このセクションに`alice = "0xB0B"`を追加すると、テストおよび開発モードでは`alice`アドレスが`0xB0B`となり、通常のビルドでは`0xA11CE`となります。
 
-## TOML Styles
+## TOMLスタイル
 
-The TOML format supports two styles for tables: inline and multiline. The examples above are using
-the inline style, but it is also possible to use the multiline style. You wouldn't want to use it
-for the `[package]` section, but it can be useful for the dependencies.
+TOML形式はテーブルに対して、インライン形式と複数行形式の2つのスタイルをサポートしています。上記の例はインライン形式を使用していますが、複数行形式も使用できます。`[package]`セクションでは使用したくないかもしれませんが、依存関係には便利です。
 
 ```toml
-# Inline style
+# インライン形式
 [dependencies]
 Example = { override = true, git = "https://github.com/example/example.git", subdir = "crates/sui-framework/packages/sui-framework", rev = "framework/testnet" }
 MyPackage = { local = "../my-package" }
 ```
 
 ```toml
-# Multiline style
+# 複数行形式
 [dependencies.Example]
 override = true
 git = "https://github.com/example/example.git"
@@ -116,6 +92,6 @@ rev = "framework/testnet"
 local = "../my-package"
 ```
 
-## Further Reading
+## 関連資料
 
-- [Packages](./../../reference/packages) in the Move Reference.
+- Move リファレンスの[パッケージ](./../../reference/packages)

@@ -1,49 +1,50 @@
-# Building Against Limits
+# 制限に対する構築
 
-To guarantee the safety and security of the network, Sui has certain limits and restrictions. These
-limits are in place to prevent abuse and to ensure that the network remains stable and efficient.
-This guide provides an overview of these limits and restrictions, and how to build your application
-to work within them.
+ネットワークの安全性とセキュリティを保証するために、Suiには特定の制限と制約があります。これらの
+制限は、悪用を防ぎ、ネットワークが安定して効率的に動作し続けることを確保するために設けられています。
+このガイドでは、これらの制限と制約の概要、およびそれらの中で動作するようにアプリケーションを
+構築する方法について説明します。
 
-The limits are defined in the protocol configuration and are enforced by the network. If any of the
-limits are exceeded, the transaction will either be rejected or aborted. The limits, being a part of
-the protocol, can only be changed through a network upgrade.
+制限はプロトコル設定で定義され、ネットワークによって強制されます。制限のいずれかが
+超過された場合、トランザクションは拒否されるかアボートされます。制限はプロトコルの一部であるため、
+ネットワークアップグレードを通じてのみ変更できます。
 
-## Transaction Size
+## トランザクションサイズ
 
-The size of a transaction is limited to 128KB. This includes the size of the transaction payload,
-the size of the transaction signature, and the size of the transaction metadata. If a transaction
-exceeds this limit, it will be rejected by the network.
+トランザクションのサイズは128KBに制限されています。これには、トランザクションペイロードのサイズ、
+トランザクション署名のサイズ、トランザクションメタデータのサイズが含まれます。トランザクションが
+この制限を超えた場合、ネットワークによって拒否されます。
 
-## Object Size
+## オブジェクトサイズ
 
-The size of an object is limited to 256KB. This includes the size of the object data. If an object
-exceeds this limit, it will be rejected by the network. While a single object cannot bypass this
-limit, for more extensive storage options, one could use a combination of a base object with other
-attached to it using dynamic fields (eg Bag).
+オブジェクトのサイズは256KBに制限されています。これには、オブジェクトデータのサイズが含まれます。
+オブジェクトがこの制限を超えた場合、ネットワークによって拒否されます。単一のオブジェクトは
+この制限を回避できませんが、より広範なストレージオプションのために、ベースオブジェクトと
+動的フィールド（例：Bag）を使用してそれにアタッチされた他のオブジェクトの組み合わせを使用できます。
 
-## Single Pure Argument Size
+## 単一の純粋引数サイズ
 
-The size of a single pure argument is limited to 16KB. A transaction argument bigger than this limit
-will result in execution failure. So in order to create a vector of more than ~500 addresses (given
-that a single address is 32 bytes), it needs to be joined dynamically either in Transaction Block or
-in a Move function. Standard functions like `vector::append()` can join two vectors of ~16KB
-resulting in a ~32KB of data as a single value.
+単一の純粋引数のサイズは16KBに制限されています。この制限より大きいトランザクション引数は
+実行失敗を引き起こします。したがって、~500個を超えるアドレスのベクターを作成するには
+（単一のアドレスが32バイトであることを考慮すると）、Transaction Blockまたは
+Move関数で動的に結合する必要があります。`vector::append()`のような標準関数は、
+~16KBの2つのベクターを結合して、単一の値として~32KBのデータを作成できます。
 
-## Maximum Number of Objects (and Dynamic Fields) Created
+## 作成可能なオブジェクト（および動的フィールド）の最大数
 
-The maximum number of objects that can be created in a single transaction is 2048. If a transaction
-attempts to create more than 2048 objects, it will be rejected by the network. This also affects
-[dynamic fields](./../programmability/dynamic-fields.md), as both the key and the value are objects.
-So the maximum number of [dynamic fields](./../programmability/dynamic-fields.md) that can be
-created in a single transaction is 1000. The limitation applies to dynamic object fields as well.
+単一のトランザクションで作成できるオブジェクトの最大数は2048です。トランザクションが
+2048を超えるオブジェクトを作成しようとした場合、ネットワークによって拒否されます。これは
+[動的フィールド](./../programmability/dynamic-fields.md)にも影響します。キーと値の両方が
+オブジェクトであるためです。したがって、単一のトランザクションで作成できる
+[動的フィールド](./../programmability/dynamic-fields.md)の最大数は1000です。
+この制限は動的オブジェクトフィールドにも適用されます。
 
-## Maximum Number of Dynamic Fields Accessed
+## アクセス可能な動的フィールドの最大数
 
-The maximum number of dynamic fields that can be accessed in a single transaction is 1000. If a
-transaction attempts to access more than 1000 dynamic fields, it will be rejected by the network.
+単一のトランザクションでアクセスできる動的フィールドの最大数は1000です。トランザクションが
+1000を超える動的フィールドにアクセスしようとした場合、ネットワークによって拒否されます。
 
-## Maximum Number of Events
+## イベントの最大数
 
-The maximum number of events that can be emitted in a single transaction is 1024. If a transaction
-attempts to emit more than 1024 events, it will be aborted.
+単一のトランザクションで発行できるイベントの最大数は1024です。トランザクションが
+1024を超えるイベントを発行しようとした場合、アボートされます。

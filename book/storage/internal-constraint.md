@@ -1,61 +1,52 @@
-# Sui Verifier: Internal Constraint
+# Sui Verifier: 内部制約
 
-The Sui Bytecode Verifier enforces a set of rules on Move bytecode to ensure the safety of critical
-storage operations. One of these rules is the _internal constraint_. It requires that the caller of
-a function with a type parameter `T` must be the _defining module_ of that type. In other words, T
-must be _internal_ to the module making the call.
+Suiバイトコード検証器は、重要なストレージ操作の安全性を確保するために、Moveバイトコードに対して一連のルールを強制します。これらのルールの一つが_内部制約_です。これは、型パラメータ`T`を持つ関数の呼び出し元が、その型の_定義モジュール_でなければならないことを要求します。言い換えれば、Tは呼び出しを行うモジュールに対して_内部的_でなければなりません。
 
-This rule is not (yet) part of the Move language itself, which can make it feel opaque. Still, it’s
-an important rule to understand, especially when working with storage-related operations on Sui.
+このルールは（まだ）Move言語自体の一部ではないため、不透明に感じられるかもしれません。それでも、特にSuiでのストレージ関連操作を扱う際には、理解すべき重要なルールです。
 
-Let’s look at an example from the [Sui Framework][sui-framework]. The emit function in the
-[`sui::event`][event] module requires its type parameter `T` to be _internal_ to the caller:
+[Sui Framework][sui-framework]の例を見てみましょう。[`sui::event`][event]モジュールのemit関数は、その型パラメータ`T`が呼び出し元に対して_内部的_であることを要求します：
 
 ```move
-// An actual example of a function that enforces `internal` on `T`.
+// `T`に`internal`を強制する関数の実際の例。
 module sui::event;
 
-// Sui Verifier will emit an error at compilation if this function is
-// called from a module that does not define `T`.
+// この関数が`T`を定義しないモジュールから呼び出された場合、
+// Sui Verifierはコンパイル時にエラーを出力します。
 public native fun emit<T: copy + drop>(event: T);
 ```
 
-Here’s a correct call to `emit`. The type `A` is defined inside the module `exercise_internal`, so
-it’s internal and valid:
+以下は`emit`の正しい呼び出しです。型`A`は`exercise_internal`モジュール内で定義されているため、内部的で有効です：
 
 ```move
-// Defines type `A`.
+// 型`A`を定義。
 module book::exercise_internal;
 
 use sui::event;
 
-/// Type defined in this module, so it's internal here.
+/// このモジュールで定義された型なので、ここでは内部的です。
 public struct A has copy, drop {}
 
-// This works because `A` is defined locally.
+// `A`がローカルで定義されているため、これは動作します。
 public fun call_internal() {
     event::emit(A {})
 }
 ```
 
-But if you try to call `emit` with a type defined elsewhere, the verifier rejects it. For example,
-this function, when added to the same module, fails because it tries to use the `TypeName` type from
-the [Standard Library][move-stdlib]:
+しかし、他の場所で定義された型で`emit`を呼び出そうとすると、検証器はそれを拒否します。例えば、この関数を同じモジュールに追加すると、[Standard Library][move-stdlib]の`TypeName`型を使用しようとするため失敗します：
 
 ```move
-// This one fails!
+// これは失敗します！
 public fun call_foreign_fail() {
     use std::type_name;
 
     event::emit(type_name::get<A>());
-    // ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ Invalid event.
-    // Error: `sui::event::emit` must be called with a type
-    // defined in the current module.
+    // ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ 無効なイベント。
+    // エラー: `sui::event::emit`は現在のモジュールで定義された型で
+    // 呼び出される必要があります。
 }
 ```
 
-Internal constraints only apply to certain functions in the [Sui Framework][sui-framework]. We’ll
-return to this concept several times throughout the book.
+内部制約は[Sui Framework][sui-framework]の特定の関数にのみ適用されます。この概念については、本書を通じて何度か言及します。
 
 [sui-framework]: ./../programmability/sui-framework.md
 [move-stdlib]: ./../move-basics/standard-library.md

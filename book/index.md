@@ -2,16 +2,12 @@
 
 <!-- TODO: insert author(s) -->
 
-This is The Move Book - a comprehensive guide to the Move programming language and the Sui
-blockchain. The book is intended for developers who are interested in learning about Move and
-building on Sui.
+これは The Move Book です - Moveプログラミング言語とSuiブロックチェーンの包括的なガイドです。この本は、Moveについて学習し、Sui上で開発することに興味のある開発者向けに書かれています。
 
 <div class="warning">
 
-The book is in active development and a work in progress. If you have any feedback or suggestions,
-feel free to open an issue or a pull request on the
-[GitHub repository](https://github.com/MystenLabs/move-book).
+この本は現在開発中であり、作業が進行中です。フィードバックや提案がございましたら、お気軽に[GitHub リポジトリ](https://github.com/MystenLabs/move-book)でイシューを開くかプルリクエストを送信してください。
 
 </div>
 
-> If you're looking for The Move Reference, you can find it [here](/reference).
+> Move リファレンスをお探しの場合は、[こちら](/reference)で見つけることができます。

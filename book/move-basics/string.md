@@ -1,13 +1,8 @@
-# String
+# 文字列
 
-While Move does not have a built-in type to represent strings, it does have two standard
-implementations for strings in the [Standard Library](./standard-library). The `std::string` module
-defines a `String` type and methods for UTF-8 encoded strings, and the second module, `std::ascii`,
-provides an ASCII `String` type and its methods.
+Moveには文字列を表現する組み込み型はありませんが、[標準ライブラリ](./standard-library)に文字列の2つの標準実装があります。`std::string`モジュールはUTF-8エンコード文字列の`String`型とメソッドを定義し、2番目のモジュール`std::ascii`はASCII `String`型とそのメソッドを提供します。
 
-> The Sui execution environment automatically converts bytevector into `String` in transaction
-> inputs. As a result, in many cases, constructing a String directly within the
-> [Transaction Block](./../concepts/what-is-a-transaction) is unnecessary.
+> Sui実行環境は、トランザクション入力でバイトベクターを自動的に`String`に変換します。その結果、多くの場合、[Transaction Block](./../concepts/what-is-a-transaction)内で直接Stringを構築する必要はありません。
 
 <!--
 
@@ -20,112 +15,92 @@ TODO:
 
 -->
 
-## Strings are bytes
+## 文字列はバイト
 
-No matter which type of string you use, it is important to know that strings are just bytes. The
-wrappers provided by the `string` and `ascii` modules are just that: wrappers. They do provide
-safety checks and methods to work with strings, but at the end of the day, they are just vectors of
-bytes.
+どの種類の文字列を使用しても、文字列は単なるバイトであることを知っておくことが重要です。`string`と`ascii`モジュールによって提供されるラッパーは、まさにそのとおりラッパーです。文字列を扱うための安全性チェックとメソッドを提供しますが、結局のところ、それらは単なるバイトのベクターです。
 
 ```move file=packages/samples/sources/move-basics/string.move anchor=custom
 
 ```
 
-## Working with UTF-8 Strings
+## UTF-8文字列の操作
 
-While there are two types of strings (`string` and `ascii`) in the standard library, the `string`
-module should be considered the default. It has native implementations of many common operations,
-leveraging low-level, optimized runtime code for superior performance. In contrast, the `ascii`
-module is fully implemented in Move, relying on higher-level abstractions and making it less
-suitable for performance-critical tasks.
+標準ライブラリには2つの種類の文字列（`string`と`ascii`）がありますが、`string`モジュールをデフォルトと考えるべきです。多くの一般的な操作のネイティブ実装を持ち、低レベルで最適化されたランタイムコードを活用して優れたパフォーマンスを実現します。対照的に、`ascii`モジュールは完全にMoveで実装されており、高レベルの抽象化に依存しているため、パフォーマンスクリティカルなタスクには適していません。
 
-### Definition
+### 定義
 
-The `String` type in the `std::string` module is defined as follows:
+`std::string`モジュールの`String`型は以下のように定義されています：
 
 ```move
 module std::string;
 
-/// A `String` holds a sequence of bytes which is guaranteed to be in utf8 format.
+/// `String`はutf8形式であることが保証されたバイトシーケンスを保持します。
 public struct String has copy, drop, store {
     bytes: vector<u8>,
 }
 ```
 
-_See [full documentation for std::string][string-stdlib] module._
+_[std::string][string-stdlib]モジュールの完全なドキュメント参照。_
 
-### Creating a String
+### 文字列の作成
 
-To create a new UTF-8 `String` instance, you can use the `string::utf8` method. The
-[Standard Library](./standard-library) provides an alias `.to_string()` on the `vector<u8>` for
-convenience.
+新しいUTF-8 `String`インスタンスを作成するには、`string::utf8`メソッドを使用できます。[標準ライブラリ](./standard-library)は便利のため`vector<u8>`にエイリアス`.to_string()`を提供しています。
 
 ```move file=packages/samples/sources/move-basics/string.move anchor=utf8
 
 ```
 
-### Common Operations
+### 一般的な操作
 
-UTF8 String provides a number of methods to work with strings. The most common operations on strings
-are: concatenation, slicing, and getting the length. Additionally, for custom string operations, the
-`bytes()` method can be used to get the underlying byte vector.
+UTF8 Stringは文字列を扱うための多くのメソッドを提供します。文字列の最も一般的な操作は、連結、スライス、長さの取得です。さらに、カスタム文字列操作のために、`bytes()`メソッドを使用して基になるバイトベクターを取得できます。
 
 ```move
 let mut str = b"Hello,".to_string();
 let another = b" World!".to_string();
 
-// append(String) adds the content to the end of the string
+// append(String)は文字列の末尾にコンテンツを追加します
 str.append(another);
 
-// `sub_string(start, end)` copies a slice of the string
+// `sub_string(start, end)`は文字列のスライスをコピーします
 str.sub_string(0, 5); // "Hello"
 
-// `length()` returns the number of bytes in the string
+// `length()`は文字列のバイト数を返します
 str.length(); // 12 (bytes)
 
-// methods can also be chained! Get a length of a substring
+// メソッドはチェーンもできます！サブストリングの長さを取得
 str.sub_string(0, 5).length(); // 5 (bytes)
 
-// whether the string is empty
+// 文字列が空かどうか
 str.is_empty(); // false
 
-// get the underlying byte vector for custom operations
+// カスタム操作のために基になるバイトベクターを取得
 let bytes: &vector<u8> = str.bytes();
 ```
 
-### Safe UTF-8 Operations
+### 安全なUTF-8操作
 
-The default `utf8` method may abort if the bytes passed into it are not valid UTF-8. If you are not
-sure that the bytes you are passing are valid, you should use the `try_utf8` method instead. It
-returns an `Option<String>`, which contains no value if the bytes are not valid UTF-8, and a string
-otherwise.
+デフォルトの`utf8`メソッドは、渡されたバイトが有効なUTF-8でない場合にアボートする可能性があります。渡すバイトが有効かどうか確信がない場合は、代わりに`try_utf8`メソッドを使用すべきです。これは`Option<String>`を返し、バイトが有効なUTF-8でない場合は値を含まず、そうでなければ文字列を含みます。
 
-> Hint: Functions with names starting with `try_*` typically return an `Option`. If the operation
-> succeeds, the result is wrapped in `Some`. If it fails, the function returns `None`. This naming
-> convention, commonly used in Move, is inspired by Rust.
+> ヒント：`try_*`で始まる名前の関数は通常`Option`を返します。操作が成功すると、結果は`Some`でラップされます。失敗すると、関数は`None`を返します。この命名規則はMoveで一般的に使用され、Rustからインスパイアされています。
 
 ```move file=packages/samples/sources/move-basics/string.move anchor=safe_utf8
 
 ```
 
-### UTF-8 Limitations
+### UTF-8の制限
 
-The `string` module does not provide a way to access individual characters in a string. This is
-because UTF-8 is a variable-length encoding, and the length of a character can be anywhere from 1 to
-4 bytes. Similarly, the `length()` method returns the number of bytes in the string, not the number
-of characters.
+`string`モジュールは文字列内の個別の文字にアクセスする方法を提供しません。これは、UTF-8が可変長エンコーディングであり、文字の長さが1から4バイトまでの範囲になる可能性があるためです。同様に、`length()`メソッドは文字数ではなく、文字列内のバイト数を返します。
 
-However, methods like `sub_string` and `insert` validate character boundaries and abort if the
-specified index falls within the middle of a character.
+ただし、`sub_string`や`insert`などのメソッドは文字境界を検証し、指定されたインデックスが文字の途中にある場合はアボートします。
 
-## ASCII Strings
+## ASCII文字列
 
-This section is coming soon!
+このセクションは近日公開予定です！
 
-## Further Reading
+## 参考文献
 
-- [std::string][string-stdlib] module documentation.
-- [std::ascii][ascii-stdlib] module documentation.
+- [std::string][string-stdlib]モジュールドキュメント。
+- [std::ascii][ascii-stdlib]モジュールドキュメント。
 
 [enum-reference]: /reference/enums.html
 [string-stdlib]: https://docs.sui.io/references/framework/std/string

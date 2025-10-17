@@ -1,45 +1,28 @@
 ---
-title: 'Address | Reference'
+title: 'Address | リファレンス'
 description: ''
 ---
 
 # Address
 
-`address` is a built-in type in Move that is used to represent locations (sometimes called accounts)
-in storage. An `address` value is a 256-bit (32 byte) identifier. Move uses addresses to
-differentiate packages of [modules](./../modules), where each package has its own address and
-modules. Specific deployments of Move might also use the `address` value for
-[storage](./../abilities#key) operations.
+`address`はMoveに組み込まれた型で、ストレージ内の位置（時々アカウントと呼ばれる）を表すために使用されます。`address`値は256ビット（32バイト）の識別子です。Moveはアドレスを使用して[モジュール](./../modules)のパッケージを区別し、各パッケージは独自のアドレスとモジュールを持ちます。Moveの特定のデプロイでは、[ストレージ](./../abilities#key)操作に`address`値を使用する場合もあります。
 
-> For Sui, `address` is used to represent "accounts", and also objects via strong type wrappers
-> (with `sui::object::UID` and `sui::object::ID`).
+> Suiでは、`address`は「アカウント」を表すために使用され、また強型ラッパー（`sui::object::UID`と`sui::object::ID`）を介してオブジェクトも表します。
 
-Although an `address` is a 256 bit integer under the hood, Move addresses are intentionally
-opaque---they cannot be created from integers, they do not support arithmetic operations, and they
-cannot be modified. Specific deployments of Move might have `native` functions to enable some of
-these operations (e.g., creating an `address` from bytes `vector<u8>`), but these are not part of
-the Move language itself.
+`address`は内部的には256ビット整数であるにもかかわらず、Moveアドレスは意図的に不透明です――整数から作成できず、算術演算をサポートせず、変更できません。Moveの特定のデプロイでは、これらの操作の一部を有効にする`native`関数がある場合があります（例えば、バイト`vector<u8>`から`address`を作成する）が、これらはMove言語自体の一部ではありません。
 
-While there are runtime address values (values of type `address`), they _cannot_ be used to access
-modules at runtime.
+ランタイムアドレス値（`address`型の値）は存在しますが、ランタイム時にモジュールにアクセスするために使用することは_できません_。
 
-## Addresses and Their Syntax
+## アドレスとその構文
 
-Addresses come in two flavors, named or numerical. The syntax for a named address follows the same
-rules for any named identifier in Move. The syntax of a numerical address is not restricted to
-hex-encoded values, and any valid [`u256` numerical value](./integers) can be used as an address
-value, e.g., `42`, `0xCAFE`, and `10_000` are all valid numerical address literals.
+アドレスには2つの種類があります：名前付きまたは数値です。名前付きアドレスの構文はMoveの任意の名前付き識別子と同じルールに従います。数値アドレスの構文は16進エンコード値に制限されず、有効な[`u256`数値](./integers)はすべてアドレス値として使用できます。例えば、`42`、`0xCAFE`、`10_000`はすべて有効な数値アドレスリテラルです。
 
-To distinguish when an address is being used in an expression context or not, the syntax when using
-an address differs depending on the context where it's used:
+アドレスが式コンテキストで使用されているかどうかを区別するために、アドレスを使用する際の構文は使用されるコンテキストによって異なります：
 
-- When an address is used as an expression, the address must be prefixed by the `@` character, i.e.,
-  [`@<numerical_value>`](./integers) or `@<named_address_identifier>`.
-- Outside of expression contexts, the address may be written without the leading `@` character,
-  i.e., [`<numerical_value>`](./integers) or `<named_address_identifier>`.
+- アドレスが式として使用される場合、アドレスの前に`@`文字を付ける必要があります。つまり、[`@<numerical_value>`](./integers)または`@<named_address_identifier>`です。
+- 式コンテキスト外では、アドレスは前置の`@`文字なしで書くことができます。つまり、[`<numerical_value>`](./integers)または`<named_address_identifier>`です。
 
-In general, you can think of `@` as an operator that takes an address from being a namespace item to
-being an expression item.
+一般的に、`@`をアドレスを名前空間アイテムから式アイテムに変換する演算子と考えることができます。
 
 ## Named Addresses
 

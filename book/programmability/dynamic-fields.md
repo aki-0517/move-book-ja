@@ -1,183 +1,182 @@
-# Dynamic Fields
+# 動的フィールド
 
-Sui Object model allows objects to be attached to other objects as _dynamic fields_. The behavior is
-similar to how a `Map` works in other programming languages. However, unlike a `Map` which in Move
-would be strictly typed (we have covered it in the [Collections](./collections) section), dynamic
-fields allow attaching objects of any type. A similar approach from the world of frontend
-development would be a JavaScript Object type which allows storing any type of data dynamically.
+Sui Objectモデルでは、オブジェクトを他のオブジェクトに_動的フィールド_としてアタッチできます。
+この動作は、他のプログラミング言語で`Map`がどのように動作するかと似ています。ただし、
+Moveでは厳密に型付けされる`Map`（[Collections](./collections)セクションで説明しました）とは異なり、
+動的フィールドは任意の型のオブジェクトをアタッチできます。フロントエンド開発の世界での
+類似のアプローチは、任意の型のデータを動的に格納できるJavaScript Object型です。
 
-> There's no limit to the number of dynamic fields that can be attached to an object. Thus, dynamic
-> fields can be used to store large amounts of data that don't fit into the object limit size.
+> オブジェクトにアタッチできる動的フィールドの数に制限はありません。したがって、
+> 動的フィールドは、オブジェクト制限サイズに収まらない大量のデータを格納するために
+> 使用できます。
 
-Dynamic Fields allow for a wide range of applications, from splitting data into smaller parts to
-avoid [object size limit](./../guides/building-against-limits) to attaching objects as a part of
-application logic.
+動的フィールドは、[オブジェクトサイズ制限](./../guides/building-against-limits)を回避するために
+データを小さな部分に分割することから、アプリケーションロジックの一部としてオブジェクトを
+アタッチすることまで、幅広いアプリケーションを可能にします。
 
-## Definition
+## 定義
 
-Dynamic Fields are defined in the `sui::dynamic_field` module of the
-[Sui Framework](./sui-framework). They are attached to object's `UID` via a _name_, and can be
-accessed using that name. There can be only one field with a given name attached to an object.
+動的フィールドは[Sui Framework](./sui-framework)の`sui::dynamic_field`モジュールで定義されています。
+これらは_名前_を介してオブジェクトの`UID`にアタッチされ、その名前を使用してアクセスできます。
+指定された名前を持つフィールドは、オブジェクトに1つだけアタッチできます。
 
 ```move
 module sui::dynamic_field;
 
-/// Internal object used for storing the field and value
+/// フィールドと値を格納するために使用される内部オブジェクト
 public struct Field<Name: copy + drop + store, Value: store> has key {
-    /// Determined by the hash of the object ID, the field name
-    /// value and it's type, i.e. hash(parent.id || name || Name)
+    /// オブジェクトID、フィールド名の値、その型のハッシュによって決定される
+    /// つまり、hash(parent.id || name || Name)
     id: UID,
-    /// The value for the name of this field
+    /// このフィールドの名前の値
     name: Name,
-    /// The value bound to this field
+    /// このフィールドにバインドされた値
     value: Value,
 }
 ```
 
-As the definition shows, dynamic fields are stored in an internal `Field` object, which has the
-`UID` generated in a deterministic way based on the object ID, the field name, and the field type.
-The `Field` object contains the field name and the value bound to it. The constraints on the `Name`
-and `Value` type parameters define the abilities that the key and value must have.
+定義が示すように、動的フィールドは内部の`Field`オブジェクトに格納され、
+オブジェクトID、フィールド名、フィールド型に基づいて決定的な方法で生成された`UID`を持ちます。
+`Field`オブジェクトには、フィールド名とそれにバインドされた値が含まれています。
+`Name`と`Value`型パラメータの制約は、キーと値が持つ必要があるアビリティを定義します。
 
-## Usage
+## 使用法
 
-The methods available for dynamic fields are straightforward: a field can be added with `add`,
-removed with `remove`, and read with `borrow` and `borrow_mut`. Additionally, the `exists_` method
-can be used to check if a field exists (for stricter checks with type, there is an
-`exists_with_type` method).
+動的フィールドで利用可能なメソッドは直接的です：フィールドは`add`で追加、`remove`で削除、
+`borrow`と`borrow_mut`で読み取ることができます。さらに、`exists_`メソッドを使用して
+フィールドが存在するかチェックできます（型によるより厳密なチェックには、
+`exists_with_type`メソッドがあります）。
 
 ```move file=packages/samples/sources/programmability/dynamic-fields.move anchor=usage
 
 ```
 
-In the example above, we define a `Character` object and two different types of accessories that
-could never be put together in a vector. However, dynamic fields allow us to store them together in
-a single object. Both objects are attached to the `Character` via a `vector<u8>` (bytestring
-literal), and can be accessed using their respective names.
+上記の例では、`Character`オブジェクトと、ベクターに一緒に置くことができない2つの異なるタイプの
+アクセサリを定義しています。しかし、動的フィールドにより、これらを単一のオブジェクトに
+一緒に格納できます。両方のオブジェクトは`vector<u8>`（バイト文字列リテラル）を介して
+`Character`にアタッチされ、それぞれの名前を使用してアクセスできます。
 
-As you can see, when we attached the accessories to the Character, we passed them _by value_. In
-other words, both values were moved to a new scope, and their ownership was transferred to the
-`Character` object. If we changed the ownership of `Character` object, the accessories would have
-been moved with it.
+ご覧のとおり、アクセサリをCharacterにアタッチしたとき、それらを_値で_渡しました。
+言い換えれば、両方の値は新しいスコープに移動し、その所有権は`Character`オブジェクトに
+移転されました。`Character`オブジェクトの所有権を変更した場合、アクセサリも一緒に移動します。
 
-And the last important property of dynamic fields we should highlight is that they are _accessed
-through their parent_. This means that the `Hat` and `Mustache` objects are not directly accessible
-and follow the same rules as the parent object.
+そして、動的フィールドの最後の重要な特性として強調すべきは、それらが_親を通してアクセスされる_
+ことです。これは、`Hat`と`Mustache`オブジェクトが直接アクセス可能ではなく、
+親オブジェクトと同じルールに従うことを意味します。
 
-## Foreign Types as Dynamic Fields
+## 動的フィールドとしての外部型
 
-Dynamic fields allow objects to carry data of any type, including those defined in other modules.
-This is possible due to their generic nature and relatively weak constraints on the type parameters.
-Let's illustrate this by attaching a few different values to a `Character` object.
+動的フィールドにより、オブジェクトは他のモジュールで定義されたものを含む任意の型のデータを
+運ぶことができます。これは、ジェネリックな性質と型パラメータに対する比較的弱い制約により
+可能です。`Character`オブジェクトにいくつかの異なる値をアタッチしてこれを説明しましょう。
 
 ```move file=packages/samples/sources/programmability/dynamic-fields.move anchor=foreign_types
 
 ```
 
-In this example we showed how different types can be used for both _name_ and the _value_ of a
-dynamic field. The `String` is attached via a `vector<u8>` name, the `u64` is attached via a `u32`
-name, and the `bool` is attached via a `bool` name. Anything is possible with dynamic fields!
+この例では、動的フィールドの_name_と_value_の両方に異なる型をどのように使用できるかを
+示しました。`String`は`vector<u8>`名を介してアタッチされ、`u64`は`u32`名を介してアタッチされ、
+`bool`は`bool`名を介してアタッチされます。動的フィールドでは何でも可能です！
 
-## Orphaned Dynamic Fields
+## 孤立した動的フィールド
 
-> To prevent orphaned dynamic fields, please, use [Dynamic Collection Types](./dynamic-collections)
-> such as `Bag` as they track the dynamic fields and won't allow unpacking if there are attached
-> fields.
+> 孤立した動的フィールドを防ぐために、[Dynamic Collection Types](./dynamic-collections)の
+> `Bag`などを使用してください。これらは動的フィールドを追跡し、
+> アタッチされたフィールドがある場合はアンパックを許可しません。
 
-The `object::delete()` function, which is used to delete a UID, does not track the dynamic fields,
-and cannot prevent dynamic fields from becoming orphaned. Once the parent UID is deleted, the
-dynamic fields are not automatically deleted, and they become orphaned. This means that the dynamic
-fields are still stored in the blockchain, but they will never become accessible again.
+UIDを削除するために使用される`object::delete()`関数は、動的フィールドを追跡せず、
+動的フィールドが孤立することを防ぐことができません。親UIDが削除されると、
+動的フィールドは自動的に削除されず、孤立します。これは、動的フィールドがまだ
+ブロックチェーンに格納されているが、二度とアクセスできなくなることを意味します。
 
 ```move file=packages/samples/sources/programmability/dynamic-fields.move anchor=orphan_fields
 
 ```
 
-Orphaned objects are not a subject to storage rebate, and the storage fees will remain unclaimed.
-One way to avoid orphaned dynamic fields during unpacking of an object is to return the `UID` and
-store it somewhere temporarily until the dynamic fields are removed and handled properly.
+孤立したオブジェクトはストレージリベートの対象ではなく、ストレージ料金は未請求のままです。
+オブジェクトのアンパック中に孤立した動的フィールドを避ける一つの方法は、`UID`を返し、
+動的フィールドが適切に削除および処理されるまで一時的にどこかに格納することです。
 
-## Custom Type as a Field Name
+## フィールド名としてのカスタム型
 
-In the examples above, we used primitive types as field names since they have the required set of
-abilities. But dynamic fields get even more interesting when we use custom types as field names.
-This allows for a more structured way of storing data, and also allows for protecting the field
-names from being accessed by other modules.
+上記の例では、必要なアビリティセットを持っているため、プリミティブ型をフィールド名として
+使用しました。しかし、カスタム型をフィールド名として使用すると、動的フィールドはさらに
+興味深くなります。これにより、データを格納するより構造化された方法が可能になり、
+他のモジュールからフィールド名にアクセスされることを防ぐこともできます。
 
 ```move file=packages/samples/sources/programmability/dynamic-fields.move anchor=custom_type
 
 ```
 
-Two field names that we defined above are `AccessoryKey` and `MetadataKey`. The `AccessoryKey` has a
-`String` field in it, hence it can be used multiple times with different `name` values. The
-`MetadataKey` is an empty key, and can be attached only once.
+上記で定義した2つのフィールド名は`AccessoryKey`と`MetadataKey`です。`AccessoryKey`には
+`String`フィールドが含まれているため、異なる`name`値で複数回使用できます。
+`MetadataKey`は空のキーで、一度だけアタッチできます。
 
 ```move file=packages/samples/sources/programmability/dynamic-fields.move anchor=custom_type_usage
 
 ```
 
-As you can see, custom types do work as field names but as long as they can be _constructed_ by the
-module, in other words - if they are _internal_ to the module and defined in it. This limitation on
-struct packing can open up new ways in the design of the application.
+ご覧のとおり、カスタム型はフィールド名として機能しますが、モジュールによって_構築_できる限り、
+つまり、モジュールに_内部_であり、その中で定義されている場合に限ります。
+構造体パッキングのこの制限は、アプリケーションの設計において新しい方法を開くことができます。
 
-This approach is used in the Object Capability<!--[]](./object-capability)--> pattern, where an
-application can authorize a foreign object to perform operations in it while not exposing the
-capabilities to other modules.
+このアプローチはObject Capability<!--[]](./object-capability)-->パターンで使用され、
+アプリケーションが他のモジュールにケーパビリティを公開することなく、
+外部オブジェクトにその中で操作を実行することを許可できます。
 
-## Exposing UID
+## UIDの公開
 
 <div class="warning">
 
-Mutable access to `UID` is a security risk. Exposing `UID` of your type as a mutable reference can
-lead to unwanted modifications or removal of the object's dynamic fields. Additionally, it affects
-the Transfer to Object<!--[](./../storage/transfer-to-object)--> and
-[Dynamic Object Fields](./dynamic-object-fields). Make sure to understand the implications before
-exposing the `UID` as a mutable reference.
+`UID`への可変アクセスはセキュリティリスクです。型の`UID`を可変参照として公開すると、
+オブジェクトの動的フィールドの不要な変更や削除につながる可能性があります。さらに、
+Transfer to Object<!--[](./../storage/transfer-to-object)-->と
+[Dynamic Object Fields](./dynamic-object-fields)に影響します。`UID`を可変参照として公開する前に、
+その影響を理解してください。
 
 </div>
 
-Because dynamic fields are attached to `UID`s, their usage in other modules depends on whether the
-`UID` can be accessed. By default struct visibility protects the `id` field and won't let other
-modules access it directly. However, if there's a public accessor method that returns a reference to
-`UID`, dynamic fields can be read in other modules.
+動的フィールドは`UID`にアタッチされているため、他のモジュールでの使用は`UID`に
+アクセスできるかどうかに依存します。デフォルトでは、構造体の可視性が`id`フィールドを保護し、
+他のモジュールが直接アクセスすることを許可しません。しかし、`UID`への参照を返す
+パブリックアクセサメソッドがある場合、動的フィールドは他のモジュールで読み取ることができます。
 
 ```move file=packages/samples/sources/programmability/dynamic-fields.move anchor=exposed_uid
 
 ```
 
-In the example above, we show how to expose the `UID` of a `Character` object. This solution may
-work for some applications, however, it is important to remember that exposed `UID` allows reading
-_any_ dynamic field attached to the object.
+上記の例では、`Character`オブジェクトの`UID`を公開する方法を示しています。このソリューションは
+一部のアプリケーションで機能する可能性がありますが、公開された`UID`はオブジェクトに
+アタッチされた_任意の_動的フィールドの読み取りを許可することを覚えておくことが重要です。
 
-If you need to expose the `UID` only within the package, use a restrictive visibility, like
-`public(package)`, or even better - use more specific accessor methods that would allow only reading
-specific fields.
+パッケージ内でのみ`UID`を公開する必要がある場合は、`public(package)`のような制限的な可視性を
+使用するか、さらに良いのは、特定のフィールドのみの読み取りを許可するより具体的な
+アクセサメソッドを使用することです。
 
 ```move file=packages/samples/sources/programmability/dynamic-fields.move anchor=exposed_uid_measures
 
 ```
 
-## Dynamic Fields vs Fields
+## 動的フィールド vs フィールド
 
-Dynamic Fields are more expensive than regular fields, as they require additional storage and costs
-for accessing them. Their flexibility comes at a price, and it is important to understand the
-implications when making a decision between using dynamic fields and regular fields.
+動的フィールドは、アクセスに追加のストレージとコストが必要なため、通常のフィールドよりも
+高価です。その柔軟性には代償があり、動的フィールドと通常のフィールドの使用を決定する際に
+その影響を理解することが重要です。
 
-## Limits
+## 制限
 
-Dynamic Fields are not subject to the [object size limit](./../guides/building-against-limits), and
-can be used to store large amounts of data. However, they are still subject to the
-[dynamic fields created limit](./../guides/building-against-limits), which is set to 1000 fields per
-transaction.
+動的フィールドは[オブジェクトサイズ制限](./../guides/building-against-limits)の対象ではなく、
+大量のデータを格納するために使用できます。ただし、トランザクションあたり1000フィールドに
+設定されている[動的フィールド作成制限](./../guides/building-against-limits)の対象となります。
 
-## Applications
+## アプリケーション
 
-Dynamic Fields can play a crucial role in applications of any complexity. They open up a variety of
-different use cases, from storing heterogeneous data to attaching objects as part of the application
-logic. They allow for certain [upgradeability practices](./../guides/upgradeability-practices) based
-on the ability to define them _later_ and change the type of the field.
+動的フィールドは、任意の複雑さのアプリケーションで重要な役割を果たすことができます。
+これらは、異種データの格納からアプリケーションロジックの一部としてオブジェクトを
+アタッチすることまで、様々な異なるユースケースを開きます。これらは、フィールドを_後で_
+定義し、フィールドの型を変更する能力に基づいて、特定の[アップグレード可能性の実践](./../guides/upgradeability-practices)を可能にします。
 
-## Next Steps
+## 次のステップ
 
-In the next section we will cover [Dynamic Object Fields](./dynamic-object-fields) and explain how
-they differ from dynamic fields, and what are the implications of using them.
+次のセクションでは、[Dynamic Object Fields](./dynamic-object-fields)について説明し、
+動的フィールドとどのように異なるか、それらを使用することの影響について説明します。

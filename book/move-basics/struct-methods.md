@@ -1,42 +1,32 @@
-# Struct Methods
+# 構造体メソッド
 
-Move Compiler supports _receiver syntax_ `e.f()`, which allows defining methods which can be called
-on instances of a struct. The term "receiver" specifically refers to the instance that receives the
-method call. This is like the method syntax in other programming languages. It is a convenient way
-to define functions that operate on the fields of a struct, providing direct access to the struct's
-fields and creating cleaner, more intuitive code than passing the struct as a parameter.
+Moveコンパイラは_レシーバー構文_`e.f()`をサポートし、構造体のインスタンスに対して呼び出すことができるメソッドの定義を許可します。「レシーバー」という用語は、メソッド呼び出しを受け取るインスタンスを特に指します。これは他のプログラミング言語のメソッド構文のようなものです。これは構造体のフィールドで動作する関数を定義する便利な方法で、構造体のフィールドへの直接アクセスを提供し、構造体をパラメータとして渡すよりもクリーンで直感的なコードを作成します。
 
-## Method syntax
+## メソッド構文
 
-If the first argument of a function is a struct internal to the module that defines the function,
-then the function can be called using the `.` operator. However, if the type of the first argument
-is defined in another module, then method won't be associated with the struct by default. In this
-case, the `.` operator syntax is not available, and the function must be called using standard
-function call syntax.
+関数の最初の引数が、その関数を定義するモジュール内部の構造体である場合、その関数は`.`演算子を使用して呼び出すことができます。しかし、最初の引数の型が別のモジュールで定義されている場合、メソッドはデフォルトでは構造体と関連付けられません。この場合、`.`演算子構文は使用できず、関数は標準的な関数呼び出し構文を使用して呼び出す必要があります。
 
-When a module is imported, its methods are automatically associated with the struct.
+モジュールがインポートされると、そのメソッドは自動的に構造体と関連付けられます。
 
 ```move file=packages/samples/sources/move-basics/struct-methods.move anchor=hero
 
 ```
 
-## Method Aliases
+## メソッドエイリアス
 
-Method aliases help avoid name conflicts when modules define multiple structs and their methods.
-They can also provide more descriptive method names for structs.
+メソッドエイリアスは、モジュールが複数の構造体とそのメソッドを定義する際の名前の競合を避けるのに役立ちます。また、構造体により説明的なメソッド名を提供することもできます。
 
-Here's the syntax:
+構文は以下の通りです：
 
 ```move
-// for local method association
+// ローカルメソッド関連付け用
 use fun function_path as Type.method_name;
 
-// exported alias
+// エクスポートされたエイリアス
 public use fun function_path as Type.method_name;
 ```
 
-> Public aliases are only allowed for structs defined in the same module. For structs defined in
-> other modules, aliases can still be created but cannot be made public.
+> パブリックエイリアスは、同じモジュールで定義された構造体に対してのみ許可されます。他のモジュールで定義された構造体に対しては、エイリアスを作成することはできますが、パブリックにすることはできません。
 
 In the example below, we changed the `hero` module and added another type - `Villain`. Both `Hero`
 and `Villain` have similar field names and methods. To avoid name conflicts, we prefixed methods

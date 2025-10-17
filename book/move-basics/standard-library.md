@@ -1,90 +1,78 @@
-# Standard Library
+# 標準ライブラリ
 
-<!-- The Move standard library provides a set of modules  -->
+<!-- Move標準ライブラリは一連のモジュールを提供します -->
 
-The Move Standard Library provides functionality for native types and operations. It is a standard
-collection of modules that do not interact with storage, but provide basic tools for working with
-and manipulating data. It is the only dependency of the
-[Sui Framework](./../programmability/sui-framework), and is imported together with it.
+Move標準ライブラリは、ネイティブ型と操作のための機能を提供します。ストレージと相互作用しないが、データの操作と処理のための基本的なツールを提供するモジュールの標準コレクションです。これは[Sui Framework](./../programmability/sui-framework)の唯一の依存関係であり、それと一緒にインポートされます。
 
-## Most Common Modules
+## 最も一般的なモジュール
 
-In this book we go into detail about most of the modules in the Standard Library, however, it is
-also helpful to give an overview of the features, so that you can get a sense of what is available
-and which module implements it.
+この本では、標準ライブラリのほとんどのモジュールについて詳しく説明しますが、利用可能な機能の概要を提供し、どのモジュールがそれを実装しているかを理解できるようにすることも有用です。
 
-<!-- Custom CSS addition in the theme/custom.css  -->
+<!-- テーマ/custom.cssでのカスタムCSS追加 -->
 <div class="modules-table">
 
-| Module                                                                           | Description                                                                | Chapter                              |
+| モジュール                                                                           | 説明                                                                | 章                              |
 | -------------------------------------------------------------------------------- | -------------------------------------------------------------------------- | ------------------------------------ |
-| [std::string](https://docs.sui.io/references/framework/std/string)               | Provides basic string operations                                           | [String](./string)                   |
-| [std::ascii](https://docs.sui.io/references/framework/std/ascii)                 | Provides basic ASCII operations                                            | -                                    |
-| [std::option](https://docs.sui.io/references/framework/std/option)               | Implements `Option<T>`                                                     | [Option](./option)                   |
-| [std::vector](https://docs.sui.io/references/framework/std/vector)               | Native operations on the vector type                                       | [Vector](./vector)                   |
-| [std::bcs](https://docs.sui.io/references/framework/std/bcs)                     | Contains the `bcs::to_bytes()` function                                    | [BCS](./../programmability/bcs)      |
-| [std::address](https://docs.sui.io/references/framework/std/address)             | Contains a single `address::length` function                               | [Address](./address)                 |
-| [std::type_name](https://docs.sui.io/references/framework/std/type_name)         | Allows runtime _type reflection_                                           | [Type Reflection](./type-reflection) |
-| [std::hash](https://docs.sui.io/references/framework/std/hash)                   | Hashing functions: `sha2_256` and `sha3_256`                               | -                                    |
-| [std::debug](https://docs.sui.io/references/framework/std/debug)                 | Contains debugging functions, which are available in only in **test** mode | -                                    |
-| [std::bit_vector](https://docs.sui.io/references/framework/std/bit_vector)       | Provides operations on bit vectors                                         | -                                    |
-| [std::fixed_point32](https://docs.sui.io/references/framework/std/fixed_point32) | Provides the `FixedPoint32` type                                           | -                                    |
+| [std::string](https://docs.sui.io/references/framework/std/string)               | 基本的な文字列操作を提供                                           | [String](./string)                   |
+| [std::ascii](https://docs.sui.io/references/framework/std/ascii)                 | 基本的なASCII操作を提供                                            | -                                    |
+| [std::option](https://docs.sui.io/references/framework/std/option)               | `Option<T>`を実装                                                     | [Option](./option)                   |
+| [std::vector](https://docs.sui.io/references/framework/std/vector)               | ベクター型のネイティブ操作                                       | [Vector](./vector)                   |
+| [std::bcs](https://docs.sui.io/references/framework/std/bcs)                     | `bcs::to_bytes()`関数を含む                                    | [BCS](./../programmability/bcs)      |
+| [std::address](https://docs.sui.io/references/framework/std/address)             | 単一の`address::length`関数を含む                               | [Address](./address)                 |
+| [std::type_name](https://docs.sui.io/references/framework/std/type_name)         | ランタイム_型リフレクション_を可能にする                                           | [Type Reflection](./type-reflection) |
+| [std::hash](https://docs.sui.io/references/framework/std/hash)                   | ハッシュ関数：`sha2_256`と`sha3_256`                               | -                                    |
+| [std::debug](https://docs.sui.io/references/framework/std/debug)                 | デバッグ関数を含む（**テスト**モードでのみ利用可能） | -                                    |
+| [std::bit_vector](https://docs.sui.io/references/framework/std/bit_vector)       | ビットベクターの操作を提供                                         | -                                    |
+| [std::fixed_point32](https://docs.sui.io/references/framework/std/fixed_point32) | `FixedPoint32`型を提供                                           | -                                    |
 
 </div>
 
-## Integer Modules
+## 整数モジュール
 
-The Move Standard Library provides a set of functions associated with integer types. These functions
-are split into multiple modules, each associated with a specific integer type. The modules should
-not be imported directly, as their functions are available on every integer value.
+Move標準ライブラリは、整数型に関連する一連の関数を提供します。これらの関数は複数のモジュールに分割され、それぞれが特定の整数型に関連付けられています。これらのモジュールは直接インポートすべきではありません。なぜなら、それらの関数はすべての整数値で利用可能だからです。
 
-> All of the modules provide the same set of functions. Namely, `max`, `diff`,
-> `divide_and_round_up`, `sqrt` and `pow`.
+> すべてのモジュールは同じ関数セットを提供します。すなわち、`max`、`diff`、
+> `divide_and_round_up`、`sqrt`、`pow`です。
 
-<!-- Custom CSS addition in the theme/custom.css  -->
+<!-- テーマ/custom.cssでのカスタムCSS追加 -->
 <div class="modules-table">
 
-| Module                                                         | Description                   |
+| モジュール                                                         | 説明                   |
 | -------------------------------------------------------------- | ----------------------------- |
-| [std::u8](https://docs.sui.io/references/framework/std/u8)     | Functions for the `u8` type   |
-| [std::u16](https://docs.sui.io/references/framework/std/u16)   | Functions for the `u16` type  |
-| [std::u32](https://docs.sui.io/references/framework/std/u32)   | Functions for the `u32` type  |
-| [std::u64](https://docs.sui.io/references/framework/std/u64)   | Functions for the `u64` type  |
-| [std::u128](https://docs.sui.io/references/framework/std/u128) | Functions for the `u128` type |
-| [std::u256](https://docs.sui.io/references/framework/std/u256) | Functions for the `u256` type |
+| [std::u8](https://docs.sui.io/references/framework/std/u8)     | `u8`型の関数   |
+| [std::u16](https://docs.sui.io/references/framework/std/u16)   | `u16`型の関数  |
+| [std::u32](https://docs.sui.io/references/framework/std/u32)   | `u32`型の関数  |
+| [std::u64](https://docs.sui.io/references/framework/std/u64)   | `u64`型の関数  |
+| [std::u128](https://docs.sui.io/references/framework/std/u128) | `u128`型の関数 |
+| [std::u256](https://docs.sui.io/references/framework/std/u256) | `u256`型の関数 |
 
 </div>
 
-## Exported Addresses
+## エクスポートされたアドレス
 
-The Standard Library exports a single named address - `std = 0x1`. Note the alias `std` is defined
-here.
+標準ライブラリは単一の名前付きアドレス - `std = 0x1`をエクスポートします。ここでエイリアス`std`が定義されていることに注意してください。
 
 ```toml
 [addresses]
 std = "0x1"
 ```
 
-## Implicit Imports
+## 暗黙的インポート
 
-Some modules are imported implicitly and are available in the module without the explicit `use`
-import. For the Standard Library, these modules and types include:
+一部のモジュールは暗黙的にインポートされ、明示的な`use`インポートなしでモジュール内で利用可能です。標準ライブラリの場合、これらのモジュールと型には以下が含まれます：
 
 - std::vector
 - std::option
 - std::option::Option
 
-## Importing std without Sui Framework
+## Sui Frameworkなしでstdをインポート
 
-The Move Standard Library can be imported to the package directly. However, `std` alone is not
-enough to build a meaningful application, as it does not provide any storage capabilities and can't
-interact with the on-chain state.
+Move標準ライブラリはパッケージに直接インポートできます。しかし、`std`だけでは意味のあるアプリケーションを構築するには不十分です。なぜなら、ストレージ機能を提供せず、オンチェーン状態と相互作用できないからです。
 
 ```toml
 MoveStdlib = { git = "https://github.com/MystenLabs/sui.git", subdir = "crates/sui-framework/packages/move-stdlib", rev = "framework/mainnet" }
 ```
 
-## Source Code
+## ソースコード
 
-The source code of the Move Standard Library is available in the
-[Sui repository](https://github.com/MystenLabs/sui/tree/main/crates/sui-framework/packages/move-stdlib/sources).
+Move標準ライブラリのソースコードは[Suiリポジトリ](https://github.com/MystenLabs/sui/tree/main/crates/sui-framework/packages/move-stdlib/sources)で利用可能です。

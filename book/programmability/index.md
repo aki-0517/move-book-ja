@@ -1,10 +1,8 @@
-# Advanced Programmability
+# 高度なプログラマビリティ
 
-In previous chapters we've covered [the basics of Move](./../move-basics) and
-[Sui Storage Model](./../storage). Now it's time to dive deeper into the advanced topics of Sui
-programmability.
+前の章では、[Moveの基本](./../move-basics)と
+[Suiストレージモデル](./../storage)について説明しました。今度は、Suiの
+プログラマビリティの高度なトピックについてより深く掘り下げる時です。
 
-This chapter introduces more complex concepts, practices and features of Move and Sui that are
-essential for building more sophisticated applications. It is intended for developers who are
-already familiar with the basics of Move and Sui, and are looking to expand their knowledge and
-skills.
+この章では、より洗練されたアプリケーションを構築するために必要な、MoveとSuiのより複雑な概念、実践、機能を紹介します。
+これは、MoveとSuiの基本をすでに理解しており、知識とスキルを拡張したい開発者を対象としています。

@@ -1,180 +1,145 @@
 ---
-title: 'Abilities | Reference'
+title: 'アビリティ | リファレンス'
 description: ''
 ---
 
-# Abilities
+# アビリティ
 
-Abilities are a typing feature in Move that control what actions are permissible for values of a
-given type. This system grants fine grained control over the "linear" typing behavior of values, as
-well as if and how values are used in storage (as defined by the specific deployment of Move, e.g.
-the notion of storage for the blockchain). This is implemented by gating access to certain bytecode
-instructions so that for a value to be used with the bytecode instruction, it must have the ability
-required (if one is required at all—not every instruction is gated by an ability).
+アビリティは、特定の型の値に対してどのようなアクションが許可されるかを制御するMoveの型システム機能です。このシステムは、値の「線形」型付け動作を細かく制御し、また値がストレージでどのように使用されるか（Moveの特定のデプロイメントによって定義される、例えばブロックチェーンでのストレージの概念）を制御します。これは、特定のバイトコード命令へのアクセスを制限することで実装されており、値がそのバイトコード命令で使用されるためには、必要なアビリティを持っている必要があります（そもそも必要な場合に限り、すべての命令がアビリティによって制限されているわけではありません）。
 
-For Sui, `key` is used to signify an [object](./abilities/object). Objects are the basic unit of
-storage where each object has a unique, 32-byte ID. `store` is then used to both indicate what data
-can be stored inside of an object, and is also used to indicate what types can be transferred
-outside of their defining module.
+Suiでは、`key`は[オブジェクト](./abilities/object)を示すために使用されます。オブジェクトは、各オブジェクトが一意の32バイトIDを持つストレージの基本単位です。`store`は、オブジェクト内に保存できるデータを示すために使用され、また定義モジュールの外部に転送できる型を示すためにも使用されます。
 
 <!-- TODO future section on detailed walk through maybe. We have some examples at the end but it might be helpful to explain why we have precisely this set of abilities
 
 If you are already somewhat familiar with abilities from writing Move programs, but are still confused as to what is going on, it might be helpful to skip to the [motivating walkthrough](#motivating-walkthrough) section to get an idea of what the system is setup in the way that it is. -->
 
-## The Four Abilities
+## 4つのアビリティ
 
-The four abilities are:
+4つのアビリティは以下の通りです：
 
 - [`copy`](#copy)
-  - Allows values of types with this ability to be copied.
+  - このアビリティを持つ型の値をコピーすることを許可します。
 - [`drop`](#drop)
-  - Allows values of types with this ability to be popped/dropped.
+  - このアビリティを持つ型の値をポップ/ドロップすることを許可します。
 - [`store`](#store)
-  - Allows values of types with this ability to exist inside a value in storage.
-  - For Sui, `store` controls what data can be stored inside of an [object](./abilities/object).
-    `store` also controls what types can be transferred outside of their defining module.
+  - このアビリティを持つ型の値がストレージ内の値の中に存在することを許可します。
+  - Suiでは、`store`は[オブジェクト](./abilities/object)内に保存できるデータを制御します。
+    `store`は、定義モジュールの外部に転送できる型も制御します。
 - [`key`](#key)
-  - Allows the type to serve as a "key" for storage. Ostensibly this means the value can be a
-    top-level value in storage; in other words, it does not need to be contained in another value to
-    be in storage.
-  - For Sui, `key` is used to signify an [object](./abilities/object).
+  - 型がストレージの「キー」として機能することを許可します。これは、値がストレージ内の
+    トップレベル値になることができることを意味します。つまり、ストレージに存在するために
+    他の値に含まれる必要がありません。
+  - Suiでは、`key`は[オブジェクト](./abilities/object)を示すために使用されます。
 
 ### `copy`
 
-The `copy` ability allows values of types with that ability to be copied. It gates the ability to
-copy values out of local variables with the [`copy`](./variables#move-and-copy) operator and to copy
-values via references with
-[dereference `*e`](./primitive-types/references#reading-and-writing-through-references).
+`copy`アビリティは、そのアビリティを持つ型の値をコピーすることを許可します。これは、[`copy`](./variables#move-and-copy)演算子を使用してローカル変数から値をコピーする機能と、[参照解決`*e`](./primitive-types/references#reading-and-writing-through-references)を通じて参照経由で値をコピーする機能を制御します。
 
-If a value has `copy`, all values contained inside of that value have `copy`.
+値が`copy`を持つ場合、その値の内部に含まれるすべての値も`copy`を持ちます。
 
 ### `drop`
 
-The `drop` ability allows values of types with that ability to be dropped. By dropped, we mean that
-value is not transferred and is effectively destroyed as the Move program executes. As such, this
-ability gates the ability to ignore values in a multitude of locations, including:
+`drop`アビリティは、そのアビリティを持つ型の値をドロップすることを許可します。ドロップされるとは、その値が転送されず、Moveプログラムの実行中に事実上破棄されることを意味します。そのため、このアビリティは、以下を含む様々な場所で値を無視する機能を制御します：
 
-- not using the value in a local variable or parameter
-- not using the value in a [sequence via `;`](./variables#expression-blocks)
-- overwriting values in variables in [assignments](./variables#assignments)
-- overwriting values via references when
-  [writing `*e1 = e2`](./primitive-types/references#reading-and-writing-through-references).
+- ローカル変数やパラメータで値を使用しない
+- [`;`によるシーケンス](./variables#expression-blocks)で値を使用しない
+- [代入](./variables#assignments)で変数の値を上書きする
+- [`*e1 = e2`の書き込み](./primitive-types/references#reading-and-writing-through-references)時に参照経由で値を上書きする
 
-If a value has `drop`, all values contained inside of that value have `drop`.
+値が`drop`を持つ場合、その値の内部に含まれるすべての値も`drop`を持ちます。
 
 ### `store`
 
-The `store` ability allows values of types with this ability to exist inside of a value in storage,
-_but_ not necessarily as a top-level value in storage. This is the only ability that does not
-directly gate an operation. Instead it gates the existence in storage when used in tandem with
-`key`.
+`store`アビリティは、このアビリティを持つ型の値がストレージ内の値の中に存在することを許可しますが、必ずしもストレージ内のトップレベル値である必要はありません。これは、操作を直接制御しない唯一のアビリティです。代わりに、`key`と組み合わせて使用される際に、ストレージ内での存在を制御します。
 
-If a value has `store`, all values contained inside of that value have `store`.
+値が`store`を持つ場合、その値の内部に含まれるすべての値も`store`を持ちます。
 
-For Sui, `store` serves double duty. It controls what values can appear inside of an
-[object](/storage/store-ability), and what objects can be
-[transferred](./abilities/object#transfer-rules) outside of their defining module.
+Suiでは、`store`は二重の役割を果たします。[オブジェクト](/storage/store-ability)内に表示できる値を制御し、また定義モジュールの外部に[転送](./abilities/object#transfer-rules)できるオブジェクトを制御します。
 
 ### `key`
 
-The `key` ability allows the type to serve as a key for storage operations as defined by the
-deployment of Move. While it is specific per Move instance, it serves to gates all storage
-operations, so in order for a type to be used with storage primitives, the type must have the `key`
-ability.
+`key`アビリティは、Moveのデプロイメントによって定義されるストレージ操作のキーとして型が機能することを許可します。これはMoveインスタンスごとに固有ですが、すべてのストレージ操作を制御するため、型がストレージプリミティブと一緒に使用されるには、その型が`key`アビリティを持つ必要があります。
 
-If a value has `key`, all values contained inside of that value have `store`. This is the only
-ability with this sort of asymmetry.
+値が`key`を持つ場合、その値の内部に含まれるすべての値は`store`を持ちます。これは、このような非対称性を持つ唯一のアビリティです。
 
-For Sui, `key` is used to signify an [object](./abilities/object).
+Suiでは、`key`は[オブジェクト](./abilities/object)を示すために使用されます。
 
-## Builtin Types
+## 組み込み型
 
-All primitive, builtin types have `copy`, `drop`, and `store`.
+すべてのプリミティブな組み込み型は`copy`、`drop`、`store`を持ちます。
 
-- `bool`, `u8`, `u16`, `u32`, `u64`, `u128`, `u256`, and `address` all have `copy`, `drop`, and
-  `store`.
-- `vector<T>` may have `copy`, `drop`, and `store` depending on the abilities of `T`.
-  - See [Conditional Abilities and Generic Types](#conditional-abilities-and-generic-types) for more
-    details.
-- Immutable references `&` and mutable references `&mut` both have `copy` and `drop`.
-  - This refers to copying and dropping the reference itself, not what they refer to.
-  - References cannot appear in global storage, hence they do not have `store`.
+- `bool`、`u8`、`u16`、`u32`、`u64`、`u128`、`u256`、`address`はすべて`copy`、`drop`、
+  `store`を持ちます。
+- `vector<T>`は、`T`のアビリティに応じて`copy`、`drop`、`store`を持つ場合があります。
+  - 詳細については[条件付きアビリティとジェネリック型](#conditional-abilities-and-generic-types)を参照してください。
+- 不変参照`&`と可変参照`&mut`はどちらも`copy`と`drop`を持ちます。
+  - これは参照自体のコピーとドロップを指し、参照が指すものではありません。
+  - 参照はグローバルストレージに表示できないため、`store`を持ちません。
 
-Note that none of the primitive types have `key`, meaning none of them can be used directly with
-storage operations.
+プリミティブ型はどれも`key`を持たないことに注意してください。つまり、どれもストレージ操作で直接使用することはできません。
 
-## Annotating Structs and Enums
+## 構造体と列挙型への注釈
 
-To declare that a `struct` or `enum` has an ability, it is declared with `has <ability>` after the
-datatype name and either before or after the fields/variants. For example:
+`struct`や`enum`がアビリティを持つことを宣言するには、データ型名の後でフィールド/バリアントの前または後に`has <ability>`で宣言します。例えば：
 
 ```move file=packages/reference/sources/abilities.move anchor=annotating_datatypes
 
 ```
 
-In this case: `Ignorable*` has the `drop` ability. `Pair*` and `MyVec*` both have `copy`, `drop`,
-and `store`.
+この場合：`Ignorable*`は`drop`アビリティを持ちます。`Pair*`と`MyVec*`はどちらも`copy`、`drop`、`store`を持ちます。
 
-All of these abilities have strong guarantees over these gated operations. The operation can be
-performed on the value only if it has that ability; even if the value is deeply nested inside of
-some other collection!
+これらのアビリティはすべて、これらの制限された操作に対して強力な保証を持ちます。操作は、値がそのアビリティを持つ場合にのみ実行できます。値が他のコレクションの深い部分にネストされていても同様です！
 
-As such: when declaring a struct’s abilities, certain requirements are placed on the fields. All
-fields must satisfy these constraints. These rules are necessary so that structs satisfy the
-reachability rules for the abilities given above. If a struct is declared with the ability...
+そのため：構造体のアビリティを宣言する際、フィールドに特定の要件が課されます。すべてのフィールドはこれらの制約を満たす必要があります。これらのルールは、構造体が上記で示されたアビリティの到達可能性ルールを満たすために必要です。構造体がアビリティで宣言される場合...
 
-- `copy`, all fields must have `copy`.
-- `drop`, all fields must have `drop`.
-- `store`, all fields must have `store`.
-- `key`, all fields must have `store`.
-  - `key` is the only ability currently that doesn’t require itself.
+- `copy`、すべてのフィールドが`copy`を持つ必要があります。
+- `drop`、すべてのフィールドが`drop`を持つ必要があります。
+- `store`、すべてのフィールドが`store`を持つ必要があります。
+- `key`、すべてのフィールドが`store`を持つ必要があります。
+  - `key`は現在、自分自身を要求しない唯一のアビリティです。
 
-An enum can have any of these abilities with the exception of `key`, which enums cannot have because
-they cannot be top-level values (objects) in storage. The same rules apply to fields of enum
-variants as they do for struct fields though. In particular, if an enum is declared with the
-ability...
+列挙型は`key`を除いてこれらのアビリティのいずれかを持つことができます。列挙型はストレージのトップレベル値（オブジェクト）になることができないため、`key`を持つことはできません。ただし、列挙型のバリアントのフィールドには、構造体のフィールドと同じルールが適用されます。特に、列挙型がアビリティで宣言される場合...
 
-- `copy`, all fields of all variants must have `copy`.
-- `drop`, all fields of all variants must have `drop`.
-- `store`, all fields of all variants must have `store`.
-- `key`, is not allowed on enums as previously mentioned.
+- `copy`、すべてのバリアントのすべてのフィールドが`copy`を持つ必要があります。
+- `drop`、すべてのバリアントのすべてのフィールドが`drop`を持つ必要があります。
+- `store`、すべてのバリアントのすべてのフィールドが`store`を持つ必要があります。
+- `key`、前述のとおり列挙型では許可されません。
 
-For example:
+例えば：
 
 ```move
-// A struct without any abilities
+// アビリティを持たない構造体
 public struct NoAbilities {}
 
 public struct WantsCopy has copy {
-    f: NoAbilities, // ERROR 'NoAbilities' does not have 'copy'
+    f: NoAbilities, // ERROR 'NoAbilities'は'copy'を持ちません
 }
 
 public enum WantsCopyEnum has copy {
     Variant1
-    Variant2(NoAbilities), // ERROR 'NoAbilities' does not have 'copy'
+    Variant2(NoAbilities), // ERROR 'NoAbilities'は'copy'を持ちません
 }
 ```
 
-and similarly:
+同様に：
 
 ```move
-// A struct without any abilities
+// アビリティを持たない構造体
 public struct NoAbilities {}
 
 public struct MyData has key {
-    f: NoAbilities, // Error 'NoAbilities' does not have 'store'
+    f: NoAbilities, // Error 'NoAbilities'は'store'を持ちません
 }
 
 public struct MyDataEnum has store {
     Variant1,
-    Variant2(NoAbilities), // Error 'NoAbilities' does not have 'store'
+    Variant2(NoAbilities), // Error 'NoAbilities'は'store'を持ちません
 }
 ```
 
-## Conditional Abilities and Generic Types
+## 条件付きアビリティとジェネリック型
 
-When abilities are annotated on a generic type, not all instances of that type are guaranteed to
-have that ability. Consider this struct declaration:
+ジェネリック型にアビリティが注釈されている場合、その型のすべてのインスタンスがそのアビリティを持つことが保証されるわけではありません。次の構造体宣言を考えてみましょう：
 
 <!-- file=packages/reference/sources/abilities.move anchor=conditional_abilities -->
 
@@ -182,38 +147,26 @@ have that ability. Consider this struct declaration:
 public struct Cup<T> has copy, drop, store, key { item: T }
 ```
 
-It might be very helpful if `Cup` could hold any type, regardless of its abilities. The type system
-can _see_ the type parameter, so it should be able to remove abilities from `Cup` if it _sees_ a
-type parameter that would violate the guarantees for that ability.
+`Cup`がアビリティに関係なく任意の型を保持できれば非常に便利です。型システムは型パラメータを「見る」ことができるので、そのアビリティの保証に違反する型パラメータを「見た」場合、`Cup`からアビリティを削除できるはずです。
 
-This behavior might sound a bit confusing at first, but it might be more understandable if we think
-about collection types. We could consider the builtin type `vector` to have the following type
-declaration:
+この動作は最初は少し混乱するかもしれませんが、コレクション型について考えるとより理解しやすくなります。組み込み型`vector`は次のような型宣言を持つと考えることができます：
 
 ```move
 vector<T> has copy, drop, store;
 ```
 
-We want `vector`s to work with any type. We don't want separate `vector` types for different
-abilities. So what are the rules we would want? Precisely the same that we would want with the field
-rules above. So, it would be safe to copy a `vector` value only if the inner elements can be copied.
-It would be safe to ignore a `vector` value only if the inner elements can be ignored/dropped. And,
-it would be safe to put a `vector` in storage only if the inner elements can be in storage.
+私たちは`vector`が任意の型で動作することを望みます。異なるアビリティのために別々の`vector`型は欲しくありません。では、どのようなルールが欲しいでしょうか？上記のフィールドルールで欲しいものとまったく同じです。つまり、`vector`値をコピーするのは、内部要素がコピーできる場合にのみ安全です。`vector`値を無視するのは、内部要素が無視/ドロップできる場合にのみ安全です。そして、`vector`をストレージに置くのは、内部要素がストレージに置ける場合にのみ安全です。
 
-To have this extra expressiveness, a type might not have all the abilities it was declared with
-depending on the instantiation of that type; instead, the abilities a type will have depends on both
-its declaration **and** its type arguments. For any type, type parameters are pessimistically
-assumed to be used inside of the struct, so the abilities are only granted if the type parameters
-meet the requirements described above for fields. Taking `Cup` from above as an example:
+この追加の表現力を持つために、型はその型のインスタンス化に応じて、宣言されたすべてのアビリティを持たない場合があります。代わりに、型が持つアビリティは、その宣言**と**型引数の両方に依存します。任意の型について、型パラメータは構造体内で使用されると悲観的に仮定されるため、型パラメータが上記のフィールドに対して記述された要件を満たす場合にのみアビリティが付与されます。上記の`Cup`を例に取ると：
 
-- `Cup` has the ability `copy` only if `T` has `copy`.
-- It has `drop` only if `T` has `drop`.
-- It has `store` only if `T` has `store`.
-- It has `key` only if `T` has `store`.
+- `Cup`は、`T`が`copy`を持つ場合にのみ`copy`アビリティを持ちます。
+- `T`が`drop`を持つ場合にのみ`drop`を持ちます。
+- `T`が`store`を持つ場合にのみ`store`を持ちます。
+- `T`が`store`を持つ場合にのみ`key`を持ちます。
 
-Here are examples for this conditional system for each ability:
+以下は、各アビリティに対するこの条件システムの例です：
 
-### Example: conditional `copy`
+### 例：条件付き`copy`
 
 ```move
 public struct NoAbilities {}
@@ -221,24 +174,24 @@ public struct S has copy, drop { f: bool }
 public struct Cup<T> has copy, drop, store { item: T }
 
 fun example(c_x: Cup<u64>, c_s: Cup<S>) {
-    // Valid, 'Cup<u64>' has 'copy' because 'u64' has 'copy'
+    // 有効、'u64'が'copy'を持つため'Cup<u64>'は'copy'を持ちます
     let c_x2 = copy c_x;
-    // Valid, 'Cup<S>' has 'copy' because 'S' has 'copy'
+    // 有効、'S'が'copy'を持つため'Cup<S>'は'copy'を持ちます
     let c_s2 = copy c_s;
 }
 
 fun invalid(c_account: Cup<signer>, c_n: Cup<NoAbilities>) {
-    // Invalid, 'Cup<signer>' does not have 'copy'.
-    // Even though 'Cup' was declared with copy, the instance does not have 'copy'
-    // because 'signer' does not have 'copy'
+    // 無効、'Cup<signer>'は'copy'を持ちません。
+    // 'Cup'はcopyで宣言されていても、'signer'が'copy'を持たないため
+    // インスタンスは'copy'を持ちません
     let c_account2 = copy c_account;
-    // Invalid, 'Cup<NoAbilities>' does not have 'copy'
-    // because 'NoAbilities' does not have 'copy'
+    // 無効、'NoAbilities'が'copy'を持たないため
+    // 'Cup<NoAbilities>'は'copy'を持ちません
     let c_n2 = copy c_n;
 }
 ```
 
-### Example: conditional `drop`
+### 例：条件付き`drop`
 
 ```move
 public struct NoAbilities {}
@@ -246,72 +199,72 @@ public struct S has copy, drop { f: bool }
 public struct Cup<T> has copy, drop, store { item: T }
 
 fun unused() {
-    Cup<bool> { item: true }; // Valid, 'Cup<bool>' has 'drop'
-    Cup<S> { item: S { f: false }}; // Valid, 'Cup<S>' has 'drop'
+    Cup<bool> { item: true }; // 有効、'Cup<bool>'は'drop'を持ちます
+    Cup<S> { item: S { f: false }}; // 有効、'Cup<S>'は'drop'を持ちます
 }
 
 fun left_in_local(c_account: Cup<signer>): u64 {
     let c_b = Cup<bool> { item: true };
     let c_s = Cup<S> { item: S { f: false }};
-    // Valid return: 'c_account', 'c_b', and 'c_s' have values
-    // but 'Cup<signer>', 'Cup<bool>', and 'Cup<S>' have 'drop'
+    // 有効な戻り値：'c_account'、'c_b'、'c_s'は値を持ちますが
+    // 'Cup<signer>'、'Cup<bool>'、'Cup<S>'は'drop'を持ちます
     0
 }
 
 fun invalid_unused() {
-    // Invalid, Cannot ignore 'Cup<NoAbilities>' because it does not have 'drop'.
-    // Even though 'Cup' was declared with 'drop', the instance does not have 'drop'
-    // because 'NoAbilities' does not have 'drop'
+    // 無効、'Cup<NoAbilities>'は'drop'を持たないため無視できません。
+    // 'Cup'は'drop'で宣言されていても、'NoAbilities'が'drop'を持たないため
+    // インスタンスは'drop'を持ちません
     Cup<NoAbilities> { item: NoAbilities {} };
 }
 
 fun invalid_left_in_local(): u64 {
     let n = Cup<NoAbilities> { item: NoAbilities {} };
-    // Invalid return: 'c_n' has a value
-    // and 'Cup<NoAbilities>' does not have 'drop'
+    // 無効な戻り値：'c_n'は値を持ちますが
+    // 'Cup<NoAbilities>'は'drop'を持ちません
     0
 }
 ```
 
-### Example: conditional `store`
+### 例：条件付き`store`
 
 ```move
 public struct Cup<T> has copy, drop, store { item: T }
 
-// 'MyInnerData is declared with 'store' so all fields need 'store'
+// 'MyInnerData'は'store'で宣言されているため、すべてのフィールドが'store'を必要とします
 struct MyInnerData has store {
-    yes: Cup<u64>, // Valid, 'Cup<u64>' has 'store'
-    // no: Cup<signer>, Invalid, 'Cup<signer>' does not have 'store'
+    yes: Cup<u64>, // 有効、'Cup<u64>'は'store'を持ちます
+    // no: Cup<signer>, 無効、'Cup<signer>'は'store'を持ちません
 }
 
-// 'MyData' is declared with 'key' so all fields need 'store'
+// 'MyData'は'key'で宣言されているため、すべてのフィールドが'store'を必要とします
 struct MyData has key {
-    yes: Cup<u64>, // Valid, 'Cup<u64>' has 'store'
-    inner: Cup<MyInnerData>, // Valid, 'Cup<MyInnerData>' has 'store'
-    // no: Cup<signer>, Invalid, 'Cup<signer>' does not have 'store'
+    yes: Cup<u64>, // 有効、'Cup<u64>'は'store'を持ちます
+    inner: Cup<MyInnerData>, // 有効、'Cup<MyInnerData>'は'store'を持ちます
+    // no: Cup<signer>, 無効、'Cup<signer>'は'store'を持ちません
 }
 ```
 
-### Example: conditional `key`
+### 例：条件付き`key`
 
 ```move
 public struct NoAbilities {}
 public struct MyData<T> has key { f: T }
 
 fun valid(addr: address) acquires MyData {
-    // Valid, 'MyData<u64>' has 'key'
+    // 有効、'MyData<u64>'は'key'を持ちます
     transfer(addr, MyData<u64> { f: 0 });
 }
 
 fun invalid(addr: address) {
-   // Invalid, 'MyData<NoAbilities>' does not have 'key'
+   // 無効、'MyData<NoAbilities>'は'key'を持ちません
    transfer(addr, MyData<NoAbilities> { f: NoAbilities {} })
-   // Invalid, 'MyData<NoAbilities>' does not have 'key'
+   // 無効、'MyData<NoAbilities>'は'key'を持ちません
    borrow<NoAbilities>(addr);
-   // Invalid, 'MyData<NoAbilities>' does not have 'key'
+   // 無効、'MyData<NoAbilities>'は'key'を持ちません
    borrow_mut<NoAbilities>(addr);
 }
 
-// Mock storage operation
+// モックストレージ操作
 native public fun transfer<T: key>(addr: address, value: T);
 ```

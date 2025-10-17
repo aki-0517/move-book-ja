@@ -1,24 +1,23 @@
 ---
-title: 'Constants | Reference'
+title: '定数 | リファレンス'
 description: ''
 ---
 
-# Constants
+# 定数
 
-Constants are a way of giving a name to shared, static values inside of a `module`.
+定数は、`module`内で共有される静的な値に名前を付ける方法です。
 
-The constant's value must be known at compilation. The constant's value is stored in the compiled
-module. And each time the constant is used, a new copy of that value is made.
+定数の値はコンパイル時に既知である必要があります。定数の値はコンパイルされたモジュールに保存されます。そして定数が使用されるたびに、その値の新しいコピーが作成されます。
 
-## Declaration
+## 宣言
 
-Constant declarations begin with the `const` keyword, followed by a name, a type, and a value.
+定数の宣言は`const`キーワードで始まり、続いて名前、型、値を指定します。
 
 ```text
 const <name>: <type> = <expression>;
 ```
 
-For example
+例えば
 
 ```move
 module a::example;
@@ -30,10 +29,9 @@ public fun permissioned(addr: address) {
 }
 ```
 
-## Naming
+## 命名
 
-Constants must start with a capital letter `A` to `Z`. After the first letter, constant names can
-contain underscores `_`, letters `a` to `z`, letters `A` to `Z`, or digits `0` to `9`.
+定数は大文字`A`から`Z`で始まる必要があります。最初の文字の後、定数名にはアンダースコア`_`、小文字`a`から`z`、大文字`A`から`Z`、または数字`0`から`9`を含めることができます。
 
 ```move
 const FLAG: bool = false;
@@ -41,28 +39,21 @@ const EMyErrorCode: u64 = 0;
 const ADDRESS_42: address = @0x42;
 ```
 
-Even though you can use letters `a` to `z` in a constant. The
-[general style guidelines](./coding-conventions) are to use just uppercase letters `A` to `Z`, with
-underscores `_` between each word. For error codes, we use `E` as a prefix and then upper camel case
-(also known as Pascal case) for the rest of the name, as seen in `EMyErrorCode`.
+定数で小文字`a`から`z`を使用できますが、[一般的なスタイルガイドライン](./coding-conventions)では、大文字`A`から`Z`のみを使用し、各単語の間にアンダースコア`_`を入れることが推奨されています。エラーコードには、`E`を接頭辞として使用し、残りの名前にはアッパーキャメルケース（パスカルケースとも呼ばれます）を使用します。`EMyErrorCode`で確認できます。
 
-The current naming restriction of starting with `A` to `Z` is in place to give room for future
-language features.
+現在の`A`から`Z`で始まる命名制約は、将来の言語機能のための余地を残すために設けられています。
 
-## Visibility
+## 可視性
 
-`public` or `public(package)` constants are not currently supported. `const` values can be used only
-in the declaring module. However, as a convenience, they can be used across modules in
-[unit tests attributes](./unit-testing).
+`public`または`public(package)`定数は現在サポートされていません。`const`値は宣言したモジュール内でのみ使用できます。ただし、便宜上、[ユニットテスト属性](./unit-testing)ではモジュール間で使用できます。
 
-## Valid Expressions
+## 有効な式
 
-Currently, constants are limited to the primitive types `bool`, `u8`, `u16`, `u32`, `u64`, `u128`,
-`u256`, `address`, and `vector<T>`, where `T` is the valid type for a constant.
+現在、定数はプリミティブ型`bool`、`u8`、`u16`、`u32`、`u64`、`u128`、`u256`、`address`、および`vector<T>`（`T`は定数に有効な型）に制限されています。
 
-### Values
+### 値
 
-Commonly, `const`s are assigned a simple value, or literal, of their type. For example
+一般的に、`const`にはその型の単純な値またはリテラルが割り当てられます。例えば
 
 ```move
 const MY_BOOL: bool = false;
@@ -71,13 +62,11 @@ const BYTES: vector<u8> = b"hello world";
 const HEX_BYTES: vector<u8> = x"DEADBEEF";
 ```
 
-### Complex Expressions
+### 複雑な式
 
-In addition to literals, constants can include more complex expressions, as long as the compiler is
-able to reduce the expression to a value at compile time.
+リテラルに加えて、コンパイラがコンパイル時に式を値に減らすことができる限り、定数にはより複雑な式を含めることができます。
 
-Currently, equality operations, all boolean operations, all bitwise operations, and all arithmetic
-operations can be used.
+現在、等価演算、すべてのブール演算、すべてのビット演算、およびすべての算術演算を使用できます。
 
 ```move
 const RULE: bool = true && false;
@@ -91,8 +80,7 @@ const REM: u256 =
 const EQUAL: bool = 1 == 1;
 ```
 
-If the operation would result in a runtime exception, the compiler will give an error that it is
-unable to generate the constant's value
+演算が実行時例外を引き起こす場合、コンパイラは定数の値を生成できないというエラーを出します
 
 ```move
 const DIV_BY_ZERO: u64 = 1 / 0; // ERROR!
@@ -100,14 +88,14 @@ const SHIFT_BY_A_LOT: u64 = 1 << 100; // ERROR!
 const NEGATIVE_U64: u64 = 0 - 1; // ERROR!
 ```
 
-Additionally, constants can refer to other constants within the same module.
+さらに、定数は同じモジュール内の他の定数を参照することができます。
 
 ```move
 const BASE: u8 = 4;
 const SQUARE: u8 = BASE * BASE;
 ```
 
-Note though, that any cycle in the constant definitions results in an error.
+ただし、定数定義における循環はエラーを引き起こすことに注意してください。
 
 ```move
 const A: u16 = B + 1;

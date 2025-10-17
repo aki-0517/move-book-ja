@@ -1,15 +1,10 @@
-# Testing
+# テスト
 
-Testing is a crucial aspect of software development, especially in blockchain applications where
-security and correctness are paramount. In this section, we will cover the fundamentals of testing
-in Move, including how to write and organize tests effectively.
+テストはソフトウェア開発の重要な側面であり、特にセキュリティと正確性が最重要であるブロックチェーンアプリケーションではなおさらです。このセクションでは、テストの効果的な書き方と組織方法を含め、Moveでのテストの基礎を説明します。
 
-## The `#[test]` Attribute
+## `#[test]`属性
 
-Tests in Move are functions marked with the `#[test]` attribute. This attribute tells the compiler
-that the function is a test function and should be run when tests are executed. Test functions are
-regular functions, but they must take no arguments and have no return value. They are excluded from
-the bytecode and are never published.
+Moveのテストは`#[test]`属性でマークされた関数です。この属性はコンパイラにその関数がテスト関数であり、テストが実行される際に実行されるべきであることを伝えます。テスト関数は通常の関数ですが、引数を取らず、戻り値も持たない必要があります。テスト関数はバイトコードから除外され、公開されることはありません。
 
 ```move
 module book::testing;

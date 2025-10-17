@@ -1,43 +1,34 @@
 # Hello, World!
 
-In this chapter, you will learn how to create a new package, write a simple module, compile it, and
-run tests with the Move CLI. Make sure you have [installed Sui](./../before-we-begin/install-sui.md)
-and set up your [IDE environment](./../before-we-begin/ide-support.md). Run the command below to test
-if Sui has been installed correctly.
+この章では、新しいパッケージの作成、シンプルなモジュールの記述、コンパイル、およびMove CLIでのテストの実行方法を学習します。[Suiをインストール](./../before-we-begin/install-sui.md)し、[IDE環境](./../before-we-begin/ide-support.md)を設定していることを確認してください。以下のコマンドを実行して、Suiが正しくインストールされているかテストしてください。
 
 ```bash
-# It should print the client version. E.g. sui-client 1.22.0-036299745.
+# クライアントのバージョンが表示されます。例：sui-client 1.22.0-036299745.
 sui client --version
 ```
 
-> Move CLI is a command-line interface for the Move language; it is built into the Sui binary and
-> provides a set of commands to manage packages, compile and test code.
+> Move CLIは、Move言語のコマンドラインインターフェースです。Suiバイナリに組み込まれており、パッケージの管理、コードのコンパイル、テストを行うためのコマンドセットを提供します。
 
-The structure of the chapter is as follows:
+この章の構成は以下の通りです：
 
-- [Create a New Package](#create-a-new-package)
-- [Directory Structure](#directory-structure)
-- [Compiling the Package](#compiling-the-package)
-- [Running Tests](#running-tests)
+- [新しいパッケージの作成](#create-a-new-package)
+- [ディレクトリ構造](#directory-structure)
+- [パッケージのコンパイル](#compiling-the-package)
+- [テストの実行](#running-tests)
 
-## Create a New Package
+## 新しいパッケージの作成
 
-To create a new program, we will use the `sui move new` command followed by the name of the
-application. Our first program will be called `hello_world`.
+新しいプログラムを作成するために、`sui move new` コマンドの後にアプリケーションの名前を続けて使用します。最初のプログラムは `hello_world` と呼びます。
 
-> Note: In this and other chapters, if you see code blocks with lines starting with `$` (dollar
-> sign), it means that the following command should be run in a terminal. The sign should not be
-> included. It's a common way of showing commands in terminal environments.
+> 注意：この章や他の章で、`$`（ドル記号）で始まる行を含むコードブロックを見つけた場合、それは続くコマンドがターミナルで実行されるべきことを意味します。記号自体は含めるべきではありません。これは、ターミナル環境でコマンドを表示する一般的な方法です。
 
 ```bash
 $ sui move new hello_world
 ```
 
-The `sui move` command gives access to the Move CLI - a built-in compiler, test runner and a utility
-for all things Move. The `new` command followed by the name of the package will create a new package
-in a new folder. In our case, the folder name is "hello_world".
+`sui move` コマンドは、Move CLI（組み込みコンパイラ、テストランナー、およびMoveに関するすべてのユーティリティ）へのアクセスを提供します。`new` コマンドの後にパッケージ名を続けると、新しいフォルダに新しいパッケージが作成されます。この場合、フォルダ名は「hello_world」です。
 
-We can view the contents of the folder to see that the package was created successfully.
+フォルダの内容を表示して、パッケージが正常に作成されたことを確認できます。
 
 ```bash
 $ ls -l hello_world
@@ -46,10 +37,9 @@ sources
 tests
 ```
 
-## Directory Structure
+## ディレクトリ構造
 
-Move CLI will create a scaffold of the application and pre-create the directory structure and all
-necessary files. Let's see what's inside.
+Move CLIは、アプリケーションの枠組みを作成し、ディレクトリ構造とすべての必要なファイルを事前に作成します。中身を見てみましょう。
 
 ```plaintext
 hello_world
@@ -60,25 +50,20 @@ hello_world
     └── hello_world_tests.move
 ```
 
-### Manifest
+### マニフェスト
 
-The `Move.toml` file, known as the [package manifest](./../concepts/manifest.md), contains definitions
-and configuration settings for the package. It is used by the Move Compiler to manage package
-metadata, fetch dependencies, and register named addresses. We will explain it in detail in the
-[Concepts](./../concepts/index.md) chapter.
+[パッケージマニフェスト](./../concepts/manifest.md)として知られる`Move.toml`ファイルには、パッケージの定義と設定が含まれています。これは、パッケージメタデータの管理、依存関係の取得、名前付きアドレスの登録のためにMove Compilerによって使用されます。詳細については[概念](./../concepts/index.md)の章で説明します。
 
-> By default, the package features one named address - the name of the package.
+> デフォルトでは、パッケージには1つの名前付きアドレス（パッケージの名前）があります。
 
 ```toml
 [addresses]
 hello_world = "0x0"
 ```
 
-### Sources
+### ソース
 
-The `sources/` directory contains the source files. Move source files have _.move_ extension, and
-are typically named after the module defined in the file. For example, in our case, the file name is
-_hello_world.move_ and the Move CLI has already placed commented out code inside:
+`sources/`ディレクトリにはソースファイルが含まれています。Moveのソースファイルは_.move_拡張子を持ち、通常はファイル内で定義されるモジュールの名前が付けられます。例えば、この場合、ファイル名は_hello_world.move_で、Move CLIはすでにコメントアウトされたコードを配置しています：
 
 ```move
 /*
@@ -87,35 +72,25 @@ module hello_world::hello_world;
 */
 ```
 
-> The `/*` and `*/` are the comment delimiters in Move. Everything in between is ignored by the
-> compiler and can be used for documentation or notes. We explain all ways to comment the code in
-> the [Basic Syntax](./../move-basics/comments.md).
+> `/*`と`*/`は、Moveのコメント区切り文字です。その間のすべてはコンパイラによって無視され、ドキュメントやメモに使用できます。コードにコメントを付けるすべての方法については、[基本構文](./../move-basics/comments.md)で説明します。
 
-The commented out code is a module definition, it starts with the keyword `module` followed by a
-named address (or an address literal), and the module name. The module name is a unique identifier
-for the module and has to be unique within the package. The module name is used to reference the
-module from other modules or transactions.
+コメントアウトされたコードはモジュール定義で、キーワード`module`の後に名前付きアドレス（またはアドレスリテラル）とモジュール名が続きます。モジュール名はモジュールの一意の識別子であり、パッケージ内で一意である必要があります。モジュール名は、他のモジュールやトランザクションからモジュールを参照するために使用されます。
 
 <!-- And the module name has to be a valid Move identifier: alphanumeric with underscores to separate words. A common convention is to call modules (and functions) in snake_case - all lowercase, with underscores. Coding conventions are important for readability and maintainability of the code, we summarize them in the Coding Conventions section. -->
 
-### Tests
+### テスト
 
-The `tests/` directory contains package tests. The compiler excludes these files in the regular
-build process but uses them in _test_ and _dev_ modes. The tests are written in Move and are marked
-with the `#[test]` attribute. Tests can be grouped in a separate module (then it's usually called
-_module_name_tests.move_), or inside the module they're testing.
+`tests/`ディレクトリにはパッケージのテストが含まれています。コンパイラは、通常のビルドプロセスではこれらのファイルを除外しますが、_test_および_dev_モードでは使用します。テストはMoveで記述され、`#[test]`属性でマークされます。テストは、別のモジュールにグループ化するか（通常は_module_name_tests.move_と呼ばれる）、テスト対象のモジュール内に配置できます。
 
-Modules, imports, constants and functions can be annotated with `#[test_only]`. This attribute is
-used to exclude modules, functions or imports from the build process. This is useful when you want
-to add helpers for your tests without including them in the code that will be published on chain.
+モジュール、インポート、定数、関数には`#[test_only]`で注釈できます。この属性は、ビルドプロセスからモジュール、関数、またはインポートを除外するために使用されます。これは、チェーン上で公開されるコードに含めることなく、テスト用のヘルパーを追加したい場合に便利です。
 
-The _hello_world_tests.move_ file contains a commented out test module template:
+_hello_world_tests.move_ファイルには、コメントアウトされたテストモジュールのテンプレートが含まれています：
 
 ```move
 /*
 #[test_only]
 module hello_world::hello_world_tests;
-// uncomment this line to import the module
+// モジュールをインポートするためにこの行のコメントを外してください
 // use hello_world::hello_world;
 
 const ENotImplemented: u64 = 0;
@@ -132,38 +107,30 @@ fun test_hello_world_fail() {
 */
 ```
 
-### Other Folders
+### その他のフォルダ
 
-Additionally, Move CLI supports the `examples/` folder. The files there are treated similarly to the
-ones placed under the `tests/` folder - they're only built in the _test_ and _dev_ modes. They are
-to be examples of how to use the package or how to integrate it with other packages. The most
-popular use case is for documentation purposes and library packages.
+さらに、Move CLIは`examples/`フォルダをサポートしています。そこのファイルは`tests/`フォルダに配置されたファイルと同様に扱われます - _test_および_dev_モードでのみビルドされます。これらは、パッケージの使用方法や他のパッケージとの統合方法の例です。最も人気のある使用例は、ドキュメントの目的とライブラリパッケージです。
 
-## Compiling the Package
+## パッケージのコンパイル
 
-Move is a compiled language, and as such, it requires the compilation of source files into Move
-Bytecode. It contains only necessary information about the module, its members, and types, and
-excludes comments and some identifiers (for example, for constants).
+Moveはコンパイル言語であり、そのためソースファイルをMoveバイトコードにコンパイルする必要があります。バイトコードには、モジュール、そのメンバー、型に関する必要な情報のみが含まれ、コメントや一部の識別子（例えば定数の識別子）は除外されます。
 
-To demonstrate these features, let's replace the contents of the _sources/hello_world.move_ file
-with the following:
+これらの機能を示すために、_sources/hello_world.move_ファイルの内容を以下に置き換えてみましょう：
 
 ```move file=packages/hello_world/sources/hello_world.move anchor=source
 ```
 
-During compilation, the code is built, but not run. A compiled package only includes functions that
-can be called by other modules or in a transaction. We will explain these concepts in the
-[Concepts](./../concepts/index.md) chapter. But now, let's see what happens when we run the _sui move build_.
+コンパイル中にコードはビルドされますが、実行はされません。コンパイルされたパッケージには、他のモジュールやトランザクションから呼び出すことができる関数のみが含まれます。これらの概念については[概念](./../concepts/index.md)の章で説明します。しかし今は、_sui move build_を実行したときに何が起こるかを見てみましょう。
 
 ```bash
-# run from the `hello_world` folder
+# `hello_world`フォルダから実行
 $ sui move build
 
-# alternatively, if you didn't `cd` into it
+# または、フォルダに`cd`しなかった場合
 $ sui move build --path hello_world
 ```
 
-It should output the following message on your console.
+コンソールに以下のメッセージが出力されるはずです。
 
 ```plaintext
 UPDATING GIT DEPENDENCY https://github.com/MystenLabs/sui.git
@@ -175,33 +142,26 @@ INCLUDING DEPENDENCY MoveStdlib
 BUILDING hello_world
 ```
 
-During the compilation, Move Compiler automatically creates a build folder where it places all
-fetched and compiled dependencies as well as the bytecode for the modules of the current package.
+コンパイル中に、Move Compilerは自動的にbuildフォルダを作成し、取得してコンパイルしたすべての依存関係と、現在のパッケージのモジュールのバイトコードを配置します。
 
-> If you're using a versioning system, such as Git, build folder should be ignored. For example, you
-> should use a `.gitignore` file and add `build` to it.
+> Gitなどのバージョン管理システムを使用している場合、buildフォルダは無視されるべきです。例えば、`.gitignore`ファイルを使用して`build`を追加する必要があります。
 
-## Running Tests
+## テストの実行
 
-Before we get to testing, we should add a test. Move Compiler supports tests written in Move and
-provides the execution environment. The tests can be placed in both the source files and in the
-`tests/` folder. Tests are marked with the `#[test]` attribute and are automatically discovered by
-the compiler. We explain tests in depth in the [Testing](./../move-basics/testing.md) section.
+テストに入る前に、テストを追加する必要があります。Move Compilerは、Moveで書かれたテストをサポートし、実行環境を提供します。テストは、ソースファイルと`tests/`フォルダの両方に配置できます。テストは`#[test]`属性でマークされ、コンパイラによって自動的に発見されます。テストについては、[テスト](./../move-basics/testing.md)セクションで詳しく説明します。
 
-Replace the contents of the `tests/hello_world_tests.move` with the following content:
+`tests/hello_world_tests.move`の内容を以下の内容に置き換えてください：
 
 ```move file=packages/hello_world/tests/hello_world_tests.move anchor=test
 ```
 
-Here we import the `hello_world` module, and call its `hello_world` function to test that the output
-is indeed the string "Hello, World!". Now, that we have tests in place, let's compile the package in
-the test mode and run tests. Move CLI has the `test` command for this:
+ここでは`hello_world`モジュールをインポートし、その`hello_world`関数を呼び出して、出力が実際に文字列「Hello, World!」であることをテストします。テストが準備できたので、テストモードでパッケージをコンパイルし、テストを実行しましょう。Move CLIにはこのための`test`コマンドがあります：
 
 ```bash
 $ sui move test
 ```
 
-The output should be similar to the following:
+出力は以下のようになるはずです：
 
 ```plaintext
 INCLUDING DEPENDENCY Bridge
@@ -215,26 +175,23 @@ Running Move unit tests
 Test result: OK. Total tests: 1; passed: 1; failed: 0
 ```
 
-If you're running the tests outside of the package folder, you can specify the path to the package:
+パッケージフォルダの外でテストを実行している場合は、パッケージへのパスを指定できます：
 
 ```bash
 $ sui move test --path hello_world
 ```
 
-You can also run a single or multiple tests at once by specifying a string. All the tests names
-containing the string will be run:
+文字列を指定することで、単一または複数のテストを一度に実行することもできます。その文字列を含むすべてのテスト名が実行されます：
 
 ```bash
 $ sui move test test_hello
 ```
 
-## Next Steps
+## 次のステップ
 
-In this section, we explained the basics of a Move package: its structure, the manifest, the build,
-and test flows. [On the next page](./hello-sui), we will write an application and see how the code
-is structured and what the language can do.
+このセクションでは、Moveパッケージの基本について説明しました：その構造、マニフェスト、ビルド、およびテストフローについてです。[次のページ](./hello-sui)では、アプリケーションを書いて、コードがどのように構造化されているか、そして言語が何をできるかを見ていきます。
 
-## Further Reading
+## 参考資料
 
-- [Package Manifest](./../concepts/manifest.md) section
-- Package in [The Move Reference](./../../reference/packages)
+- [パッケージマニフェスト](./../concepts/manifest.md) セクション
+- [The Move Reference](./../../reference/packages)のパッケージ

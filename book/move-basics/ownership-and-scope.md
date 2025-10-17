@@ -1,9 +1,6 @@
-# Ownership and Scope
+# 所有権とスコープ
 
-Every variable in Move has a scope and an owner. The scope is the range of code where the variable
-is valid, and the owner is the scope that this variable belongs to. Once the owner scope ends, the
-variable is dropped. This is a fundamental concept in Move, and it is important to understand how it
-works.
+Moveのすべての変数にはスコープと所有者があります。スコープは変数が有効なコードの範囲であり、所有者はこの変数が属するスコープです。所有者スコープが終了すると、変数はドロップされます。これはMoveの基本的な概念であり、どのように動作するかを理解することが重要です。
 
 <!--
 
@@ -13,60 +10,53 @@ works.
 
 -->
 
-## Ownership
+## 所有権
 
-A variable defined in a function scope is owned by this scope. The runtime goes through the function
-scope and executes every expression and statement. After the function scope ends, the variables
-defined in it are dropped or deallocated.
+関数スコープで定義された変数は、このスコープによって所有されます。ランタイムは関数スコープを通過し、すべての式と文を実行します。関数スコープが終了した後、その中で定義された変数はドロップまたは割り当て解除されます。
 
 ```move
 module book::ownership;
 
 public fun owner() {
-    let a = 1; // a is owned by the `owner` function
-} // a is dropped here
+    let a = 1; // aは`owner`関数によって所有される
+} // aはここでドロップされる
 
 public fun other() {
-    let b = 2; // b is owned by the `other` function
-} // b is dropped here
+    let b = 2; // bは`other`関数によって所有される
+} // bはここでドロップされる
 
 #[test]
 fun test_owner() {
     owner();
     other();
-    // a & b are not valid here
+    // a & bはここでは有効ではない
 }
 ```
 
-In the example above, the variable `a` is owned by the `owner` function, and the variable `b` is
-owned by the `other` function. When each of these functions are called, the variables are defined,
-and when the function ends, the variables are discarded.
+上記の例では、変数`a`は`owner`関数によって所有され、変数`b`は`other`関数によって所有されます。これらの関数のそれぞれが呼び出されると、変数が定義され、関数が終了すると、変数は破棄されます。
 
-## Returning a Value
+## 値の返却
 
-If we changed the `owner` function to return the variable `a`, then the ownership of `a` would be
-transferred to the caller of the function.
+`owner`関数を変数`a`を返すように変更すると、`a`の所有権は関数の呼び出し元に移譲されます。
 
 ```move
 module book::ownership;
 
 public fun owner(): u8 {
-    let a = 1; // a defined here
-    a // scope ends, a is returned
+    let a = 1; // aはここで定義される
+    a // スコープが終了し、aが返される
 }
 
 #[test]
 fun test_owner() {
     let a = owner();
-    // a is valid here
-} // a is dropped here
+    // aはここで有効
+} // aはここでドロップされる
 ```
 
-## Passing by Value
+## 値渡し
 
-Additionally, if we passed the variable `a` to another function, the ownership of `a` would be
-transferred to this function. When performing this operation, we _move_ the value from one scope to
-another. This is also called _move semantics_.
+さらに、変数`a`を別の関数に渡すと、`a`の所有権はこの関数に移譲されます。この操作を実行するとき、値を一つのスコープから別のスコープに_移動_します。これは_ムーブセマンティクス_とも呼ばれます。
 
 ```move
 module book::ownership;
@@ -74,66 +64,60 @@ module book::ownership;
 public fun owner(): u8 {
     let a = 10;
     a
-} // a is returned
+} // aが返される
 
 public fun take_ownership(v: u8) {
-    // v is owned by `take_ownership`
-} // v is dropped here
+    // vは`take_ownership`によって所有される
+} // vはここでドロップされる
 
 #[test]
 fun test_owner() {
     let a = owner();
-    // `u8` is copyable, pass `move a` when calling the function to force the transfer of its ownership
+    // `u8`はコピー可能なので、関数呼び出し時に`move a`を渡して所有権の移譲を強制する
     take_ownership(move a);
-    // a is not valid here
+    // aはここでは有効ではない
 }
 ```
 
-## Scopes with Blocks
+## ブロックによるスコープ
 
-Each function has a main scope, and it can also have sub-scopes via the use of blocks. A block is a
-sequence of statements and expressions, and it has its own scope. Variables defined in a block are
-owned by this block, and when the block ends, the variables are dropped.
+各関数にはメインスコープがあり、ブロックの使用によってサブスコープも持つことができます。ブロックは文と式の列であり、独自のスコープを持ちます。ブロックで定義された変数はこのブロックによって所有され、ブロックが終了すると、変数はドロップされます。
 
 ```move
 module book::ownership;
 
 public fun owner() {
-    let a = 1; // a is owned by the `owner` function's scope
+    let a = 1; // aは`owner`関数のスコープによって所有される
     {
-        let b = 2; // the block that declares b owns it
+        let b = 2; // bを宣言するブロックがそれを所有する
         {
-            let c = 3; // the block that declares c owns it
-        }; // c is dropped here
-    }; // b is dropped here
-    // a = b; // error: b is not valid here
-    // a = c; // error: c is not valid here
-} // a is dropped here
+            let c = 3; // cを宣言するブロックがそれを所有する
+        }; // cはここでドロップされる
+    }; // bはここでドロップされる
+    // a = b; // エラー: bはここでは有効ではない
+    // a = c; // エラー: cはここでは有効ではない
+} // aはここでドロップされる
 ```
 
-However, if we return a value from a block, the ownership of the variable is transferred to the
-caller of the block.
+ただし、ブロックから値を返すと、変数の所有権はブロックの呼び出し元に移譲されます。
 
 ```move
 module book::ownership;
 
 public fun owner(): u8 {
-    let a = 1; // a is owned by the `owner` function's scope
+    let a = 1; // aは`owner`関数のスコープによって所有される
     let b = {
-        let c = 2; // the block that declares c owns it
-        c // c is returned from the block and transferred to b
+        let c = 2; // cを宣言するブロックがそれを所有する
+        c // cはブロックから返され、bに移譲される
     };
-    a + b // both a and b are valid here
+    a + b // aとbの両方がここで有効
 }
 ```
 
-## Copyable Types
+## コピー可能な型
 
-Some types in Move are _copyable_, which means that they can be copied without transferring
-ownership. This is useful for types that are small and cheap to copy, such as integers and booleans.
-The Move compiler will automatically copy these types when they are passed to or returned from a
-function, or when they're _moved_ to another scope and then accessed in their original scope.
+Moveの一部の型は_コピー可能_です。つまり、所有権を移譲することなくコピーできます。これは、整数やブール値など、小さくてコピーのコストが安い型に有用です。Moveコンパイラは、これらの型が関数に渡されたり関数から返されたりするとき、または別のスコープに_移動_されてから元のスコープでアクセスされるときに、自動的にこれらの型をコピーします。
 
-## Further Reading
+## 参考文献
 
-- [Local Variables and Scopes](./../../reference/variables) in the Move Reference.
+- Move Referenceの[Local Variables and Scopes](./../../reference/variables)。

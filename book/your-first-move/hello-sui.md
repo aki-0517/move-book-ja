@@ -1,36 +1,28 @@
 # Hello, Sui!
 
-In the [previous section](./hello-world) we created a new package and demonstrated the basic flow
-of creating, building, and testing a Move package. In this section, we will write a simple
-application that uses the storage model and can be interacted with. To do this, we will create a
-simple todo list application.
+[前のセクション](./hello-world)では、新しいパッケージを作成し、Move パッケージの作成、ビルド、テストの基本的な流れを説明しました。このセクションでは、ストレージモデルを使用し、相互作用可能なシンプルなアプリケーションを作成します。そのために、シンプルなtodoリストアプリケーションを作成します。
 
-## Create a New Package
+## 新しいパッケージを作成する
 
-Following the same flow as in [Hello, World!](./hello-world), we will create a new package called
-`todo_list`.
+[Hello, World!](./hello-world)と同じ流れに従って、`todo_list`という名前の新しいパッケージを作成します。
 
 ```bash
 $ sui move new todo_list
 ```
 
-## Add the Code
+## コードを追加する
 
-To speed things up and focus on the application logic, we will provide the code for the todo list
-application. Replace the contents of the _sources/todo_list.move_ file with the following code:
+作業を効率化し、アプリケーションロジックに集中するために、todoリストアプリケーションのコードを提供します。_sources/todo_list.move_ ファイルの内容を次のコードに置き換えてください：
 
-> Note: while the contents may seem overwhelming at first, we will break it down in the following
-> sections. Try to focus on what's at hand right now.
+> 注意：最初は内容が圧倒的に見えるかもしれませんが、以下のセクションで詳しく説明します。今は目の前のことに集中してみてください。
 
 ```move file=packages/todo_list/sources/todo_list.move anchor=all
 
 ```
 
-## Build the Package
+## パッケージをビルドする
 
-To make sure that we did everything correctly, let's build the package by running the
-`sui move build` command. If everything is correct, you should see the output similar to the
-following:
+すべてが正しく行われていることを確認するために、`sui move build` コマンドを実行してパッケージをビルドしましょう。すべてが正しければ、次のような出力が表示されるはずです：
 
 ```bash
 $ sui move build
@@ -43,30 +35,22 @@ INCLUDING DEPENDENCY MoveStdlib
 BUILDING todo_list
 ```
 
-If there are no errors following this output, you have successfully built the package. If there are
-errors, make sure that:
+この出力に続いてエラーがなければ、パッケージのビルドに成功しています。エラーがある場合は、以下を確認してください：
 
-- The code is copied correctly
-- The file name and the package name is correct
+- コードが正しくコピーされている
+- ファイル名とパッケージ名が正しい
 
-There are not many other reasons for the code to fail at this stage. But if you are still having
-issues, try looking up the structure of the package in
-[this location](https://github.com/MystenLabs/move-book/tree/main/packages/todo_list).
+この段階でコードが失敗する他の理由はそれほど多くありません。それでも問題が発生している場合は、
+[この場所](https://github.com/MystenLabs/move-book/tree/main/packages/todo_list)でパッケージの構造を確認してみてください。
 
-## Set Up an Account
+## アカウントをセットアップする
 
-> If you already have an account set up, you can skip this step.
+> 既にアカウントがセットアップされている場合は、この手順をスキップできます。
 
-To publish and interact with the package, we need to set up an account. While developing, the best
-option for doing so is to run your own
-[Local Network](https://docs.sui.io/guides/developer/getting-started/local-network). For now you
-just need to run `RUST_LOG="off,sui_node=info" sui start --with-faucet --force-regenesis`. The Sui
-Local Network will run on port 9000 of your machine, so make sure that the port isn’t being used by
-any other application.
+パッケージを公開し、相互作用するためには、アカウントをセットアップする必要があります。開発中は、独自の
+[ローカルネットワーク](https://docs.sui.io/guides/developer/getting-started/local-network)を実行するのが最適です。現在は `RUST_LOG="off,sui_node=info" sui start --with-faucet --force-regenesis` を実行するだけです。Sui ローカルネットワークはマシンのポート9000で実行されるので、そのポートが他のアプリケーションで使用されていないことを確認してください。
 
-If you are doing it for the first time, you will need to create a new account. To do this, run the
-`sui client` command, then the CLI will prompt you with multiple questions. The answers are marked
-below with `>`:
+初回の場合は、新しいアカウントを作成する必要があります。これを行うには、`sui client` コマンドを実行すると、CLIが複数の質問を表示します。回答は以下の `>` で示されています：
 
 ```bash
 $ sui client
@@ -80,30 +64,27 @@ Select key scheme to generate keypair (0 for ed25519, 1 for secp256k1, 2: for se
 > 0
 ```
 
-After you have answered the questions, the CLI will generate a new keypair and save it to the
-configuration file. You can now use this account to interact with the network.
+質問に答えた後、CLIは新しいキーペアを生成し、設定ファイルに保存します。これで、このアカウントを使用してネットワークと相互作用できます。
 
-To check that we have the account set up correctly, run the `sui client active-address` command:
+アカウントが正しくセットアップされていることを確認するには、`sui client active-address` コマンドを実行します：
 
 ```bash
 $ sui client active-address
 0x....
 ```
 
-The command will output the address of your account, it starts with `0x` followed by 64 characters.
+このコマンドは、あなたのアカウントのアドレスを出力します。これは `0x` で始まり、その後に64文字が続きます。
 
-## Requesting Coins
+## コインを要求する
 
-In _devnet_ and _testnet_ environments, the CLI provides a way to request coins to your account, so
-you can interact with the network. To request coins, run the `sui client faucet` command:
+_devnet_ と _testnet_ 環境では、CLIはあなたのアカウントにコインを要求する方法を提供しているので、ネットワークと相互作用できます。コインを要求するには、`sui client faucet` コマンドを実行します：
 
 ```bash
 $ sui client faucet
 Request successful. It can take up to 1 minute to get the coin. Run sui client gas to check your gas coins.
 ```
 
-After waiting a little bit, you can check that the Coin object was sent to your account by running
-the `sui client balance` command:
+少し待った後、`sui client balance` コマンドを実行して、Coinオブジェクトがあなたのアカウントに送信されたことを確認できます：
 
 ```bash
 $ sui client balance
@@ -118,9 +99,7 @@ $ sui client balance
 ╰────────────────────────────────────────╯
 ```
 
-Alternatively, you can query _objects_ owned by your account, by running the `sui client objects`
-command. The actual output will be different, because the object ID is unique, and so is digest, but
-the structure will be similar:
+あるいは、`sui client objects` コマンドを実行して、あなたのアカウントが所有している _オブジェクト_ を照会することもできます。オブジェクトIDは一意であり、digestも同様であるため、実際の出力は異なりますが、構造は類似しています：
 
 ```bash
 $ sui client objects
@@ -134,32 +113,27 @@ $ sui client objects
 ╰───────────────────────────────────────────────────────────────────────────────────────╯
 ```
 
-Now that we have the account set up and the coins in the account, we can interact with the network.
-We will start by publishing the package to the network.
+これで、アカウントがセットアップされ、アカウントにコインが入ったので、ネットワークと相互作用できます。
+まず、パッケージをネットワークに公開することから始めます。
 
-## Publish
+## 公開
 
-To publish the package to the network, we will use the `sui client publish` command. The command
-will automatically build the package and use its bytecode to publish in a single transaction.
+パッケージをネットワークに公開するために、`sui client publish` コマンドを使用します。このコマンドは自動的にパッケージをビルドし、そのバイトコードを使用して単一のトランザクションで公開します。
 
-> We are using the `--gas-budget` argument during publishing. It specifies how much gas we are
-> willing to spend on the transaction. We won't touch on this topic in this section, but it's
-> important to know that every transaction in Sui costs gas, and the gas is paid in SUI coins.
-> It is worth noting that `--gas-budget` is not a required parameter. When you do not set it,
-> there will be a default consumption limit.
+> 公開時に `--gas-budget` 引数を使用しています。これは、トランザクションにどれだけのgasを費やすかを指定します。このセクションではこのトピックに触れませんが、Suiのすべてのトランザクションにはgasが必要であり、gasはSUIコインで支払われることを知っておくことが重要です。
+> `--gas-budget` は必須パラメータではないことも注目に値します。設定しない場合は、デフォルトの消費制限があります。
 
-The `gas-budget` is specified in _MISTs_. 1 SUI equals 10^9 MISTs. For the sake of demonstration, we
-will use 100,000,000 MISTs, which is 0.1 SUI.
+`gas-budget` は _MIST_ で指定されます。1 SUI は 10^9 MIST に等しいです。デモンストレーションのために、100,000,000 MIST（0.1 SUI）を使用します。
 
 ```bash
-# run this from the `todo_list` folder
+# `todo_list` フォルダから実行
 $ sui client publish --gas-budget 100000000
 
-# alternatively, you can specify path to the package
+# あるいは、パッケージへのパスを指定することもできます
 $ sui client publish --gas-budget 100000000 todo_list
 ```
 
-The output of the publish command is rather lengthy, so we will show and explain it in parts.
+publishコマンドの出力はかなり長いので、部分に分けて表示し説明します。
 
 ```bash
 $ sui client publish --gas-budget 100000000
@@ -174,18 +148,12 @@ Successfully verified dependencies on-chain against source.
 Transaction Digest: GpcDV6JjjGQMRwHpEz582qsd5MpCYgSwrDAq1JXcpFjW
 ```
 
-As you can see, when we run the `publish` command, the CLI first builds the package, then verifies
-the dependencies on-chain, and finally publishes the package. The output of the command is the
-transaction digest, which is a unique identifier of the transaction and can be used to query the
-transaction status.
+ご覧のように、`publish` コマンドを実行すると、CLIはまずパッケージをビルドし、次にオンチェーンの依存関係を検証し、最後にパッケージを公開します。コマンドの出力はトランザクションダイジェストで、これはトランザクションの一意識別子であり、トランザクションステータスの照会に使用できます。
 
-### Transaction Data
+### トランザクションデータ
 
-The section titled `TransactionData` contains the information about the transaction we just sent. It
-features fields like `sender`, which is your address, the `gas_budget` set with the `--gas-budget`
-argument, and the Coin we used for payment. It also prints the Commands that were run by the CLI. In
-this example, the commands `Publish` and `TransferObject` were run - the latter transfers a special
-object `UpgradeCap` to the sender.
+`TransactionData` というタイトルのセクションには、送信したトランザクションに関する情報が含まれています。
+あなたのアドレスである `sender`、`--gas-budget` 引数で設定された `gas_budget`、支払いに使用したCoinなどのフィールドが含まれています。また、CLIによって実行されたコマンドも出力されます。この例では、`Publish` と `TransferObject` コマンドが実行されました。後者は特別なオブジェクト `UpgradeCap` を送信者に転送します。
 
 ```plaintext
 ╭──────────────────────────────────────────────────────────────────────────────────────────────────────────────╮
@@ -232,10 +200,9 @@ object `UpgradeCap` to the sender.
 ╰──────────────────────────────────────────────────────────────────────────────────────────────────────────────╯
 ```
 
-### Transaction Effects
+### トランザクション効果
 
-Transaction Effects contains the status of the transaction, the changes that the transaction made to
-the state of the network and the objects involved in the transaction.
+トランザクション効果には、トランザクションのステータス、トランザクションがネットワークの状態に加えた変更、およびトランザクションに関与したオブジェクトが含まれています。
 
 ```plaintext
 ╭───────────────────────────────────────────────────────────────────────────────────────────────────╮
@@ -284,10 +251,9 @@ the state of the network and the objects involved in the transaction.
 ╰───────────────────────────────────────────────────────────────────────────────────────────────────╯
 ```
 
-### Events
+### イベント
 
-If there were any _events_ emitted, you would see them in this section. Our package does not use
-events, so the section is empty.
+_イベント_ が発行されていれば、このセクションで確認できます。私たちのパッケージはイベントを使用していないので、このセクションは空です。
 
 ```plaintext
 ╭─────────────────────────────╮
@@ -295,11 +261,9 @@ events, so the section is empty.
 ╰─────────────────────────────╯
 ```
 
-### Object Changes
+### オブジェクトの変更
 
-These are the changes to _objects_ that transaction has made. In our case, we have _created_ a new
-`UpgradeCap` object which is a special object that allows the sender to upgrade the package in the
-future, _mutated_ the Gas object, and _published_ a new package. Packages are also objects on Sui.
+これらは、トランザクションが _オブジェクト_ に加えた変更です。私たちの場合、送信者が将来パッケージをアップグレードできる特別なオブジェクトである新しい `UpgradeCap` オブジェクトを _作成_ し、Gasオブジェクトを _変更_ し、新しいパッケージを _公開_ しました。パッケージもSuiではオブジェクトです。
 
 ```plaintext
 ╭──────────────────────────────────────────────────────────────────────────────────────────────────╮
@@ -333,10 +297,9 @@ future, _mutated_ the Gas object, and _published_ a new package. Packages are al
 ╰──────────────────────────────────────────────────────────────────────────────────────────────────╯
 ```
 
-### Balance Changes
+### 残高の変更
 
-This last section contains changes to SUI Coins, in our case, we have _spent_ around 0.015 SUI,
-which in MIST is 10,500,000. You can see it under the _amount_ field in the output.
+この最後のセクションには、SUIコインの変更が含まれています。私たちの場合、約0.015 SUIを _消費_ しており、これはMISTでは10,500,000になります。出力の _amount_ フィールドで確認できます。
 
 ```plaintext
 ╭───────────────────────────────────────────────────────────────────────────────────────────────────╮
@@ -350,54 +313,42 @@ which in MIST is 10,500,000. You can see it under the _amount_ field in the outp
 ╰───────────────────────────────────────────────────────────────────────────────────────────────────╯
 ```
 
-### Alternative Output
+### 代替出力
 
-It is possible to specify the `--json` flag during publishing to get the output in JSON format. This
-is useful if you want to parse the output programmatically or store it for later use.
+公開時に `--json` フラグを指定して、JSON形式で出力を取得することも可能です。これは、出力をプログラム的に解析したり、後で使用するために保存したりしたい場合に便利です。
 
 ```bash
 $ sui client publish --gas-budget 100000000 --json
 ```
 
-### Using the Results
+### 結果の使用
 
-After the package is published on chain, we can interact with it. To do this, we need to find the
-address (object ID) of the package. It's under the `Published Objects` section of the
-`Object Changes` output. The address is unique for each package, so you will need to copy it from
-the output.
+パッケージがオンチェーンに公開された後、パッケージと相互作用できます。これを行うには、パッケージのアドレス（オブジェクトID）を見つける必要があります。これは、`Object Changes` 出力の `Published Objects` セクションにあります。アドレスは各パッケージに固有なので、出力からコピーする必要があります。
 
-In this example, the address is:
+この例では、アドレスは次のとおりです：
 
 ```plaintext
 0x468daa33dfcb3e17162bbc8928f6ec73744bb08d838d1b6eb94eac99269b29fe
 ```
 
-Now that we have the address, we can interact with the package. In the next section, we will show
-how to interact with the package by sending transactions.
+アドレスが分かったので、パッケージと相互作用できます。次のセクションでは、トランザクションを送信してパッケージと相互作用する方法を説明します。
 
-## Sending Transactions
+## トランザクションの送信
 
-To demonstrate the interaction with the `todo_list` package, we will send a transaction to create a
-new list and add an item to it. Transactions are sent via the `sui client ptb` command, it allows
-using the [Transaction Blocks](./../concepts/what-is-a-transaction) at full capacity. The command
-may look big and complex, but we go through it step by step.
+`todo_list` パッケージとの相互作用をデモンストレーションするために、新しいリストを作成してアイテムを追加するトランザクションを送信します。トランザクションは `sui client ptb` コマンド経由で送信され、[トランザクションブロック](./../concepts/what-is-a-transaction)を最大限に活用できます。コマンドは大きくて複雑に見えるかもしれませんが、ステップバイステップで進めます。
 
-### Prepare the Variables
+### 変数を準備する
 
-Before we construct the command, let's store the values we will use in the transaction. Replace the
-`0x4....` with the address of the package you have published. And `MY_ADDRESS` variable will be
-automatically set to your address from the CLI output.
+コマンドを構築する前に、トランザクションで使用する値を保存しましょう。`0x4....` を公開したパッケージのアドレスに置き換えてください。`MY_ADDRESS` 変数は、CLI出力からあなたのアドレスに自動的に設定されます。
 
 ```bash
 $ export PACKAGE_ID=0x468daa33dfcb3e17162bbc8928f6ec73744bb08d838d1b6eb94eac99269b29fe
 $ export MY_ADDRESS=$(sui client active-address)
 ```
 
-### Building the Transaction in CLI
+### CLIでトランザクションを構築する
 
-Now to building an actual transaction. The transaction will consist of two parts: we will call the
-`new` function in the `todo_list` package to create a new list, and then we will transfer the list
-object to our account. The transaction will look like this:
+次に、実際のトランザクションを構築します。トランザクションは2つの部分で構成されます：`todo_list` パッケージの `new` 関数を呼び出して新しいリストを作成し、次にリストオブジェクトを私たちのアカウントに転送します。トランザクションは次のようになります：
 
 ```bash
 $ sui client ptb \
@@ -408,45 +359,36 @@ $ sui client ptb \
 --transfer-objects "[list]" sender
 ```
 
-In this command, we are using the `ptb` subcommand to build a transaction. Parameters that follow it
-define the actual commands and actions that the transaction will perform. The first two calls we
-make are utility calls to set the sender address to the command inputs and set the gas budget for
-the transaction.
+このコマンドでは、`ptb` サブコマンドを使用してトランザクションを構築しています。それに続くパラメータは、トランザクションが実行する実際のコマンドとアクションを定義します。最初の2つの呼び出しは、送信者アドレスをコマンド入力に設定し、トランザクションのgas予算を設定するユーティリティ呼び出しです。
 
 ```bash
-# sets the gas budget for the transaction
+# トランザクションのgas予算を設定
 --gas-budget 100000000 \n
-# registers a variable "sender=@..."
+# 変数 "sender=@..." を登録
 --assign sender @$MY_ADDRESS \n
 ```
 
-Then we perform the actual call to a function in the package. We use the `--move-call` followed by
-the package ID, the module name, and the function name. In this case, we are calling the `new`
-function in the `todo_list` package.
+次に、パッケージ内の関数への実際の呼び出しを実行します。パッケージID、モジュール名、関数名に続いて `--move-call` を使用します。この場合、`todo_list` パッケージの `new` 関数を呼び出しています。
 
 ```bash
-# calls the "new" function in the "todo_list" package under the $PACKAGE_ID address
+# $PACKAGE_ID アドレス下の "todo_list" パッケージの "new" 関数を呼び出す
 --move-call $PACKAGE_ID::todo_list::new
 ```
 
-The function that we defined actually returns a value, which we want to store. We use the
-`--assign` command to give a name to the returned value. In this case, we are calling it `list`. And
-then we transfer the object to our account.
+定義した関数は実際に値を返すので、それを保存したいと思います。`--assign` コマンドを使用して、戻り値に名前を付けます。この場合、`list` と呼んでいます。その後、オブジェクトを私たちのアカウントに転送します。
 
 ```bash
 --move-call $PACKAGE_ID::todo_list::new \
-# assigns the result of the "new" function to the "list" variable (from the previous step)
+# "new" 関数の結果を "list" 変数に割り当て（前のステップから）
 --assign list \
-# transfers the object to the sender
+# オブジェクトを送信者に転送
 --transfer-objects "[list]" sender
 ```
 
-Once the command is constructed, you can run it in the terminal. If everything is correct, you
-should see the output similar to the one we had in previous sections. The output will contain the
-transaction digest, the transaction data, and the transaction effects.
+コマンドが構築されたら、ターミナルで実行できます。すべてが正しければ、前のセクションで見たものと似た出力が表示されるはずです。出力には、トランザクションダイジェスト、トランザクションデータ、およびトランザクション効果が含まれます。
 
 <details>
-<summary><a>Spoiler: Full transaction output</a></summary>
+<summary><a>ネタバレ：完全なトランザクション出力</a></summary>
 
 ```bash
 Transaction Digest: BJwYEnuuMzU4Y8cTwMoJbbQA6cLwPmwxvsRpSmvThoK8
@@ -569,9 +511,7 @@ Transaction Digest: BJwYEnuuMzU4Y8cTwMoJbbQA6cLwPmwxvsRpSmvThoK8
 
 </details>
 
-The section that we want to focus on is the "Object Changes". More specifically, the "Created
-Objects" part of it. It contains the object ID, the type and the version of the `TodoList` that you
-have created. We will use this object ID to interact with the list.
+私たちが注目したいセクションは "Object Changes" です。より具体的には、その "Created Objects" 部分です。作成した `TodoList` のオブジェクトID、タイプ、バージョンが含まれています。このオブジェクトIDを使用してリストと相互作用します。
 
 ```bash
 ╭───────────────────────────────────────────────────────────────────────────────────────────────────────╮
@@ -598,18 +538,16 @@ have created. We will use this object ID to interact with the list.
 ╰───────────────────────────────────────────────────────────────────────────────────────────────────────╯
 ```
 
-In this example the object ID is
-`0x20e0bede16de8a728ab25e228816b9059b45ebea49c8ad384e044580b2d3e553`. And the owner should be your
-account address. We achieved this by transferring the object to the sender in the last command of
-the transaction.
+この例では、オブジェクトIDは
+`0x20e0bede16de8a728ab25e228816b9059b45ebea49c8ad384e044580b2d3e553` です。そして、所有者はあなたのアカウントアドレスであるべきです。これは、トランザクションの最後のコマンドでオブジェクトを送信者に転送することで達成しました。
 
-Another way to test that you have successfully created the list is to check the account objects.
+リストの作成に成功したことをテストする別の方法は、アカウントオブジェクトを確認することです。
 
 ```bash
 $ sui client objects
 ```
 
-It should have an object that looks similar to this:
+次のようなオブジェクトがあるはずです：
 
 ```plaintext
 ╭  ...                                                                                  ╮
@@ -622,21 +560,17 @@ It should have an object that looks similar to this:
 |  ...                                                                                  |
 ```
 
-### Passing Objects to Functions
+### オブジェクトを関数に渡す
 
-The TodoList that we created in the previous step is an object that you can interact with as its
-owner. You can call functions defined in the `todo_list` module on this object. To demonstrate this,
-we will add an item to the list. First, we will add just one item, and in the second transaction we
-will add 3 and remove another one.
+前のステップで作成したTodoListは、所有者として相互作用できるオブジェクトです。このオブジェクトに対して、`todo_list` モジュールで定義された関数を呼び出すことができます。これをデモンストレーションするために、リストにアイテムを追加します。まず1つのアイテムだけを追加し、2番目のトランザクションでは3つ追加して、1つを削除します。
 
-Double check that you have variables set up [from the previous step](#prepare-the-variables), and
-then add one more variable for the list object.
+[前のステップ](#prepare-the-variables)で変数が設定されていることを再度確認し、リストオブジェクト用の変数をもう1つ追加します。
 
 ```bash
 $ export LIST_ID=0x20e0bede16de8a728ab25e228816b9059b45ebea49c8ad384e044580b2d3e553
 ```
 
-Now we can construct the transaction to add an item to the list. The command will look like this:
+今度は、リストにアイテムを追加するトランザクションを構築できます。コマンドは次のようになります：
 
 ```bash
 $ sui client ptb \
@@ -644,18 +578,16 @@ $ sui client ptb \
 --move-call $PACKAGE_ID::todo_list::add @$LIST_ID "'Finish the Hello, Sui chapter'"
 ```
 
-In this command, we are calling the `add` function in the `todo_list` package. The function takes
-two arguments: the list object and the item to add. The item is a string, so we need to wrap it in
-single quotes. The command will add the item to the list.
+このコマンドでは、`todo_list` パッケージの `add` 関数を呼び出しています。この関数は2つの引数を取ります：リストオブジェクトと追加するアイテムです。アイテムは文字列なので、シングルクォートで囲む必要があります。コマンドはリストにアイテムを追加します。
 
-If everything is correct, you should see the output similar to the one we had in previous sections.
-Now you can check the list object to see if the item was added.
+すべてが正しければ、前のセクションで見たものと似た出力が表示されるはずです。
+今度は、リストオブジェクトを確認して、アイテムが追加されたかどうか確認できます。
 
 ```bash
 $ sui client object $LIST_ID
 ```
 
-The output should contain the item that you have added.
+出力には、追加したアイテムが含まれているはずです。
 
 ```plaintext
 ╭───────────────┬───────────────────────────────────────────────────────────────────────────────────────────────────────────────────╮
@@ -684,7 +616,7 @@ The output should contain the item that you have added.
 ╰───────────────┴───────────────────────────────────────────────────────────────────────────────────────────────────────────────────╯
 ```
 
-A JSON representation of the object can be obtained by adding the `--json` flag to the command.
+オブジェクトのJSON表現は、コマンドに `--json` フラグを追加することで取得できます。
 
 ```bash
 $ sui client object $LIST_ID --json
@@ -715,11 +647,10 @@ $ sui client object $LIST_ID --json
 }
 ```
 
-### Chaining Commands
+### コマンドの連鎖
 
-You can chain multiple commands in a single transaction. This shows the power of Transaction Blocks!
-Using the same list object, we will add three more items and remove one. The command will look like
-this:
+単一のトランザクションで複数のコマンドを連鎖することができます。これはトランザクションブロックの威力を示しています！
+同じリストオブジェクトを使用して、3つのアイテムを追加し、1つを削除します。コマンドは次のようになります：
 
 ```bash
 $ sui client ptb \
@@ -730,8 +661,7 @@ $ sui client ptb \
 --move-call $PACKAGE_ID::todo_list::remove @$LIST_ID 0
 ```
 
-If previous commands were successful, this one should not be any different. You can check the list
-object to see if the items were added and removed. The JSON representation is a bit more readable!
+前のコマンドが成功していれば、このコマンドも何ら変わりはないはずです。リストオブジェクトを確認して、アイテムが追加され、削除されたかどうか確認できます。JSON表現の方が少し読みやすいです！
 
 ```bash
 sui client object $LIST_ID --json
@@ -766,13 +696,8 @@ sui client object $LIST_ID --json
 }
 ```
 
-Commands don't have to be in the same package or operate on the same object. Within a single
-transaction block, you can interact with multiple packages and objects. This is a powerful feature
-that allows you to build complex interactions on-chain!
+コマンドは同じパッケージ内である必要はなく、同じオブジェクトで動作する必要もありません。単一のトランザクションブロック内で、複数のパッケージやオブジェクトと相互作用できます。これは、オンチェーンで複雑な相互作用を構築できる強力な機能です！
 
-## Conclusion
+## 結論
 
-In this guide, we have shown how to publish a package on the Move blockchain and interact with it
-using the Sui CLI. We have demonstrated how to create a new list object, add items to it, and remove
-them. We have also shown how to chain multiple commands in a single transaction block. This guide
-should give you a good starting point for building your own applications on the Sui blockchain!
+このガイドでは、Moveブロックチェーンにパッケージを公開し、Sui CLIを使用してそれと相互作用する方法を説明しました。新しいリストオブジェクトを作成し、それにアイテムを追加し、削除する方法をデモンストレーションしました。また、単一のトランザクションブロックで複数のコマンドを連鎖する方法も説明しました。このガイドは、Suiブロックチェーン上で独自のアプリケーションを構築するための良い出発点を提供するはずです！

@@ -1,7 +1,3 @@
-# Concepts
+# 概念（Concepts）
 
-In this chapter you will learn about the basic concepts of Sui and Move. You will learn what is a
-package, how to interact with it, what is an account and a transaction, and how data is stored on
-Sui. While this chapter is not a complete reference, and you should refer to the
-[Sui Documentation](https://docs.sui.io) for that, it will give you a good understanding of the
-basic concepts required to write Move programs on Sui.
+この章では、SuiとMoveの基本概念について学習します。パッケージとは何か、どのように操作するか、アカウントやトランザクションとは何か、そしてSui上でデータがどのように保存されるかを学びます。この章は完全なリファレンスではありませんが（完全なリファレンスについては[Sui Documentation](https://docs.sui.io)を参照してください）、Sui上でMoveプログラムを書くために必要な基本概念の良い理解を得ることができます。

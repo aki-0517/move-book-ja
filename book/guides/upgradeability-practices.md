@@ -1,73 +1,64 @@
-# Upgradeability Practices
+# アップグレード可能性の実践
 
-To talk about best practices for upgradeability, we need to first understand what can be upgraded in
-a package. The base premise of upgradeability is that an upgrade should not break public
-compatibility with the previous version. The parts of the module which can be used in dependent
-packages should not change their static signature. This applies to modules - a module can not be
-removed from a package, public structs - they can be used in function signatures and public
-functions - they can be called from other packages.
+アップグレード可能性のベストプラクティスについて話すには、まずパッケージで何がアップグレードできるかを理解する必要があります。アップグレード可能性の基本前提は、アップグレードが前のバージョンとのパブリック互換性を破らないことです。依存パッケージで使用できるモジュールの部分は、静的シグネチャを変更してはいけません。これはモジュール（モジュールはパッケージから削除できません）、パブリック構造体（関数シグネチャで使用できます）、パブリック関数（他のパッケージから呼び出せます）に適用されます。
 
 ```move
-// module can not be removed from the package
+// モジュールはパッケージから削除できません
 module book::upgradable;
 
-// dependencies can be changed (if they are not used in public signatures)
+// 依存関係は変更できます（パブリックシグネチャで使用されていない場合）
 use std::string::String;
-use sui::event; // can be removed
+use sui::event; // 削除可能
 
-// public structs can not be removed and can't be changed
+// パブリック構造体は削除できず、変更できません
 public struct Book has key {
     id: UID,
     title: String,
 }
 
-// public structs can not be removed and can't be changed
+// パブリック構造体は削除できず、変更できません
 public struct BookCreated has copy, drop {
     /* ... */
 }
 
-// public functions can not be removed and their signature can never change
-// but the implementation can be changed
+// パブリック関数は削除できず、シグネチャは決して変更できません
+// しかし、実装は変更できます
 public fun create_book(ctx: &mut TxContext): Book {
     create_book_internal(ctx)
 
-    // can be removed and changed
+    // 削除および変更可能
     event::emit(BookCreated {
         /* ... */
     })
 }
 
-// package-visibility functions can be removed and changed
+// パッケージ可視性関数は削除および変更可能
 public(package) fun create_book_package(ctx: &mut TxContext): Book {
     create_book_internal(ctx)
 }
 
-// entry functions can be removed and changed as long as they're not public
+// エントリ関数は、パブリックでない限り削除および変更可能
 entry fun create_book_entry(ctx: &mut TxContext): Book {
     create_book_internal(ctx)
 }
 
-// private functions can be removed and changed
+// プライベート関数は削除および変更可能
 fun create_book_internal(ctx: &mut TxContext): Book {
     abort
 }
 ```
 
 <!--
-## Using entry and friend functions
+## エントリとフレンド関数の使用
 
-TODO: Add a section about entry and friend functions
+TODO: エントリとフレンド関数についてのセクションを追加
 -->
 
-## Versioning objects
+## オブジェクトのバージョニング
 
-<!-- This practice is for function version locking based on a shared state -->
+<!-- この実践は、共有状態に基づく関数バージョンロック用です -->
 
-To discard previous versions of the package, the objects can be versioned. As long as the object
-contains a version field, and the code which uses the object expects and asserts a specific version,
-the code can be force-migrated to the new version. Normally, after an upgrade, admin functions can
-be used to update the version of the shared state, so that the new version of code can be used, and
-the old version aborts with a version mismatch.
+パッケージの以前のバージョンを破棄するために、オブジェクトをバージョニングできます。オブジェクトにバージョンフィールドが含まれ、オブジェクトを使用するコードが特定のバージョンを期待し、アサートする限り、コードを新しいバージョンに強制移行できます。通常、アップグレード後、管理者関数を使用して共有状態のバージョンを更新し、新しいバージョンのコードを使用できるようにし、古いバージョンはバージョンの不一致でアボートするようにできます。
 
 ```move
 module book::versioned_state;
@@ -76,7 +67,7 @@ const EVersionMismatch: u64 = 0;
 
 const VERSION: u8 = 1;
 
-/// The shared state (can be owned too)
+/// 共有状態（所有することも可能）
 public struct SharedState has key {
     id: UID,
     version: u8,
@@ -89,14 +80,11 @@ public fun mutate(state: &mut SharedState) {
 }
 ```
 
-## Versioning configuration with dynamic fields
+## 動的フィールドによる設定のバージョニング
 
-<!-- This practice is for versioning the contents / structure of objects -->
+<!-- この実践は、オブジェクトの内容/構造のバージョニング用です -->
 
-There's a common pattern in Sui which allows changing the stored configuration of an object while
-retaining the same object signature. This is done by keeping the base object simple and versioned
-and adding an actual configuration object as a dynamic field. Using this _anchor_ pattern, the
-configuration can be changed with package upgrades while keeping the same base object signature.
+Suiには、同じオブジェクトシグネチャを保持しながら、オブジェクトの保存された設定を変更できる一般的なパターンがあります。これは、ベースオブジェクトをシンプルでバージョン管理された状態に保ち、実際の設定オブジェクトを動的フィールドとして追加することで実現されます。この_アンカー_パターンを使用することで、同じベースオブジェクトシグネチャを保持しながら、パッケージアップグレードで設定を変更できます。
 
 ```move
 module book::versioned_config;
@@ -104,13 +92,13 @@ module book::versioned_config;
 use sui::vec_map::VecMap;
 use std::string::String;
 
-/// The base object
+/// ベースオブジェクト
 public struct Config has key {
     id: UID,
     version: u16
 }
 
-/// The actual configuration
+/// 実際の設定
 public struct ConfigV1 has store {
     data: Bag,
     metadata: VecMap<String, String>
@@ -119,6 +107,6 @@ public struct ConfigV1 has store {
 // ...
 ```
 
-<!-- ## Modular architecture -->
+<!-- ## モジュラーアーキテクチャ -->
 
-<!-- TODO: add two patterns for modular architecture: object capability (SuiFrens) and witness registry (SuiNS) -->
+<!-- TODO: モジュラーアーキテクチャの2つのパターンを追加：オブジェクト能力（SuiFrens）とウィットネスレジストリ（SuiNS） -->

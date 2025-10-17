@@ -1,23 +1,19 @@
 ---
-title: 'Friends | Reference'
+title: 'Friends | リファレンス'
 description: ''
 ---
 
-# DEPRECATED: Friends
+# 非推奨: Friends
 
-NOTE: this feature has been superseded by [`public(package)`](./functions#visibility).
+注意: この機能は[`public(package)`](./functions#visibility)に置き換えられました。
 
-The `friend` syntax was used to declare modules that are trusted by the current module. A trusted
-module is allowed to call any function defined in the current module that have the `public(friend)`
-visibility. For details on function visibilities, refer to the _Visibility_ section in
-[Functions](./functions).
+`friend`構文は、現在のモジュールによって信頼されるモジュールを宣言するために使用されていました。信頼されたモジュールは、`public(friend)`可視性を持つ現在のモジュールで定義された任意の関数を呼び出すことができます。関数の可視性の詳細については、[Functions](./functions)の_Visibility_セクションを参照してください。
 
-## Friend declaration
+## Friend宣言
 
-A module can declare other modules as friends via friend declaration statements, in the format of
+モジュールは、friend宣言文を使用して他のモジュールをfriendsとして宣言できます。形式は以下の通りです：
 
-- `friend <address::name>` — friend declaration using fully qualified module name like the example
-  below, or
+- `friend <address::name>` — 以下の例のように完全修飾モジュール名を使用したfriend宣言、または
 
   ```move
   module 0x42::a {
@@ -25,8 +21,7 @@ A module can declare other modules as friends via friend declaration statements,
   }
   ```
 
-- `friend <module-name-alias>` — friend declaration using a module name alias, where the module
-  alias is introduced via the `use` statement.
+- `friend <module-name-alias>` — モジュール名エイリアスを使用したfriend宣言。モジュールエイリアスは`use`文で導入されます。
 
   ```move
   module 0x42::a {
@@ -35,9 +30,7 @@ A module can declare other modules as friends via friend declaration statements,
   }
   ```
 
-A module may have multiple friend declarations, and the union of all the friend modules forms the
-friend list. In the example below, both `0x42::B` and `0x42::C` are considered as friends of
-`0x42::A`.
+モジュールは複数のfriend宣言を持つことができ、すべてのfriendモジュールの和集合がfriendリストを形成します。以下の例では、`0x42::B`と`0x42::C`の両方が`0x42::A`のfriendsと見なされます。
 
 ```move
 module 0x42::a;
@@ -46,48 +39,41 @@ friend 0x42::b;
 friend 0x42::c;
 ```
 
-Unlike `use` statements, `friend` can only be declared in the module scope and not in the expression
-block scope. `friend` declarations may be located anywhere a top-level construct (e.g., `use`,
-`function`, `struct`, etc.) is allowed. However, for readability, it is advised to place friend
-declarations near the beginning of the module definition.
+`use`文とは異なり、`friend`はモジュールスコープでのみ宣言でき、式ブロックスコープでは宣言できません。`friend`宣言は、トップレベル構文（例：`use`、`function`、`struct`など）が許可される場所であればどこにでも配置できます。ただし、可読性のために、friend宣言をモジュール定義の開始近くに配置することをお勧めします。
 
-### Friend declaration rules
+### Friend宣言ルール
 
-Friend declarations are subject to the following rules:
+Friend宣言は以下のルールに従います：
 
-- A module cannot declare itself as a friend.
+- モジュールは自分自身をfriendとして宣言できません。
 
   ```move
   module 0x42::m { friend Self; // ERROR! }
-  //                      ^^^^ Cannot declare the module itself as a friend
+  //                      ^^^^ モジュール自体をfriendとして宣言することはできません
 
   module 0x43::m { friend 0x43::M; // ERROR! }
-  //                      ^^^^^^^ Cannot declare the module itself as a friend
+  //                      ^^^^^^^ モジュール自体をfriendとして宣言することはできません
   ```
 
-- Friend modules must be known by the compiler
+- Friendモジュールはコンパイラによって認識されている必要があります
 
   ```move
   module 0x42::m { friend 0x42::nonexistent; // ERROR! }
-  //                      ^^^^^^^^^^^^^^^^^ Unbound module '0x42::nonexistent'
+  //                      ^^^^^^^^^^^^^^^^^ 未バインドモジュール '0x42::nonexistent'
   ```
 
-- Friend modules must be within the same account address.
+- Friendモジュールは同じアカウントアドレス内にある必要があります。
 
   ```move
   module 0x42::m {}
 
   module 0x42::n { friend 0x42::m; // ERROR! }
-  //                      ^^^^^^^ Cannot declare modules out of the current address as a friend
+  //                      ^^^^^^^ 現在のアドレス外のモジュールをfriendとして宣言することはできません
   ```
 
-- Friends relationships cannot create cyclic module dependencies.
+- Friends関係は循環モジュール依存関係を作成できません。
 
-  Cycles are not allowed in the friend relationships, e.g., the relation `0x2::a` friends `0x2::b`
-  friends `0x2::c` friends `0x2::a` is not allowed. More generally, declaring a friend module adds a
-  dependency upon the current module to the friend module (because the purpose is for the friend to
-  call functions in the current module). If that friend module is already used, either directly or
-  transitively, a cycle of dependencies would be created.
+  friend関係では循環は許可されません。例えば、`0x2::a` friends `0x2::b` friends `0x2::c` friends `0x2::a`の関係は許可されません。より一般的には、friendモジュールを宣言すると、friendモジュールに対する現在のモジュールの依存関係が追加されます（目的はfriendが現在のモジュールの関数を呼び出すことだからです）。そのfriendモジュールが既に使用されている場合、直接的または推移的に、依存関係の循環が作成されることになります。
 
   ```move
   module 0x2::a {
@@ -101,7 +87,7 @@ Friend declarations are subject to the following rules:
 
   module 0x2::b {
       friend 0x2::c; // ERROR!
-  //         ^^^^^^ This friend relationship creates a dependency cycle: '0x2::b' is a friend of '0x2::a' uses '0x2::c' is a friend of '0x2::b'
+  //         ^^^^^^ このfriend関係は依存関係の循環を作成します: '0x2::b' は '0x2::a' のfriendで、'0x2::a' は '0x2::c' を使用し、'0x2::c' は '0x2::b' のfriendです
   }
 
   module 0x2::c {
@@ -109,7 +95,7 @@ Friend declarations are subject to the following rules:
   }
   ```
 
-- The friend list for a module cannot contain duplicates.
+- モジュールのfriendリストに重複を含めることはできません。
 
   ```move
   module 0x42::a {}
@@ -118,6 +104,6 @@ Friend declarations are subject to the following rules:
       use 0x42::a as aliased_a;
       friend 0x42::A;
       friend aliased_a; // ERROR!
-  //         ^^^^^^^^^ Duplicate friend declaration '0x42::a'. Friend declarations in a module must be unique
+  //         ^^^^^^^^^ 重複するfriend宣言 '0x42::a'。モジュール内のfriend宣言は一意である必要があります
   }
   ```

@@ -1,63 +1,55 @@
-# Install Sui
+# Suiのインストール
 
-Move is a compiled language, so you need to install a compiler to be able to write and run Move
-programs. The compiler is included into the Sui binary, which can be installed or downloaded using
-one of the methods below.
+Moveはコンパイル言語のため、Moveプログラムを書いて実行するためにはコンパイラをインストールする必要があります。コンパイラはSuiバイナリに含まれており、以下の方法のいずれかを使用してインストールまたはダウンロードできます。
 
-## Installing via suiup
+## suiupを使ったインストール
 
-The best way to install Sui is by using [`suiup`](https://github.com/MystenLabs/suiup). It provides a simple way to install binaries and to manage different versions of binaries for
-different environments (e.g. `testnet` and `mainnet`).
+Suiをインストールする最良の方法は[`suiup`](https://github.com/MystenLabs/suiup)を使用することです。異なる環境（例：`testnet`と`mainnet`）用のバイナリをインストールし、異なるバージョンのバイナリを管理するシンプルな方法を提供します。
 
-Installation instructions for `suiup` can be found
-[in the repository README](https://github.com/MystenLabs/suiup).
+`suiup`のインストール手順は[リポジトリのREADME](https://github.com/MystenLabs/suiup)にあります。
 
-To install Sui, run the following command:
+Suiをインストールするには、以下のコマンドを実行します：
 
 ```bash
 suiup install sui
 ```
 
-## Download Binary
+## バイナリのダウンロード
 
-You can download the latest Sui binary from the
-[releases page](https://github.com/MystenLabs/sui/releases). The binary is available for macOS,
-Linux and Windows. For education purposes and development, we recommend using the `mainnet` version.
+最新のSuiバイナリは[リリースページ](https://github.com/MystenLabs/sui/releases)からダウンロードできます。バイナリはmacOS、Linux、Windows用が利用可能です。教育目的や開発には、`mainnet`版の使用をお勧めします。
 
-## Install Using Homebrew (MacOS)
+## Homebrewを使ったインストール（MacOS）
 
-You can install Sui using the [Homebrew](https://brew.sh/) package manager.
+[Homebrew](https://brew.sh/)パッケージマネージャーを使ってSuiをインストールできます。
 
 ```bash
 brew install sui
 ```
 
-## Install Using Chocolatey (Windows)
+## Chocolateyを使ったインストール（Windows）
 
-You can install Sui using the [Chocolatey](https://chocolatey.org/install) package manager for
-Windows.
+Windows用の[Chocolatey](https://chocolatey.org/install)パッケージマネージャーを使ってSuiをインストールできます。
 
 ```bash
 choco install sui
 ```
 
-## Build Using Cargo (MacOS, Linux)
+## Cargoを使ったビルド（MacOS、Linux）
 
-You can install and build Sui locally by using the Cargo package manager (requires Rust)
+Cargoパッケージマネージャーを使ってSuiをローカルでインストール・ビルドできます（Rustが必要）
 
 ```bash
 cargo install --git https://github.com/MystenLabs/sui.git sui --branch mainnet
 ```
 
-Change the branch target here to `testnet` or `devnet` if you are targeting one of those.
+これらのいずれかをターゲットにしている場合は、ここでブランチターゲットを`testnet`または`devnet`に変更してください。
 
-Make sure that your system has the latest Rust versions with the command below.
+以下のコマンドでシステムに最新のRustバージョンがあることを確認してください。
 
 ```bash
 rustup update stable
 ```
 
-## Troubleshooting
+## トラブルシューティング
 
-For troubleshooting the installation process, please refer to the
-[Install Sui](https://docs.sui.io/guides/developer/getting-started/sui-install) Guide.
+インストールプロセスのトラブルシューティングについては、[Install Sui](https://docs.sui.io/guides/developer/getting-started/sui-install) ガイドを参照してください。

@@ -1,73 +1,76 @@
-# One Time Witness
+# ワンタイムウィットネス
 
-While regular [Witness](./witness-pattern) is a great way to statically prove the ownership of a
-type, there are cases where we need to ensure that a Witness is instantiated only once. And this is
-the purpose of the One Time Witness (OTW).
+通常の[Witness](./witness-pattern)は型の所有権を静的に証明する優れた方法ですが、
+Witnessが一度だけインスタンス化されることを保証する必要がある場合があります。
+これがワンタイムウィットネス（OTW）の目的です。
 
 <!--
-Notes to self:
-  - background first or definition first - which one is better?
-  - why would someone read this section?
-  - if we removed the OTW from docs, then we should give definition first.
+自己へのメモ：
+  - 背景を最初にするか定義を最初にするか - どちらが良いか？
+  - なぜ誰かがこのセクションを読むのか？
+  - ドキュメントからOTWを削除した場合、定義を最初に与えるべき。
 -->
 
-## Definition
+## 定義
 
-The OTW is a special type of Witness that can be used only once. It cannot be manually created and
-it is guaranteed to be unique per module. Sui Adapter treats a type as an OTW if it follows these
-rules:
+OTWは一度だけ使用できる特別なタイプのWitnessです。手動で作成することはできず、
+モジュールごとに一意であることが保証されています。Sui Adapterは、以下のルールに従う型を
+OTWとして扱います：
 
-1. Has only `drop` ability.
-2. Has no fields.
-3. Is not a generic type.
-4. Named after the module with all uppercase letters.
+1. `drop`アビリティのみを持つ。
+2. フィールドを持たない。
+3. ジェネリック型ではない。
+4. モジュール名をすべて大文字で命名する。
 
-Here is an example of an OTW:
+以下がOTWの例です：
 
 ```move file=packages/samples/sources/programmability/one-time-witness.move anchor=definition
 
 ```
 
-The OTW cannot be constructed manually, and any code attempting to do so will result in a
-compilation error. The OTW can be received as the first argument in the
-[module initializer](./module-initializer). And because the `init` function is called only once per
-module, the OTW is guaranteed to be instantiated only once.
+OTWは手動で構築することはできず、そうしようとするコードはコンパイルエラーになります。
+OTWは[モジュールイニシャライザー](./module-initializer)の最初の引数として受け取ることができます。
+`init`関数はモジュールごとに一度だけ呼び出されるため、OTWは一度だけインスタンス化されることが
+保証されています。
 
-## Enforcing the OTW
+## OTWの強制
 
-To check if a type is an OTW, `sui::types` module of the [Sui Framework](./sui-framework) offers a
-special function `is_one_time_witness` that can be used to check if the type is an OTW.
+型がOTWかどうかをチェックするために、[Sui Framework](./sui-framework)の`sui::types`モジュールは
+型がOTWかどうかをチェックするために使用できる特別な関数`is_one_time_witness`を提供します。
 
 ```move file=packages/samples/sources/programmability/one-time-witness.move anchor=usage
 
 ```
 
-<!-- ## Background
+<!-- ## 背景
 
-Before we get to actual definition of the OTW, let's consider a simple example. We want to build a generic implementation of a Coin type, which can be initialized with a witness. A instance of a witness `T` is used to create a new `TreasuryCap<T>` which is then used to mint a new `Coin<T>`.
+OTWの実際の定義に到達する前に、簡単な例を考えてみましょう。ウィットネスで初期化できる
+Coin型のジェネリック実装を構築したいと思います。ウィットネス`T`のインスタンスは、
+新しい`TreasuryCap<T>`を作成するために使用され、その後新しい`Coin<T>`をミントするために
+使用されます。
 
 ```move
 module book::simple_coin {
 
-    /// Controls the supply of the Coin.
+    /// Coinの供給を制御します。
     public struct TreasuryCap<phantom T> has key, store {
         id: UID,
         total_supply: u64,
     }
 
-    /// The Coin type where the `T` is a witness.
+    /// `T`がウィットネスであるCoin型。
     public struct Coin<phantom T> has key, store {
         id: UID,
         value: u64,
     }
 
-    /// Create a new TreasuryCap with a witness.
-    /// Vulnerable: we can create multiple TreasuryCap<T> with the same witness.
+    /// ウィットネスで新しいTreasuryCapを作成します。
+    /// 脆弱：同じウィットネスで複数のTreasuryCap<T>を作成できます。
     public fun new<T: drop>(_: T, ctx: &mut TxContext): TreasuryCap<T> {
         TreasuryCap { id: object::new(ctx), total_supply: 0 }
     }
 
-    /// We use a regular witness to authorize the minting.
+    /// ミンティングを承認するために通常のウィットネスを使用します。
     public fun mint<T>(
         treasury: &mut TreasuryCap<T>,
         value: u64,
@@ -79,15 +82,16 @@ module book::simple_coin {
 }
 ```
 
-A dishonest developer would be able to create multiple `TreasuryCap`s with the same witness, and mint more `Coin`s than expected. Here is an example of such a malicious module:
+不正な開発者は、同じウィットネスで複数の`TreasuryCap`を作成し、予想よりも多くの`Coin`を
+ミントできるでしょう。以下は、そのような悪意のあるモジュールの例です：
 
 ```move
 module book::simple_coin_cheater {
-    /// The Coin witness.
+    /// Coinウィットネス。
     public struct Move has drop {}
 
-    /// Initialize the TreasuryCap with the Move witness.
-    /// ...and do it twice! >_<
+    /// MoveウィットネスでTreasuryCapを初期化します。
+    /// ...そして2回実行します！>_<
     fun init(ctx: &mut TxContext) {
         let treasury_cap = book::simple_coin::new(Move {}, ctx);
         let secret_treasury = book::simple_coin::new(Move {}, ctx);
@@ -99,17 +103,23 @@ module book::simple_coin_cheater {
 
 ```
 
-The example above has no protection against issuing multiple `TreasuryCap`s with the same witness, and in real-world application, this creates a problem of trust. If it was a human decision to support a Coin based on this implementation, they would have to make sure that:
+上記の例では、同じウィットネスで複数の`TreasuryCap`を発行することに対する保護がなく、
+実際のアプリケーションでは、これは信頼の問題を生み出します。この実装に基づいて
+Coinをサポートするという人間の決定だった場合、以下を確認する必要があります：
 
-- there is only one `TreasuryCap` for a given `T`.
-- the module cannot be upgraded to issue more `TreasuryCap`s.
-- the module code does not contain any backdoors to issue more `TreasuryCap`s.
+- 与えられた`T`に対して`TreasuryCap`は1つだけ存在する。
+- モジュールはアップグレードしてより多くの`TreasuryCap`を発行できない。
+- モジュールコードには、より多くの`TreasuryCap`を発行するバックドアが含まれていない。
 
-However, it is not possible to check any of these conditions inside the Move code. And to prevent the need for trust, Sui introduces the OTW pattern.
+しかし、Moveコード内でこれらの条件のいずれかをチェックすることは不可能です。
+そして、信頼の必要性を防ぐために、SuiはOTWパターンを導入します。
 
-## Solving the Coin Problem
+## Coin問題の解決
 
-To solve the case of multiple `TreasuryCap`s, we can use the OTW pattern. By defining the `COIN_OTW` type as an OTW, we can ensure that the `COIN_OTW` is used only once. The `COIN_OTW` is then used to create a new `TreasuryCap` and mint a new `Coin`.
+複数の`TreasuryCap`のケースを解決するために、OTWパターンを使用できます。
+`COIN_OTW`型をOTWとして定義することで、`COIN_OTW`が一度だけ使用されることを
+保証できます。`COIN_OTW`はその後、新しい`TreasuryCap`を作成し、新しい`Coin`を
+ミントするために使用されます。
 
 ```move
 
@@ -118,10 +128,10 @@ With
 ```move
 module book::coin_otw {
 
-    /// The OTW for the `book::coin_otw` module.
+    /// `book::coin_otw`モジュールのOTW。
     struct COIN_OTW has drop {}
 
-    /// Receive the instance of `COIN_OTW` as the first argument.
+    /// 最初の引数として`COIN_OTW`のインスタンスを受け取ります。
     fun init(otw: COIN_OTW, ctx: &mut TxContext) {
         let treasury_cap = book::simple_coin::new(COIN_OTW {}, ctx);
         transfer::public_transfer(treasury_cap, ctx.sender())
@@ -132,27 +142,27 @@ module book::coin_otw {
 
  -->
 
-<!-- ## Case Study: Coin
+<!-- ## ケーススタディ：Coin
 
-TODO: add a story behind TreasuryCap and Coin
+TODO: TreasuryCapとCoinの背後にあるストーリーを追加
 
 -->
 
-## Summary
+## まとめ
 
-The OTW pattern is a great way to ensure that a type is used only once. Most of the developers
-should understand how to define and receive the OTW, while the OTW checks and enforcement is mostly
-needed in libraries and frameworks. For example, the `sui::coin` module requires an OTW in the
-`coin::create_currency` method, therefore enforcing that the `coin::TreasuryCap` is created only
-once.
+OTWパターンは、型が一度だけ使用されることを保証する優れた方法です。ほとんどの開発者は
+OTWを定義し受け取る方法を理解する必要がありますが、OTWチェックと強制は主に
+ライブラリとフレームワークで必要です。例えば、`sui::coin`モジュールは
+`coin::create_currency`メソッドでOTWを要求するため、`coin::TreasuryCap`が一度だけ
+作成されることを強制します。
 
-OTW is a powerful tool that lays the foundation for the [Publisher](./publisher) object, which we
-will cover in the next section.
+OTWは、次のセクションで説明する[Publisher](./publisher)オブジェクトの基盤を築く
+強力なツールです。
 
 <!--
 
-## Questions
-- What other ways could be used to prevent multiple `TreasuryCap`s?
-- Are there any other ways to use the OTW?
+## 質問
+- 複数の`TreasuryCap`を防ぐために他にどのような方法が使用できるか？
+- OTWを使用する他の方法はあるか？
 
  -->

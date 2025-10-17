@@ -1,163 +1,160 @@
 ---
 id: overview
-title: Overview
+title: 概要
 sidebar_label: Move
 ---
 
-Move is a next generation language for secure asset programming. Its primary use case is in
-blockchain environments, where Move programs are used to construct state changes. Move allows
-developers to write programs that flexibly manage and transfer assets, while providing the security
-and protections against attacks on those assets.
+Moveは安全なアセットプログラミングのための次世代言語です。主な用途はブロックチェーン環境で、Moveプログラムは状態変更を構築するために使用されます。Moveにより、開発者はアセットを柔軟に管理・転送するプログラムを書きつつ、それらのアセットに対する攻撃からのセキュリティと保護を提供できます。
 
-### Start Here
+### ここから始める
 
 <CardsWrapper>
   <SimpleTextCard
     icon="img/introduction-to-move.svg"
     iconDark="img/introduction-to-move-dark.svg"
-    overlay="Understand Move’s background, current status and architecture"
-    title="Introduction"
+    overlay="Moveの背景、現状、アーキテクチャを理解する"
+    title="はじめに"
     to="/docs/move/move-introduction"
   />
   <SimpleTextCard
     icon="img/modules.svg"
     iconDark="img/modulesdark.svg"
-    overlay="Understand Move Modules"
-    title="Modules "
+    overlay="Moveモジュールを理解する"
+    title="モジュール "
     to="/docs/move/move-modules"
   />
 </CardsWrapper>
 
-### Primitive Types
+### プリミティブ型
 
 <CardsWrapper>
   <SimpleTextCard
     icon="img/integers-bool.svg"
     iconDark="img/integers-bool-dark.svg"
-    overlay="Move supports three unsigned integer types: u8, u64, and u128"
-    title="Integers"
+    overlay="Moveは3つの符号なし整数型をサポートします：u8、u64、u128"
+    title="整数"
     to="/docs/move/move-integers"
   />
   <SimpleTextCard
     icon="img/integers-bool.svg"
     iconDark="img/integers-bool-dark.svg"
-    overlay="bool is Move's primitive type for boolean true and false values."
+    overlay="boolはMoveのプリミティブ型で、真偽値のtrue、falseを表します。"
     title="Bool"
     to="/docs/move/move-bool"
   />
   <SimpleTextCard
     icon="img/address.svg"
     iconDark="img/address-dark.svg"
-    overlay="address is a built-in type in Move that is used to represent locations in storage"
+    overlay="addressはMoveの組み込み型で、ストレージ内の場所を表すために使用されます"
     title="Address"
     to="/docs/move/move-address"
   />
   <SimpleTextCard
     icon="img/vector.svg"
     iconDark="img/vector-dark.svg"
-    overlay="vector<T> is the only primitive collection type provided by Move"
+    overlay="vector<T>はMoveが提供する唯一のプリミティブコレクション型です"
     title="Vector"
     to="/docs/move/move-vector"
   />
   <SimpleTextCard
     icon="img/move-references.svg"
     iconDark="img/move-references-dark.svg"
-    overlay="Move has two types of references: immutable & and mutable &mut"
-    title="References"
+    overlay="Moveには2種類の参照があります：不変参照&と可変参照&mut"
+    title="参照"
     to="/docs/move/move-references"
   />
   <SimpleTextCard
     icon="img/tuples.svg"
     iconDark="img/tuples-dark.svg"
-    overlay="In order to support multiple return values, Move has tuple-like expressions. We can consider unit() to be an empty tuple"
-    title="Tuples and Unit"
+    overlay="複数の戻り値をサポートするため、Moveにはタプルのような式があります。unit()は空のタプルと考えることができます"
+    title="タプルとUnit"
     to="/docs/move/move-tuples-and-unit"
   />
 </CardsWrapper>
 
-### Basic Concepts
+### 基本概念
 
 <CardsWrapper>
   <SimpleTextCard
     icon="img/local-variables-and-scopes.svg"
     iconDark="img/local-variables-and-scopes-dark.svg"
-    overlay="Local variables in Move are lexically (statically) scoped"
-    title="Local Variables and Scopes"
+    overlay="Moveのローカル変数は字句的（静的）スコープです"
+    title="ローカル変数とスコープ"
     to="/docs/move/move-variables"
   />
   <SimpleTextCard
     icon="img/abort-and-return.svg"
     iconDark="img/abort-and-return-dark.svg"
-    overlay="return and abort are two control flow constructs that end execution, one for the current function and one for the entire transaction"
+    overlay="returnとabortは実行を終了する2つの制御フロー構造で、一つは現在の関数、もう一つはトランザクション全体を終了します"
     title="Abort & Assert"
     to="/docs/move/move-abort-and-assert"
   />
   <SimpleTextCard
     icon="img/conditionals.svg"
     iconDark="img/conditionals-dark.svg"
-    overlay="An if expression specifies that some code should only be evaluated if a certain condition is true"
-    title="Conditionals"
+    overlay="if式は、特定の条件がtrueの場合にのみ実行されるコードを指定します"
+    title="条件分岐"
     to="/docs/move/move-conditionals"
   />
   <SimpleTextCard
     icon="img/loops.svg"
     iconDark="img/loops-dark.svg"
-    overlay="Move offers two constructs for looping: while and loop"
+    overlay="Moveはループのための2つの構造を提供します：whileとloop"
     title="While and Loop"
     to="/docs/move/move-while-and-loop"
   />
   <SimpleTextCard
     icon="img/functions.svg"
     iconDark="img/functions-dark.svg"
-    overlay="Function syntax in Move is shared between module functions and script functions"
-    title="Functions"
+    overlay="Moveの関数構文はモジュール関数とスクリプト関数で共有されています"
+    title="関数"
     to="/docs/move/move-functions"
   />
   <SimpleTextCard
     icon="img/structs.svg"
     iconDark="img/structsdark.svg"
-    overlay="A struct is a user-defined data structure containing typed fields."
-    title="Structs"
+    overlay="構造体は型付きフィールドを含むユーザー定義のデータ構造です。"
+    title="構造体"
     to="/docs/move/move-structs"
   />
   <SimpleTextCard
     icon="img/constants.svg"
     iconDark="img/constants-dark.svg"
-    overlay="Constants are a way of giving a name to shared, static values inside of a module or script"
-    title="Constants"
+    overlay="定数はモジュールやスクリプト内で共有される静的な値に名前を付ける方法です"
+    title="定数"
     to="/docs/move/move-constants"
   />
   <SimpleTextCard
     icon="img/generics.svg"
     iconDark="img/generics-dark.svg"
-    overlay="Generics can be used to define functions and structs over different input data types"
-    title="Generics"
+    overlay="ジェネリクスは異なる入力データ型に対して関数や構造体を定義するために使用できます"
+    title="ジェネリクス"
     to="/docs/move/move-generics"
   />
   <SimpleTextCard
     icon="img/equality.svg"
     iconDark="img/equality-dark.svg"
-    overlay="Move supports two equality operations == and !="
-    title="Equality"
+    overlay="Moveは2つの等価演算子をサポートします：==と!="
+    title="等価性"
     to="/docs/move/move-equality"
   />
   <SimpleTextCard
     icon="img/uses-and-aliases.svg"
     iconDark="img/uses-and-aliases-dark.svg"
-    overlay="The use syntax can be used to create aliases to members in other modules"
+    overlay="use構文は他のモジュールのメンバーへのエイリアスを作成するために使用できます"
     title="Uses & Aliases"
     to="/docs/move/move-uses-and-aliases"
   />
 </CardsWrapper>
 
-### Reference
+### リファレンス
 
 <CardsWrapper>
   <SimpleTextCard
     icon="img/coding-conventions.svg"
     iconDark="img/coding-conventions-dark.svg"
-    overlay="There are basic coding conventions when writing Move code"
-    title="Coding Conventions"
+    overlay="Moveコードを書く際の基本的なコーディング規約があります"
+    title="コーディング規約"
     to="/docs/move/move-coding-conventions"
   />
 </CardsWrapper>

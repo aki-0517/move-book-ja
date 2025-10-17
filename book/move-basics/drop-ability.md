@@ -1,4 +1,4 @@
-# Abilities: Drop
+# アビリティ：Drop
 
 <!-- TODO: reiterate, given that we introduce abilities one by one -->
 
@@ -38,40 +38,31 @@ Links:
 
  -->
 
-The `drop` ability - the simplest of them - allows the instance of a struct to be _ignored_ or
-_discarded_. In many programming languages this behavior is considered default. However, in Move, a
-struct without the `drop` ability is not allowed to be ignored. This is a safety feature of the Move
-language, which ensures that all assets are properly handled. An attempt to ignore a struct without
-the `drop` ability will result in a compilation error.
+`drop`アビリティは最もシンプルなアビリティで、構造体のインスタンスを_無視_または_破棄_することを許可します。多くのプログラミング言語では、この動作はデフォルトと見なされます。しかし、Moveでは、`drop`アビリティを持たない構造体を無視することは許可されません。これはMove言語の安全機能であり、すべての資産が適切に処理されることを保証します。`drop`アビリティを持たない構造体を無視しようとすると、コンパイルエラーが発生します。
 
 ```move file=packages/samples/sources/move-basics/drop-ability.move anchor=main
 
 ```
 
-The `drop` ability is often used on custom collection types to eliminate the need for special
-handling of the collection when it is no longer needed. For example, a `vector` type has the `drop`
-ability, which allows the vector to be ignored when it is no longer needed. However, the biggest
-feature of Move's type system is the ability to not have `drop`. This ensures that the assets are
-properly handled and not ignored.
+`drop`アビリティは、カスタムコレクション型で、コレクションが不要になった際の特別な処理を不要にするためによく使用されます。たとえば、`vector`型は`drop`アビリティを持ち、ベクターが不要になった際に無視することを許可します。しかし、Moveの型システムの最大の特徴は、`drop`を持たない能力です。これにより、資産が適切に処理され、無視されないことが保証されます。
 
-A struct with a single `drop` ability is called a _Witness_. We explain the concept of a _Witness_
-in the [Witness and Abstract Implementation](./../programmability/witness-pattern) section.
+`drop`アビリティのみを持つ構造体は_Witness_と呼ばれます。_Witness_の概念は[Witness and Abstract Implementation](./../programmability/witness-pattern)セクションで説明します。
 
-## Types with the `drop` Ability
+## `drop`アビリティを持つ型
 
-All native types in Move have the `drop` ability. This includes:
+Moveのすべてのネイティブ型は`drop`アビリティを持ちます。これには以下が含まれます：
 
 - [`bool`](./../move-basics/primitive-types#booleans)
-- [unsigned integers](./../move-basics/primitive-types#integer-types)
-- [`vector<T>`](./../move-basics/vector) when `T` has `drop`
+- [符号なし整数](./../move-basics/primitive-types#integer-types)
+- [`vector<T>`](./../move-basics/vector) で`T`が`drop`を持つ場合
 - [`address`](./../move-basics/address)
 
-All of the types defined in the standard library have the `drop` ability as well. This includes:
+標準ライブラリで定義されているすべての型も`drop`アビリティを持ちます。これには以下が含まれます：
 
-- [`Option<T>`](./../move-basics/option) when `T` has `drop`
+- [`Option<T>`](./../move-basics/option) で`T`が`drop`を持つ場合
 - [`String`](./../move-basics/string)
 - [`TypeName`](./../move-basics/type-reflection)
 
-## Further Reading
+## さらなる読み物
 
-- [Type Abilities](./../../reference/abilities) in the Move Reference.
+- Move Referenceの[Type Abilities](./../../reference/abilities)

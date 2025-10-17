@@ -1,15 +1,13 @@
 ---
-title: 'Vector | Reference'
+title: 'Vector | リファレンス'
 description: ''
 ---
 
 # Vector
 
-`vector<T>` is the only primitive collection type provided by Move. A `vector<T>` is a homogeneous
-collection of `T`'s that can grow or shrink by pushing/popping values off the "end".
+`vector<T>`はMoveによって提供される唯一のプリミティブコレクション型です。`vector<T>`は、末尾から値をプッシュ/ポップすることで成長または縮小できる`T`の同種コレクションです。
 
-A `vector<T>` can be instantiated with any type `T`. For example, `vector<u64>`, `vector<address>`,
-`vector<0x42::my_module::MyData>`, and `vector<vector<u8>>` are all valid vector types.
+`vector<T>`は任意の型`T`でインスタンス化できます。例えば、`vector<u64>`、`vector<address>`、`vector<0x42::my_module::MyData>`、`vector<vector<u8>>`はすべて有効なベクター型です。
 
 ## Literals
 

@@ -1,17 +1,13 @@
 ---
-title: 'Index Syntax | Reference'
+title: 'インデックス構文 | リファレンス'
 description: ''
 ---
 
-# Index Syntax
+# インデックス構文
 
-Move provides syntax attributes to allow you to define operations that look and feel like native
-Move code, lowering these operations into your user-provided definitions.
+Moveは、ネイティブMoveコードのように見え、感じられる操作を定義し、これらの操作をユーザー提供の定義に下げることを可能にする構文属性を提供します。
 
-Our first syntax method, `index`, allows you to define a group of operations that can be used as
-custom index accessors for your datatypes, such as accessing a matrix element as `m[i,j]`, by
-annotating functions that should be used for these index operations. Moreover, these definitions are
-bespoke per-type and available implicitly for any programmer using your type.
+最初の構文メソッドである`index`は、インデックス操作に使用されるべき関数に注釈を付けることで、`m[i,j]`としてマトリックス要素にアクセスするなど、データ型のカスタムインデックスアクセサーとして使用できる操作のグループを定義することを可能にします。さらに、これらの定義は型ごとに特注であり、あなたの型を使用する任意のプログラマーに対して暗黙的に利用可能です。
 
 ## Overview and Summary
 

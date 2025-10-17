@@ -1,21 +1,12 @@
-# Appendix A: Glossary
+# 付録A: 用語集
 
-- Fast Path - term used to describe a transaction that does not involve shared objects, and can be
-  executed without the need for consensus.
-- Parallel Execution - term used to describe the ability of the Sui runtime to execute transactions
-  in parallel, including the ones that involve shared objects.
-- Internal Type - type that is defined within the module. Fields of this type can not be accessed
-  from outside the module, and, in case of "key"-only abilities, can not be used in `public_*`
-  transfer functions.
+- Fast Path - 共有オブジェクトを含まないトランザクションを表す用語で、コンセンサスを必要とせずに実行できます。
+- Parallel Execution - Suiランタイムがトランザクションを並列に実行する能力を表す用語で、共有オブジェクトを含むものも含みます。
+- Internal Type - モジュール内で定義される型。この型のフィールドはモジュール外からアクセスできず、「key」のみのアビリティの場合、`public_*`転送関数で使用できません。
 
-## Abilities
+## アビリティ
 
-- key - ability that allows the struct to be used as a key in the storage. On Sui, the key ability
-  marks an object and requires the first field to be a `id: UID`.
-- store - ability that allows the struct to be stored inside other objects. This ability relaxes
-  restrictions applied to internal structs, allowing `public_*` transfer functions to accept them as
-  arguments. It also enables the object to be stored as a dynamic field.
-- copy - ability that allows the struct to be copied. On Sui, the `copy` ability conflicts with the
-  `key` ability, and can not be used together with it.
-- drop - ability that allows the struct to be ignored or discarded. On Sui, the `drop` ability
-  cannot be used together with the `key` ability, as objects are not allowed to be ignored.
+- key - 構造体をストレージ内のキーとして使用できるようにするアビリティ。Suiでは、keyアビリティはオブジェクトをマークし、最初のフィールドが`id: UID`である必要があります。
+- store - 構造体を他のオブジェクト内に保存できるようにするアビリティ。このアビリティは内部構造体に適用される制限を緩和し、`public_*`転送関数がそれらを引数として受け入れることを可能にします。また、オブジェクトを動的フィールドとして保存することも可能にします。
+- copy - 構造体をコピーできるようにするアビリティ。Suiでは、`copy`アビリティは`key`アビリティと競合し、一緒に使用することはできません。
+- drop - 構造体を無視または破棄できるようにするアビリティ。Suiでは、`drop`アビリティは`key`アビリティと一緒に使用することはできません。オブジェクトは無視することが許可されていないためです。

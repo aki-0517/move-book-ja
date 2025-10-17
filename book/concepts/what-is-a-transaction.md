@@ -1,9 +1,6 @@
-# Transaction
+# トランザクション（Transaction）
 
-Transaction is a fundamental concept in the blockchain world. It is a way to interact with a
-blockchain. Transactions are used to change the state of the blockchain, and they are the only way
-to do so. In Move, transactions are used to call functions in a package, deploy new packages, and
-upgrade existing ones.
+トランザクションはブロックチェーンの世界における基本的な概念です。これはブロックチェーンと対話する方法です。トランザクションはブロックチェーンの状態を変更するために使用され、それを行う唯一の方法です。Moveでは、トランザクションはパッケージ内の関数を呼び出し、新しいパッケージをデプロイし、既存のものをアップグレードするために使用されます。
 
 <!--
 
@@ -16,46 +13,38 @@ upgrade existing ones.
 
  -->
 
-## Transaction Structure
+## トランザクション構造
 
-> Every transaction explicitly specifies the objects it operates on!
+> 全てのトランザクションは、操作するオブジェクトを明示的に指定します！
 
-Transactions consist of:
+トランザクションは以下で構成されます：
 
-- a sender - the [account](./what-is-an-account) that _signs_ the transaction;
-- a list (or a chain) of commands - the operations to be executed;
-- command inputs - the arguments for the commands: either `pure` - simple values like numbers or
-  strings, or `object` - objects that the transaction will access;
-- a gas object - the `Coin` object used to pay for the transaction;
-- gas price and budget - the cost of the transaction;
+- 送信者 - トランザクションに_署名_する[アカウント](./what-is-an-account)
+- コマンドのリスト（またはチェーン） - 実行される操作
+- コマンド入力 - コマンドの引数：数値や文字列のような単純な値の`pure`、またはトランザクションがアクセスするオブジェクトの`object`
+- ガスオブジェクト - トランザクションの支払いに使用される`Coin`オブジェクト
+- ガス価格と予算 - トランザクションのコスト
 
-## Inputs
+## 入力
 
-Transaction inputs are the arguments for the transaction and are split between 2 types:
+トランザクション入力はトランザクションの引数で、2つのタイプに分けられます：
 
-- Pure arguments: These are mostly [primitive types](../move-basics/primitive-types) with some extra
-  additions. A pure argument can be: - [`bool`](../move-basics/primitive-types#booleans). -
-  [unsigned integer](../move-basics/primitive-types#integer-types) (`u8`, `u16`, `u32`, `u64`,
-  `u128`, `u256`). - [`address`](../move-basics/address). -
-  [`std::string::String`](../move-basics/string), UTF8 strings. -
-  [`std::ascii::String`](../move-basics/string#ascii-strings), ASCII strings. -
-  [`vector<T>`](../move-basics/vector), where `T` is a pure type. -
-  [`std::option::Option<T>`](../move-basics/option), where `T` is a pure type. -
-  [`std::object::ID`](../storage/uid-and-id), typically points to an object. See also
-  [What is an Object](../object/object-model).
-- Object arguments: These are objects or references of objects that the transaction will access. An
-  object argument needs to be either a shared object, a frozen object, or an object that the
-  transaction sender owns for the transaction to be successful. For more see
-  [Object Model](../object).
+- Pure引数：これらは主に[プリミティブ型](../move-basics/primitive-types)にいくつかの追加機能があります。Pure引数は以下が可能です：
+  - [`bool`](../move-basics/primitive-types#booleans)
+  - [符号なし整数](../move-basics/primitive-types#integer-types)（`u8`、`u16`、`u32`、`u64`、`u128`、`u256`）
+  - [`address`](../move-basics/address)
+  - [`std::string::String`](../move-basics/string)、UTF8文字列
+  - [`std::ascii::String`](../move-basics/string#ascii-strings)、ASCII文字列
+  - [`vector<T>`](../move-basics/vector)、ここで`T`はpure型
+  - [`std::option::Option<T>`](../move-basics/option)、ここで`T`はpure型
+  - [`std::object::ID`](../storage/uid-and-id)、通常はオブジェクトを指す。[オブジェクトとは何か](../object/object-model)も参照
+- オブジェクト引数：これらはトランザクションがアクセスするオブジェクトまたはオブジェクトの参照です。オブジェクト引数は、トランザクションが成功するために、共有オブジェクト、凍結オブジェクト、またはトランザクション送信者が所有するオブジェクトである必要があります。詳細については[オブジェクトモデル](../object)を参照してください。
 
-## Commands
+## コマンド
 
-Sui transactions may consist of multiple commands. Each command is a single built-in command (like
-publishing a package) or a call to a function in an already published package. The commands are
-executed in the order they are listed in the transaction, and they can use the results of the
-previous commands, forming a chain. Transaction either succeeds or fails as a whole.
+Suiトランザクションは複数のコマンドで構成される場合があります。各コマンドは、単一の組み込みコマンド（パッケージの公開など）または既に公開されたパッケージ内の関数の呼び出しです。コマンドはトランザクション内にリストされた順序で実行され、前のコマンドの結果を使用してチェーンを形成できます。トランザクションは全体として成功または失敗します。
 
-Schematically, a transaction looks like this (in pseudo-code):
+概念的に、トランザクションは次のようになります（疑似コード）：
 
 ```
 Inputs:
@@ -67,35 +56,29 @@ Commands:
 - TransferObjects(item, sender)
 ```
 
-In this example, the transaction consists of three commands:
+この例では、トランザクションは3つのコマンドで構成されます：
 
-1. `SplitCoins` - a built-in command that splits a new coin from the passed object, in this case,
-   the `Gas` object;
-2. `MoveCall` - a command that calls a function `purchase` in a package `0xAAA`, module `market`
-   with the given arguments - the `payment` object;
-3. `TransferObjects` - a built-in command that transfers the object to the recipient.
+1. `SplitCoins` - 渡されたオブジェクト（この場合は`Gas`オブジェクト）から新しいコインを分割する組み込みコマンド
+2. `MoveCall` - パッケージ`0xAAA`のモジュール`market`内の関数`purchase`を、指定された引数（`payment`オブジェクト）で呼び出すコマンド
+3. `TransferObjects` - オブジェクトを受信者に転送する組み込みコマンド
 
 <!--
 > There are multiple different implementations of transaction building, for example
 -->
 
-## Transaction Effects
+## トランザクション効果
 
-Transaction effects are the changes that a transaction makes to the blockchain state. More
-specifically, a transaction can change the state in the following ways:
+トランザクション効果は、トランザクションがブロックチェーンの状態に加える変更です。より具体的には、トランザクションは以下の方法で状態を変更できます：
 
-- use the gas object to pay for the transaction;
-- create, update, or delete objects;
-- emit events;
+- トランザクションの支払いにガスオブジェクトを使用
+- オブジェクトの作成、更新、削除
+- イベントの発行
 
-The result of the executed transaction consists of different parts:
+実行されたトランザクションの結果は、異なる部分で構成されます：
 
-- Transaction Digest - the hash of the transaction which is used to identify the transaction;
-- Transaction Data - the inputs, commands and gas object used in the transaction;
-- Transaction Effects - the status and the "effects" of the transaction, more specifically: the
-  status of the transaction, updates to objects and their new versions, the gas object used, the gas
-  cost of the transaction, and the events emitted by the transaction;
-- Events - the custom [events](./../programmability/events) emitted by the transaction;
-- Object Changes - the changes made to the objects, including the _change of ownership_;
-- Balance Changes - the changes made to the aggregate balances of the account involved in the
-  transaction;
+- トランザクションダイジェスト - トランザクションを識別するために使用されるトランザクションのハッシュ
+- トランザクションデータ - トランザクションで使用される入力、コマンド、ガスオブジェクト
+- トランザクション効果 - トランザクションのステータスと「効果」。より具体的には：トランザクションのステータス、オブジェクトとその新しいバージョンの更新、使用されたガスオブジェクト、トランザクションのガスコスト、トランザクションによって発行されたイベント
+- イベント - トランザクションによって発行されたカスタム[イベント](./../programmability/events)
+- オブジェクトの変更 - _所有権の変更_を含むオブジェクトに加えられた変更
+- 残高の変更 - トランザクションに関与するアカウントの総残高に加えられた変更

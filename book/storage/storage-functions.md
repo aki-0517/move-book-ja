@@ -1,49 +1,35 @@
-# Storage Functions
+# ストレージ関数
 
-The module that defines main storage operations is `sui::transfer`. It is implicitly imported in all
-packages that depend on the [Sui Framework](./../programmability/sui-framework), so, like other
-implicitly imported modules (e.g. `std::option` or `std::vector`), it does not require adding a use
-statement.
+主要なストレージ操作を定義するモジュールは`sui::transfer`です。これは[Sui Framework](./../programmability/sui-framework)に依存するすべてのパッケージで暗黙的にインポートされるため、他の暗黙的にインポートされるモジュール（例：`std::option`や`std::vector`）と同様に、useステートメントを追加する必要はありません。
 
-> For quick reference, [Appendix C: Transfer Functions](./../appendix/transfer-functions.md)
-> contains a list of all storage functions and object states.
+> クイックリファレンスとして、[付録C: 転送関数](./../appendix/transfer-functions.md)にはすべてのストレージ関数とオブジェクト状態のリストが含まれています。
 
-## Overview
+## 概要
 
-The `transfer` module provides functions to perform storage operations for each of the
-[ownership types](./../object/ownership).
+`transfer`モジュールは、各[所有権タイプ](./../object/ownership)のストレージ操作を実行するための関数を提供します。
 
-1. [Transfer](#transfer) - send an object to an address, put it into _address owned_ state;
-2. [Freeze](#freeze) - put an object into _immutable_ state, so it becomes a _public constant_ and
-   can never change.
-3. [Share](#share) - put an object into a _shared_ state, so it is available to everyone;
+1. [Transfer](#transfer) - オブジェクトをアドレスに送信し、_アドレス所有_状態にします；
+2. [Freeze](#freeze) - オブジェクトを_不変_状態にし、_パブリック定数_となり、変更されることがなくなります。
+3. [Share](#share) - オブジェクトを_共有_状態にし、誰でも利用できるようにします；
 
-The `transfer` module is a go-to for most of the storage operations, except a special case with
-[Dynamic Fields](./../programmability/dynamic-fields) which are covered in the next chapter.
+`transfer`モジュールは、[動的フィールド](./../programmability/dynamic-fields)の特別なケースを除いて、ほとんどのストレージ操作の定番です。これらは次の章で説明します。
 
-## Ownership and References: a Quick Recap
+## 所有権と参照：クイック復習
 
-In the [Ownership and Scope](./../move-basics/ownership-and-scope) and
-[References](./../move-basics/references) chapters, we covered the basics of ownership and
-references in Move. It is important that you understand these concepts when using storage functions.
-Here is a quick recap of the most important points:
+[所有権とスコープ](./../move-basics/ownership-and-scope)と[参照](./../move-basics/references)の章では、Moveでの所有権と参照の基本について説明しました。ストレージ関数を使用する際に、これらの概念を理解することが重要です。以下は最も重要なポイントのクイック復習です：
 
-- The _move_ semantics in Move means that the value is _moved_ from one scope to another. In other
-  words, if an instance of a type is passed to a function _by value_, it is _moved_ to the function
-  scope and can't be accessed in the caller scope anymore.
-- To maintain the ownership of the value, you can pass it _by reference_. Either by _immutable
-  reference_ `&T` or _mutable reference_ `&mut T`. Then the value is _borrowed_ and can be accessed
-  in the callee scope, however the owner stays the same.
+- Moveの_move_セマンティクスは、値が一つのスコープから別のスコープに_移動_されることを意味します。言い換えれば、型のインスタンスが関数に_値で_渡された場合、それは関数スコープに_移動_され、呼び出し元スコープではもうアクセスできません。
+- 値の所有権を維持するには、_参照で_渡すことができます。_不変参照_`&T`または_可変参照_`&mut T`のいずれかです。その場合、値は_借用_され、呼び出し先スコープでアクセスできますが、所有者は同じままです。
 
 ```move
-/// Moved by value
-public fun take<T>(value: T) { /* value is moved here! */ abort }
+/// 値で移動
+public fun take<T>(value: T) { /* 値はここに移動！ */ abort }
 
-/// For immutable reference, value stays in parent scope.
-public fun borrow<T>(value: &T) { /* value is borrowed here! can be read */ abort }
+/// 不変参照の場合、値は親スコープに残る。
+public fun borrow<T>(value: &T) { /* 値はここで借用！読み取り可能 */ abort }
 
-/// For mutable reference, value stays in parent scope but can be mutated.
-public fun borrow_mut<T>(value: &mut T) { /* value is mutably borrowed here! */ abort }
+/// 可変参照の場合、値は親スコープに残るが変更可能。
+public fun borrow_mut<T>(value: &mut T) { /* 値はここで可変借用！ */ abort }
 ```
 
 <!-- TODO part on:
@@ -52,98 +38,78 @@ public fun borrow_mut<T>(value: &mut T) { /* value is mutably borrowed here! */ 
     - the objects must be specified in the transaction by their ID
  -->
 
-## Internal Rule in Transfer Functions
+## 転送関数での内部ルール
 
-Storage operations can only be performed on objects, and come in two forms: _internal_ and _public_.
-Internal, or sometimes called _restricted_, transfer functions can be performed on [`key`][key]-only
-types, and - comes with the name - enforce [internal constraint](./internal-constraint.md). Public
-versions can be called on any object that has `key` and [`store`][store]. Hence, `key`-only types'
-storage is fully governed by their defining module, and `store` allows calling public transfer
-functions in other modules.
+ストレージ操作はオブジェクトに対してのみ実行でき、_内部_と_パブリック_の2つの形式があります。内部、または時々_制限_と呼ばれる転送関数は、[`key`][key]のみの型に対して実行でき、名前の通り[内部制約](./internal-constraint.md)を強制します。パブリック版は`key`と[`store`][store]を持つ任意のオブジェクトで呼び出すことができます。したがって、`key`のみの型のストレージは完全にその定義モジュールによって管理され、`store`は他のモジュールでパブリック転送関数を呼び出すことを可能にします。
 
 ```move
-/// T: internal, can be called only in the module which defines the `T`.
+/// T: 内部、`T`を定義するモジュールでのみ呼び出し可能。
 public fun transfer<T: key>(obj: T, recipient: address);
 
-/// No requirement for `T` to be internal to the caller, but requires `store`.
+/// `T`が呼び出し元に対して内部的である必要はないが、`store`を要求。
 public fun public_transfer<T: key + store>(obj: T, recipient: address);
 ```
 
-In the example above, the `transfer` function can only be called from the module that defines the
-`T`, and has a type constraint `T: key`. While `public_transfer` - clearly indicated in the name -
-can be called from any module, but requires `T` to have `key` and `store`.
+上記の例では、`transfer`関数は`T`を定義するモジュールからのみ呼び出すことができ、型制約`T: key`を持ちます。一方、`public_transfer`は名前で明確に示されているように、任意のモジュールから呼び出すことができますが、`T`が`key`と`store`を持つことを要求します。
 
-Knowing this rule is critical for understanding application design in Move. Choice between making
-object publicly transferable (`key` and `store`) and keeping it internal (`key`-only) may
-drastically affect application logic and further development.
+このルールを知ることは、Moveでのアプリケーション設計を理解するために重要です。オブジェクトをパブリックに転送可能にする（`key`と`store`）か、内部に保つ（`key`のみ）かの選択は、アプリケーションロジックと今後の開発に劇的に影響する可能性があります。
 
 ## Transfer
 
-The `transfer::transfer` function is a function used to transfer an object to an address. Its
-signature is as follows, only accepts a type with the [`key` ability](./key-ability.md) and an
-[address](./../move-basics/address.md) of the recipient. Note that the object is passed into the
-function _by value_, therefore it is _moved_ to the function scope and then moved to the recipient
-address.
+`transfer::transfer`関数は、オブジェクトをアドレスに転送するために使用される関数です。そのシグネチャは以下の通りで、[`key`アビリティ](./key-ability.md)を持つ型と受信者の[アドレス](./../move-basics/address.md)のみを受け入れます。オブジェクトは関数に_値で_渡されるため、関数スコープに_移動_され、その後受信者アドレスに移動されることに注意してください。
 
 ```move
 module sui::transfer;
 
-// Transfer `obj` to `recipient`.
+// `obj`を`recipient`に転送。
 public fun transfer<T: key>(obj: T, recipient: address);
 
-// Public version of the `transfer` function.
+// `transfer`関数のパブリック版。
 public fun public_transfer<T: key + store>(obj: T, recipient: address);
 ```
 
-### Transfer Example
+### 転送の例
 
-In the following example, you can see how it can be used in a module that defines and sends an
-object to the transaction sender.
+以下の例では、オブジェクトを定義してトランザクション送信者に送信するモジュールでどのように使用できるかを見ることができます。
 
 ```move
 module book::transfer_to_sender;
 
-/// A struct with `key` is an object. The first field is `id: UID`!
+/// `key`を持つ構造体はオブジェクトです。最初のフィールドは`id: UID`！
 public struct AdminCap has key { id: UID }
 
-/// `init` function is a special function that is called when the module
-/// is published. It is a good place to do a setup for an application.
+/// `init`関数は、モジュールが公開されたときに呼び出される特別な関数です。
+/// アプリケーションのセットアップを行うのに適した場所です。
 fun init(ctx: &mut TxContext) {
-    // Create a new `AdminCap` object, in this scope.
+    // このスコープで新しい`AdminCap`オブジェクトを作成。
     let admin_cap = AdminCap { id: object::new(ctx) };
 
-    // Transfer the object to the transaction sender.
+    // オブジェクトをトランザクション送信者に転送。
     transfer::transfer(admin_cap, ctx.sender());
 }
 
-/// Transfers the `AdminCap` object to the `recipient`. Thus, the recipient
-/// becomes the owner of the object, and only they can access it.
+/// `AdminCap`オブジェクトを`recipient`に転送。したがって、受信者が
+/// オブジェクトの所有者となり、彼らだけがアクセスできます。
 public fun transfer_admin_cap(cap: AdminCap, recipient: address) {
     transfer::transfer(cap, recipient);
 }
 ```
 
-When the module is published, the `init` function will get called, and the `AdminCap` object which
-we created in it will be _transferred_ to the transaction sender. The `ctx.sender()` function
-returns the sender address for the current transaction.
+モジュールが公開されると、`init`関数が呼び出され、その中で作成した`AdminCap`オブジェクトがトランザクション送信者に_転送_されます。`ctx.sender()`関数は現在のトランザクションの送信者アドレスを返します。
 
-Once the `AdminCap` has been transferred to the sender, for example, to `0xa11ce`, the sender, and
-only the sender, will be able to access the object. This type of ownership is called _address
-ownership_.
+`AdminCap`が送信者（例えば`0xa11ce`）に転送されると、送信者、そして送信者のみがオブジェクトにアクセスできるようになります。このタイプの所有権は_アドレス所有権_と呼ばれます。
 
-> Address owned objects are a subject to _true ownership_ - only owner address can access them. This
-> is a fundamental concept in the Sui storage model.
+> アドレス所有オブジェクトは_真の所有権_の対象です - 所有者アドレスのみがアクセスできます。これはSuiストレージモデルの基本的な概念です。
 
-### Public Transfer
+### パブリック転送
 
-Let's extend the example with a function that uses `AdminCap` to authorize a mint of a new object
-and its transfer to an address:
+`AdminCap`を使用して新しいオブジェクトのミントとアドレスへの転送を認証する関数で例を拡張してみましょう：
 
 ```move
-/// Some `Gift` object that the admin can `mint_and_transfer` to an address.
+/// 管理者がアドレスに`mint_and_transfer`できる`Gift`オブジェクト。
 public struct Gift has key, store { id: UID }
 
-/// Creates a new `Gift` object and transfers it to the `recipient`.
+/// 新しい`Gift`オブジェクトを作成し、`recipient`に転送。
 public fun mint_and_transfer(
     _: &AdminCap, recipient: address, ctx: &mut TxContext
 ) {
@@ -152,59 +118,44 @@ public fun mint_and_transfer(
 }
 ```
 
-The `mint_and_transfer` function is a _public_ function that "could" be called by anyone, but it
-requires a reference to an `AdminCap` as the first argument. Without it, the function will not be
-callable. This is a simple and very explicit way to restrict access to privileged functions called
-_[Capability](./../programmability/capability)_. Because the `AdminCap` object is _address owned_,
-only `0xa11ce` will be able to call the `mint_and_transfer` function.
+`mint_and_transfer`関数は、誰でも呼び出す「可能性がある」_パブリック_関数ですが、最初の引数として`AdminCap`への参照を必要とします。それがないと、関数は呼び出し可能ではありません。これは、特権関数へのアクセスを制限するシンプルで非常に明示的な方法で、_[Capability](./../programmability/capability)_と呼ばれます。`AdminCap`オブジェクトが_アドレス所有_であるため、`0xa11ce`のみが`mint_and_transfer`関数を呼び出すことができます。
 
-Unlike `AdminCap` where we restricted transferability as well as usability by adding only `key`
-ability, `Gift` has a `key` and `store` combination, which means, that whoever owns a `Gift` can
-freely call `transfer::public_transfer` and send it to anyone else. Without `store`, in our current
-implementation, `Gift` would've been _"soulbound"_ meaning that the happy owner of the `Gift` would
-not be able to do anything with it.
+`AdminCap`では`key`アビリティのみを追加して転送可能性と使用可能性の両方を制限しましたが、`Gift`は`key`と`store`の組み合わせを持っているため、`Gift`を所有する人は誰でも`transfer::public_transfer`を自由に呼び出して他の人に送ることができます。`store`がない場合、現在の実装では`Gift`は_"ソウルバウンド"_（魂に縛られた）となり、`Gift`の幸せな所有者はそれで何もできなくなってしまいます。
 
-### Quick Recap
+### クイック復習
 
-- `transfer` function is used to send an object to an address;
-- The object becomes _address owned_ and can only be accessed by the recipient;
-- _Address owned_ object can be used by reference or by value, including being transferred to
-  another address;
-- _Public_ version of it is `public_transfer` and requires `store`
-- Functions can be gated by requiring an object to be passed as an argument, creating a
-  _capability_.
+- `transfer`関数はオブジェクトをアドレスに送信するために使用される；
+- オブジェクトは_アドレス所有_となり、受信者のみがアクセスできる；
+- _アドレス所有_オブジェクトは参照または値で使用でき、別のアドレスに転送することも可能；
+- その_パブリック_版は`public_transfer`で、`store`を要求する；
+- 関数は、オブジェクトを引数として渡すことを要求することで制限され、_capability_を作成する。
 
 ## Freeze
 
-The `transfer::freeze_object` function is a function that is used to put an object into an
-_immutable_ state. Once an object is _frozen_, it can never change, and it can be accessed by anyone
-by immutable reference.
+`transfer::freeze_object`関数は、オブジェクトを_不変_状態にするために使用される関数です。オブジェクトが_凍結_されると、二度と変更されることがなく、誰でも不変参照でアクセスできるようになります。
 
-The function signature is as follows, only accepts a type with the [`key` ability](./key-ability).
-Just like all other storage functions, it takes the object _by value_. The public version of this
-function is `public_freeze_object`, and requires `T` to have `store`.
+関数シグネチャは以下の通りで、[`key`アビリティ](./key-ability)を持つ型のみを受け入れます。他のすべてのストレージ関数と同様に、オブジェクトを_値で_受け取ります。この関数のパブリック版は`public_freeze_object`で、`T`が`store`を持つことを要求します。
 
 ```move
 module sui::transfer;
 
-// Make object immutable and allow anyone to read it.
+// オブジェクトを不変にし、誰でも読み取り可能にする。
 public fun freeze_object<T: key>(obj: T);
 
-// Public version of the `freeze_object` function.
+// `freeze_object`関数のパブリック版。
 public fun public_freeze_object<T: key + store>(obj: T);
 ```
 
-Let's extend the previous example and add a function that allows the admin to create a `Config`
-object and freeze it:
+前の例を拡張して、管理者が`Config`オブジェクトを作成して凍結することを可能にする関数を追加しましょう：
 
 ```move
-/// Some `Config` object that the admin can `create_and_freeze`.
+/// 管理者が`create_and_freeze`できる`Config`オブジェクト。
 public struct Config has key {
     id: UID,
     message: String
 }
 
-/// Creates a new `Config` object and freezes it.
+/// 新しい`Config`オブジェクトを作成し、凍結。
 public fun create_and_freeze(
     _: &AdminCap,
     message: String,
@@ -215,64 +166,51 @@ public fun create_and_freeze(
         message
     };
 
-    // Freeze the object so it becomes immutable.
+    // オブジェクトを凍結して不変にする。
     transfer::freeze_object(config);
 }
 
-/// Returns the message from the `Config` object.
-/// Can access the object by immutable reference!
+/// `Config`オブジェクトからメッセージを返す。
+/// 不変参照でオブジェクトにアクセス可能！
 public fun message(c: &Config): String { c.message }
 ```
 
-Config is an object that has a `message` field, and the `create_and_freeze` function creates a new
-`Config` and freezes it. Once the object is frozen, it can be accessed by anyone by immutable
-reference. The `message` function is a public function that returns the message from the `Config`
-object. Config is now publicly available by its ID, and the message can be read by anyone.
+Configは`message`フィールドを持つオブジェクトで、`create_and_freeze`関数は新しい`Config`を作成して凍結します。オブジェクトが凍結されると、誰でも不変参照でアクセスできるようになります。`message`関数は`Config`オブジェクトからメッセージを返すパブリック関数です。Configは今やIDでパブリックに利用可能で、メッセージは誰でも読み取ることができます。
 
-> Function definitions are not connected to object's state. It is possible to define a function that
-> takes a mutable reference to a type that is always frozen. However, it will not be callable on a
-> frozen object.
+> 関数定義はオブジェクトの状態と関連していません。常に凍結されている型に対して可変参照を取る関数を定義することは可能です。しかし、凍結されたオブジェクトでは呼び出し可能ではありません。
 
-The `message` function in the example above can be called on an immutable `Config` object. However,
-two functions shown below are not callable on a frozen object:
+上記の例の`message`関数は、不変の`Config`オブジェクトで呼び出すことができます。しかし、以下に示す2つの関数は凍結されたオブジェクトでは呼び出し可能ではありません：
 
 ```move
-// === These can't be called on a frozen object! ===
+// === これらは凍結されたオブジェクトでは呼び出せません！ ===
 
-/// The function can be defined, but it won't be callable on a frozen object.
-/// Only immutable references are allowed.
+/// 関数は定義できるが、凍結されたオブジェクトでは呼び出し可能ではない。
+/// 不変参照のみが許可される。
 public fun message_mut(c: &mut Config): &mut String { &mut c.message }
 
-/// Deletes the `Config` object, takes it by value.
-/// Can't be called on a frozen object!
+/// `Config`オブジェクトを削除、値で受け取る。
+/// 凍結されたオブジェクトでは呼び出せません！
 public fun delete_config(c: Config) {
     let Config { id, message: _ } = c;
     id.delete()
 }
 ```
 
-To summarize:
+まとめると：
 
-- `transfer::freeze_object` function is used to put an object into an _immutable_ state;
-- Once an object is _frozen_, it can never be changed, deleted or transferred, and it can be
-  accessed by anyone by immutable reference;
-- _Public_ version of the `freeze_object` function is `public_freeze_object` and requires the `T` to
-  have `store`.
+- `transfer::freeze_object`関数はオブジェクトを_不変_状態にするために使用される；
+- オブジェクトが_凍結_されると、二度と変更、削除、転送されることがなく、誰でも不変参照でアクセスできる；
+- `freeze_object`関数の_パブリック_版は`public_freeze_object`で、`T`が`store`を持つことを要求する。
 
-## Owned -> Frozen
+## 所有 -> 凍結
 
-Since the `transfer::freeze_object` signature accepts any type with the `key` ability, it can take
-an object that was created in the same scope, but it can also take an object that was owned by an
-account. This means that the `freeze_object` function can be used to _freeze_ an object that was
-_transferred_ to the sender. For security concerns, we would not want to freeze the `AdminCap`
-object - it would be a security risk, since anyone would be able to access it. However, we can
-freeze the `Gift` object that was minted and transferred to the recipient:
+`transfer::freeze_object`シグネチャは`key`アビリティを持つ任意の型を受け入れるため、同じスコープで作成されたオブジェクトを取ることもできますが、アカウントによって所有されていたオブジェクトを取ることもできます。これは、`freeze_object`関数が_転送_されたオブジェクトを_凍結_するために使用できることを意味します。セキュリティ上の懸念から、`AdminCap`オブジェクトを凍結したくはありません - 誰でもアクセスできるようになるため、セキュリティリスクになります。しかし、ミントされて受信者に転送された`Gift`オブジェクトを凍結することはできます：
 
-> Single Owner -> Immutable conversion is possible!
+> 単一所有者 -> 不変変換が可能！
 
 ```move
-/// Freezes the `Gift` object so it becomes immutable.
-/// Gift has `key` and `store`, so `public_freeze_object` can be used!
+/// `Gift`オブジェクトを凍結して不変にする。
+/// Giftは`key`と`store`を持つため、`public_freeze_object`を使用可能！
 public fun freeze_gift(gift: Gift) {
     transfer::public_freeze_object(gift);
 }
@@ -280,84 +218,69 @@ public fun freeze_gift(gift: Gift) {
 
 ## Share
 
-The `transfer::share_object` function is a function used to put an object into a _shared_ state.
-Once an object is _shared_, it can be accessed by anyone by a mutable reference (hence, immutable
-too). The function signature is as follows, only accepts a type with the
-[`key` ability](./key-ability):
+`transfer::share_object`関数は、オブジェクトを_共有_状態にするために使用される関数です。オブジェクトが_共有_されると、誰でも可変参照（したがって、不変参照も）でアクセスできるようになります。関数シグネチャは以下の通りで、[`key`アビリティ](./key-ability)を持つ型のみを受け入れます：
 
 ```move
 module sui::transfer;
 
-/// Put an object to a Shared state - can be accessed mutably and immutably.
+/// オブジェクトを共有状態にする - 可変および不変でアクセス可能。
 public fun share_object<T: key>(obj: T);
 
-/// Public version of `share_object` function.
+/// `share_object`関数のパブリック版。
 public fun public_share_object<T: key + store>(obj: T);
 ```
 
-Like other transfer functions, `share_object` has its _public_ version which requires `T` to have
-`store`.
+他の転送関数と同様に、`share_object`は`T`が`store`を持つことを要求する_パブリック_版を持ちます。
 
-Once an object is _shared_, it is publicly available as a mutable reference.
+オブジェクトが_共有_されると、可変参照としてパブリックに利用可能になります。
 
-## Special Case: Shared Object Deletion
+## 特別なケース：共有オブジェクトの削除
 
-While the shared object can't normally be taken by value, there is one special case where it can -
-if the function that takes it deletes the object. This is a special case in the Sui storage model,
-and it is used to allow the deletion of shared objects. To show how it works, we will create a
-function that creates and shares a Config object and then another one that deletes it:
+共有オブジェクトは通常値で取ることはできませんが、それを取る関数がオブジェクトを削除する場合という特別なケースがあります。これはSuiストレージモデルの特別なケースで、共有オブジェクトの削除を可能にするために使用されます。これがどのように動作するかを示すために、Configオブジェクトを作成して共有し、その後削除する関数を作成します：
 
 ```move
-/// Creates a new `Config` object and shares it.
+/// 新しい`Config`オブジェクトを作成し、共有。
 public fun create_and_share(message: String, ctx: &mut TxContext) {
     let config = Config {
         id: object::new(ctx),
         message
     };
 
-    // Share the object so it becomes shared.
+    // オブジェクトを共有して共有状態にする。
     transfer::share_object(config);
 }
 ```
 
-The `create_and_share` function creates a new `Config` object and shares it. The object is now
-publicly available as a mutable reference. Let's create a function that deletes the shared object:
+`create_and_share`関数は新しい`Config`オブジェクトを作成して共有します。オブジェクトは今や可変参照としてパブリックに利用可能です。共有オブジェクトを削除する関数を作成しましょう：
 
 ```move
-/// Deletes the `Config` object, takes it by value.
-/// Can be called on a shared object!
+/// `Config`オブジェクトを削除、値で受け取る。
+/// 共有オブジェクトで呼び出し可能！
 public fun delete_config(c: Config) {
     let Config { id, message: _ } = c;
     id.delete()
 }
 ```
 
-The `delete_config` function takes the `Config` object by value and deletes it, and the Sui Verifier
-would allow this call. However, if the function returned the `Config` object back or attempted to
-`freeze` or `transfer` it, the Sui Verifier would reject the transaction.
+`delete_config`関数は`Config`オブジェクトを値で受け取って削除し、Sui Verifierはこの呼び出しを許可します。しかし、関数が`Config`オブジェクトを返すか、`freeze`や`transfer`しようとすると、Sui Verifierはトランザクションを拒否します。
 
 ```move
-// Won't work!
+// 動作しません！
 public fun transfer_shared(c: Config, to: address) {
     transfer::transfer(c, to);
 }
 ```
 
-To summarize:
+まとめると：
 
-- `share_object` function is used to put an object into a _shared_ state;
-- Once an object is _shared_, it can be accessed by anyone by a mutable reference;
-- Shared objects can be deleted, but they can't be transferred or frozen;
-- _Public_ version of the `share_object` function is `public_share_object` and requires the `T` to
-  have `store`.
+- `share_object`関数はオブジェクトを_共有_状態にするために使用される；
+- オブジェクトが_共有_されると、誰でも可変参照でアクセスできる；
+- 共有オブジェクトは削除できるが、転送や凍結はできない；
+- `share_object`関数の_パブリック_版は`public_share_object`で、`T`が`store`を持つことを要求する。
 
-## Next Steps
+## 次のステップ
 
-Now that you know main features of the `transfer` module, you can start building more complex
-applications on Sui that involve storage operations. In the next chapter, we will cover the
-[Store Ability](./store-ability) which allows storing data inside objects and relaxes transfer
-restrictions which we barely touched on here. And after that we will cover the
-[UID and ID](./uid-and-id) types which are the most important types in the Sui storage model.
+`transfer`モジュールの主要な機能を知ったので、ストレージ操作を含むより複雑なSuiアプリケーションの構築を開始できます。次の章では、オブジェクト内にデータを保存し、ここでほとんど触れなかった転送制限を緩和する[Storeアビリティ](./store-ability)について説明します。その後、Suiストレージモデルで最も重要な型である[UIDとID](./uid-and-id)について説明します。
 
 [key]: ./key-ability.md
 [store]: ./store-ability.md

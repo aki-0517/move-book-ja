@@ -1,11 +1,11 @@
-# Better Error Handling
+# より良いエラーハンドリング
 
-Whenever execution encounters an abort, transaction fails and abort code is returned to the caller.
-Move VM returns the module name that aborted the transaction and the abort code. This behavior is
-not fully transparent to the caller of the transaction, especially when a single function contains
-multiple calls to the same function which may abort. In this case, the caller will not know which
-call aborted the transaction, and it will be hard to debug the issue or provide meaningful error
-message to the user.
+実行がアボートに遭遇するたびに、トランザクションは失敗し、アボートコードが呼び出し元に返されます。
+Move VMは、トランザクションをアボートしたモジュール名とアボートコードを返します。この動作は
+トランザクションの呼び出し元にとって完全に透明ではありません。特に、単一の関数が
+アボートする可能性のある同じ関数への複数の呼び出しを含む場合です。この場合、呼び出し元は
+どの呼び出しがトランザクションをアボートしたかを知ることができず、問題をデバッグしたり、
+ユーザーに意味のあるエラーメッセージを提供したりすることが困難になります。
 
 ```move
 module book::module_a;
@@ -13,25 +13,24 @@ module book::module_a;
 use book::module_b;
 
 public fun do_something() {
-    let field_1 = module_b::get_field(1); // may abort with 0
-    /* ... a lot of logic ... */
-    let field_2 = module_b::get_field(2); // may abort with 0
-    /* ... some more logic ... */
-    let field_3 = module_b::get_field(3); // may abort with 0
+    let field_1 = module_b::get_field(1); // 0でアボートする可能性があります
+    /* ... 多くのロジック ... */
+    let field_2 = module_b::get_field(2); // 0でアボートする可能性があります
+    /* ... さらにロジック ... */
+    let field_3 = module_b::get_field(3); // 0でアボートする可能性があります
 }
 ```
 
-The example above illustrates the case when a single function contains multiple calls which may
-abort. If the caller of the `do_something` function receives an abort code `0`, it will be hard to
-understand which call to `module_b::get_field` aborted the transaction. To address this problem,
-there are common patterns that can be used to improve error handling.
+上記の例は、単一の関数がアボートする可能性のある複数の呼び出しを含む場合を示しています。
+`do_something`関数の呼び出し元がアボートコード`0`を受け取った場合、
+どの`module_b::get_field`の呼び出しがトランザクションをアボートしたかを理解することが困難になります。
+この問題に対処するために、エラーハンドリングを改善するために使用できる一般的なパターンがあります。
 
-## Rule 1: Handle All Possible Scenarios
+## ルール1：すべての可能なシナリオを処理する
 
-It is considered a good practice to provide a safe "check" function that returns a boolean value
-indicating whether an operation can be performed safely. If the `module_b` provides a function
-`has_field` that returns a boolean value indicating whether a field exists, the `do_something`
-function can be rewritten as follows:
+操作を安全に実行できるかどうかを示すブール値を返す安全な「チェック」関数を提供することは、
+良い実践とされています。`module_b`が、フィールドが存在するかどうかを示すブール値を返す
+`has_field`関数を提供している場合、`do_something`関数は以下のように書き直すことができます：
 
 ```move
 module book::module_a;
@@ -52,14 +51,14 @@ public fun do_something() {
 }
 ```
 
-By adding custom checks before each call to `module_b::get_field`, the developer of the `module_a`
-takes control over the error handling. And it allows implementing the second rule.
+`module_b::get_field`への各呼び出しの前にカスタムチェックを追加することで、`module_a`の
+開発者はエラーハンドリングを制御できます。そして、これにより2番目のルールの実装が可能になります。
 
-## Rule 2: Abort with Different Codes
+## ルール2：異なるコードでアボートする
 
-The second trick, once the abort codes are handled by the caller module, is to use different abort
-codes for different scenarios. This way, the caller module can provide a meaningful error message to
-the user. The `module_a` can be rewritten as follows:
+2番目のトリックは、アボートコードが呼び出し元モジュールによって処理されたら、異なるシナリオに
+異なるアボートコードを使用することです。このようにして、呼び出し元モジュールはユーザーに
+意味のあるエラーメッセージを提供できます。`module_a`は以下のように書き直すことができます：
 
 ```move
 module book::module_a;
@@ -82,16 +81,15 @@ public fun do_something() {
 }
 ```
 
-Now, the caller module can provide a meaningful error message to the user. If the caller receives an
-abort code `0`, it can be translated to "Field 1 does not exist". If the caller receives an abort
-code `1`, it can be translated to "Field 2 does not exist". And so on.
+これで、呼び出し元モジュールはユーザーに意味のあるエラーメッセージを提供できます。呼び出し元が
+アボートコード`0`を受け取った場合、「フィールド1が存在しません」と翻訳できます。呼び出し元が
+アボートコード`1`を受け取った場合、「フィールド2が存在しません」と翻訳できます。以下同様です。
 
-## Rule 3: Return `bool` Instead of `assert`
+## ルール3：`assert`の代わりに`bool`を返す
 
-A developer is often tempted to add a public function that would assert all the conditions and abort
-the execution. However, it is a better practice to create a function that returns a boolean value
-instead. This way, the caller module can handle the error and provide a meaningful error message to
-the user.
+開発者は、すべての条件をアサートして実行をアボートするパブリック関数を追加したがることがよくあります。
+しかし、代わりにブール値を返す関数を作成する方が良い実践です。このようにして、
+呼び出し元モジュールはエラーを処理し、ユーザーに意味のあるエラーメッセージを提供できます。
 
 ```move
 module book::some_app_assert;
@@ -108,13 +106,13 @@ public fun do_b() {
     // ...
 }
 
-/// Don't do this
+/// これはしないでください
 public fun assert_is_authorized() {
     assert!(/* some condition */ true, ENotAuthorized);
 }
 ```
 
-This module can be rewritten as follows:
+このモジュールは以下のように書き直すことができます：
 
 ```move
 module book::some_app;
@@ -135,12 +133,12 @@ public fun is_authorized(): bool {
     /* some condition */ true
 }
 
-// a private function can still be used to avoid code duplication for a case
-// when the same condition with the same abort code is used in multiple places
+// 同じ条件とアボートコードが複数の場所で使用される場合の
+// コード重複を避けるために、プライベート関数をまだ使用できます
 fun assert_is_authorized() {
     assert!(is_authorized(), ENotAuthorized);
 }
 ```
 
-Utilizing these three rules will make the error handling more transparent to the caller of the
-transaction, and it will allow other developers to use custom abort codes in their modules.
+これらの3つのルールを活用することで、エラーハンドリングがトランザクションの呼び出し元にとって
+より透明になり、他の開発者がモジュールでカスタムアボートコードを使用できるようになります。

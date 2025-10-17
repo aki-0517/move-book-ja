@@ -1,28 +1,28 @@
-# Appendix C: Transfer Functions
+# 付録C: 転送関数
 
-## Transfer Functions Comparison
+## 転送関数の比較
 
-| Function                  | Public Function         | End State     | Permissions               |
-| ------------------------- | ----------------------- | ------------- | ------------------------- |
-| [`transfer`][transfer]    | `public_transfer`       | Address Owned | Full                      |
-| [`share_object`][share]   | `public_share_object`   | Shared        | Ref, Mut Ref, Delete      |
-| [`freeze_object`][freeze] | `public_freeze_object`  | Frozen        | Ref                       |
-| [`party_transfer`][party] | `public_party_transfer` | Party         | [See Party table](#party) |
+| 関数                      | パブリック関数              | 終了状態      | 権限                       |
+| ------------------------- | --------------------------- | ------------- | -------------------------- |
+| [`transfer`][transfer]    | `public_transfer`           | アドレス所有  | 完全                       |
+| [`share_object`][share]   | `public_share_object`       | 共有          | Ref, Mut Ref, Delete       |
+| [`freeze_object`][freeze] | `public_freeze_object`      | 凍結          | Ref                        |
+| [`party_transfer`][party] | `public_party_transfer`     | パーティー    | [パーティーテーブル参照](#party) |
 
-## States Comparison
+## 状態の比較
 
-| State         | Description                                               |
-| ------------- | --------------------------------------------------------- |
-| Address Owned | Object can be accessed fully by an address (or an object) |
-| Shared        | Object can be referenced and deleted by anyone            |
-| Frozen        | Object can be accessed via immutable reference            |
-| Party         | Depends on the Party settings ([see Party table](#party)) |
+| 状態          | 説明                                                       |
+| ------------- | ---------------------------------------------------------- |
+| アドレス所有  | オブジェクトはアドレス（またはオブジェクト）によって完全にアクセス可能 |
+| 共有          | オブジェクトは誰でも参照・削除可能                         |
+| 凍結          | オブジェクトは不変参照を通じてアクセス可能                 |
+| パーティー    | パーティー設定に依存（[パーティーテーブル参照](#party)）   |
 
-## Party
+## パーティー
 
-| Function       | Description                                  |
-| -------------- | -------------------------------------------- |
-| `single_owner` | Object has same permissions as Address Owned |
+| 関数           | 説明                                       |
+| -------------- | ------------------------------------------ |
+| `single_owner` | オブジェクトはアドレス所有と同じ権限を持つ |
 
 [transfer]: https://docs.sui.io/references/framework/sui_sui/transfer#sui_transfer_transfer
 [share]: https://docs.sui.io/references/framework/sui_sui/transfer#sui_transfer_share_object

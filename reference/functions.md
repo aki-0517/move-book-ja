@@ -1,144 +1,129 @@
 ---
-title: 'Functions | Reference'
+title: '関数 | リファレンス'
 description: ''
 ---
 
-# Functions
+# 関数
 
-Functions are declared inside of modules and define the logic and behavior of the module. Functions
-can be reused, either being called from other functions or as entry points for execution.
+関数はモジュール内で宣言され、モジュールのロジックと動作を定義します。関数は、他の関数から呼び出されるか、実行のエントリポイントとして再利用できます。
 
-## Declaration
+## 宣言
 
-Functions are declared with the `fun` keyword followed by the function name, type parameters,
-parameters, a return type, and finally the function body.
+関数は`fun`キーワードに続いて、関数名、型パラメータ、パラメータ、戻り値の型、そして最後に関数本体で宣言されます。
 
 ```text
 <visibility>? <entry>? <macro>? fun <identifier><[type_parameters: constraint],*>([identifier: type],*): <return_type> <function_body>
 ```
 
-For example
+例えば
 
 ```move
 fun foo<T1, T2>(x: u64, y: T1, z: T2): (T2, T1, u64) { (z, y, x) }
 ```
 
-### Visibility
+### 可視性
 
-Module functions, by default, can only be called within the same module. These internal (sometimes
-called private) functions cannot be called from other modules or as entry points.
+モジュール関数は、デフォルトでは同じモジュール内でのみ呼び出すことができます。これらの内部（時々プライベートと呼ばれる）関数は、他のモジュールからやエントリポイントとして呼び出すことはできません。
 
 ```move
 module a::m {
     fun foo(): u64 { 0 }
-    fun calls_foo(): u64 { foo() } // valid
+    fun calls_foo(): u64 { foo() } // 有効
 }
 
 module b::other {
     fun calls_m_foo(): u64 {
         a::m::foo() // ERROR!
-//      ^^^^^^^^^^^ 'foo' is internal to 'a::m'
+//      ^^^^^^^^^^^ 'foo'は'a::m'の内部関数です
     }
 }
 ```
 
-To allow access from other modules, the function must be declared `public` or `public(package)`.
-Tangential to visibility, an [`entry`](#entry-modifier) function can be called as an entry point for
-execution.
+他のモジュールからのアクセスを許可するには、関数を`public`または`public(package)`として宣言する必要があります。可視性に関連して、[`entry`](#entry-modifier)関数は実行のエントリポイントとして呼び出すことができます。
 
-#### `public` visibility
+#### `public`可視性
 
-A `public` function can be called by _any_ function defined in _any_ module. As shown in the
-following example, a `public` function can be called by:
+`public`関数は_任意_のモジュールに定義された_任意_の関数から呼び出すことができます。以下の例で示されるように、`public`関数は以下から呼び出すことができます：
 
-- other functions defined in the same module,
-- functions defined in another module, or
-- as an entry point for execution.
+- 同じモジュールで定義された他の関数
+- 別のモジュールで定義された関数
+- 実行のエントリポイントとして
 
 ```move
 module a::m {
     public fun foo(): u64 { 0 }
-    fun calls_foo(): u64 { foo() } // valid
+    fun calls_foo(): u64 { foo() } // 有効
 }
 
 module b::other {
     fun calls_m_foo(): u64 {
-        a::m::foo() // valid
+        a::m::foo() // 有効
     }
 }
 ```
 
-Fore more details on the entry point to execution see [the section below](#entry-modifier).
+実行エントリポイントの詳細については[以下のセクション](#entry-modifier)を参照してください。
 
-#### `public(package)` visibility
+#### `public(package)`可視性
 
-The `public(package)` visibility modifier is a more restricted form of the `public` modifier to give
-more control about where a function can be used. A `public(package)` function can be called by:
+`public(package)`可視性修飾子は、関数が使用できる場所についてより細かい制御を提供するための、`public`修飾子のより制限的な形式です。`public(package)`関数は以下から呼び出すことができます：
 
-- other functions defined in the same module, or
-- other functions defined in the same package (the same address)
+- 同じモジュールで定義された他の関数
+- 同じパッケージ（同じアドレス）で定義された他の関数
 
 ```move
 module a::m {
     public(package) fun foo(): u64 { 0 }
-    fun calls_foo(): u64 { foo() } // valid
+    fun calls_foo(): u64 { foo() } // 有効
 }
 
 module a::n {
     fun calls_m_foo(): u64 {
-        a::m::foo() // valid, also in `a`
+        a::m::foo() // 有効、同じく`a`内です
     }
 }
 
 module b::other {
     fun calls_m_foo(): u64 {
         a::m::foo() // ERROR!
-//      ^^^^^^^^^^^ 'foo' can only be called from a module in `a`
+//      ^^^^^^^^^^^ 'foo'は`a`のモジュールからのみ呼び出すことができます
     }
 }
 ```
 
-#### DEPRECATED `public(friend)` visibility
+#### 非推奨 `public(friend)`可視性
 
-Before the addition of `public(package)`, `public(friend)` was used to allow limited public access
-to functions in the same package, but where the list of allowed modules had to be explicitly
-enumerated by the callee's module. see [Friends](./friends) for more details.
+`public(package)`の追加前は、`public(friend)`が同じパッケージ内の関数への限定的なパブリックアクセスを許可するために使用されていましたが、許可されたモジュールのリストを呼び出されるモジュールが明示的に列挙する必要がありました。詳細は[Friends](./friends)を参照してください。
 
-### `entry` modifier
+### `entry`修飾子
 
-In addition to `public` functions, you might have some functions in your modules that you want to
-use as the entry point to execution. The `entry` modifier is designed to allow module functions to
-initiate execution, without having to expose the functionality to other modules.
+`public`関数に加えて、モジュール内に実行のエントリポイントとして使用したい関数がある場合があります。`entry`修飾子は、他のモジュールに機能を公開することなく、モジュール関数が実行を開始できるように設計されています。
 
-Essentially, the combination of `public` and `entry` functions define the "main" functions of a
-module, and they specify where Move programs can start executing.
+本質的に、`public`と`entry`関数の組み合わせはモジュールの「main」関数を定義し、Moveプログラムが実行を開始できる場所を指定します。
 
-Keep in mind though, an `entry` function _can_ still be called by other Move functions. So while
-they _can_ serve as the start of a Move program, they aren't restricted to that case.
+ただし、`entry`関数は_依然として_他のMove関数から呼び出すことができることに注意してください。つまり、Moveプログラムの開始点として機能_できます_が、そのケースに制限されるわけではありません。
 
-For example:
+例えば：
 
 ```move
 module a::m {
     entry fun foo(): u64 { 0 }
-    fun calls_foo(): u64 { foo() } // valid!
+    fun calls_foo(): u64 { foo() } // 有効！
 }
 
 module a::n {
     fun calls_m_foo(): u64 {
         a::m::foo() // ERROR!
-//      ^^^^^^^^^^^ 'foo' is internal to 'a::m'
+//      ^^^^^^^^^^^ 'foo'は'a::m'の内部関数です
     }
 }
 ```
 
-`entry` functions may have restrictions on their parameters and return types. Although, these
-restrictions are specific to each individual deployment of Move.
+`entry`関数はパラメータや戻り値の型に制限がある場合があります。ただし、これらの制限はMoveの個々のデプロイに固有です。
 
-[The documentation for `entry` functions on Sui can be found here.](https://docs.sui.io/concepts/sui-move-concepts/entry-functions)
+[Suiでの`entry`関数のドキュメントはこちらでご確認いただけます。](https://docs.sui.io/concepts/sui-move-concepts/entry-functions)
 
-To enable easier testing, `entry` functions can be called from
-[`#[test]` and `#[test_only]`](./unit-testing) contexts.
+テストを簡単にするために、`entry`関数は[`#[test]`と`#[test_only]`](./unit-testing)コンテキストから呼び出すことができます。
 
 ```move
 module a::m {
@@ -146,20 +131,15 @@ module a::m {
 }
 module a::m_test {
     #[test]
-    fun my_test(): u64 { a::m::foo() } // valid!
+    fun my_test(): u64 { a::m::foo() } // 有効！
     #[test_only]
-    fun my_test_helper(): u64 { a::m::foo() } // valid!
+    fun my_test_helper(): u64 { a::m::foo() } // 有効！
 }
 ```
 
-### `macro` modifier
+### `macro`修飾子
 
-Unlike normal functions, `macro` functions do not exist at runtime. Instead, these functions are
-substituted inline at each call site during compilation. These `macro` functions leverage this
-compilation process to provide functionality beyond standard functions, such as accepting
-higher-order _lambda_-style functions as arguments. These lambda arguments, also expanded during
-compilation, allow you to pass parts of the function body to the macro as arguments. For instance,
-consider the following simple loop macro, where the loop body is supplied as a lambda:
+通常の関数とは異なり、`macro`関数は実行時に存在しません。代わりに、これらの関数はコンパイル時に各呼び出し箇所でインライン置換されます。これらの`macro`関数は、このコンパイルプロセスを活用して、高階の_ラムダ_スタイルの関数を引数として受け取るなど、標準関数を超えた機能を提供します。コンパイル時に展開されるこれらのラムダ引数により、関数本体の一部を引数としてマクロに渡すことができます。例えば、以下の単純なループマクロを考えてみてください。ここではループ本体がラムダとして提供されます：
 
 ```move
 macro fun n_times($n: u64, $body: |u64| -> ()) {
@@ -177,12 +157,11 @@ fun example() {
 }
 ```
 
-See the chapter on [macros](./functions/macros) for more information.
+詳細については、[マクロ](./functions/macros)の章を参照してください。
 
-### Name
+### 名前
 
-Function names can start with letters `a` to `z`. After the first character, function names can
-contain underscores `_`, letters `a` to `z`, letters `A` to `Z`, or digits `0` to `9`.
+関数名は`a`から`z`の文字で始まることができます。最初の文字の後、関数名にはアンダースコア`_`、`a`から`z`の文字、`A`から`Z`の文字、または`0`から`9`の数字を含めることができます。
 
 ```move
 fun fOO() {}
@@ -190,34 +169,34 @@ fun bar_42() {}
 fun bAZ_19() {}
 ```
 
-### Type Parameters
+### 型パラメータ
 
-After the name, functions can have type parameters
+名前の後、関数は型パラメータを持つことができます。
 
 ```move
 fun id<T>(x: T): T { x }
 fun example<T1: copy, T2>(x: T1, y: T2): (T1, T1, T2) { (copy x, x, y) }
 ```
 
-For more details, see [Move generics](./generics).
+詳細については、[Moveジェネリックス](./generics)を参照してください。
 
-### Parameters
+### パラメータ
 
-Functions parameters are declared with a local variable name followed by a type annotation
+関数パラメータは、ローカル変数名の後に型注釈を続けて宣言します。
 
 ```move
 fun add(x: u64, y: u64): u64 { x + y }
 ```
 
-We read this as `x` has type `u64`
+これは`x`が型`u64`を持つと読みます。
 
-A function does not have to have any parameters at all.
+関数はパラメータを全く持たなくても構いません。
 
 ```move
 fun useless() { }
 ```
 
-This is very common for functions that create new or empty data structures
+これは新しいまたは空のデータ構造を作成する関数で非常に一般的です。
 
 ```move
 module a::example;
@@ -229,24 +208,23 @@ fun new_counter(): Counter {
 }
 ```
 
-### Return type
+### 戻り値の型
 
-After the parameters, a function specifies its return type.
+パラメータの後、関数はその戻り値の型を指定します。
 
 ```move
 fun zero(): u64 { 0 }
 ```
 
-Here `: u64` indicates that the function's return type is `u64`.
+ここで`: u64`は関数の戻り値の型が`u64`であることを示しています。
 
-Using [tuples](./primitive-types/tuples), a function can return multiple values:
+[タプル](./primitive-types/tuples)を使用して、関数は複数の値を返すことができます：
 
 ```move
 fun one_two_three(): (u64, u64, u64) { (0, 1, 2) }
 ```
 
-If no return type is specified, the function has an implicit return type of unit `()`. These
-functions are equivalent:
+戻り値の型が指定されていない場合、関数は暗黙的に単位型`()`の戻り値の型を持ちます。これらの関数は同等です：
 
 ```move
 fun just_unit(): () { () }
@@ -254,37 +232,31 @@ fun just_unit() { () }
 fun just_unit() { }
 ```
 
-As mentioned in the [tuples section](./primitive-types/tuples), these tuple "values" do not exist as
-runtime values. This means that a function that returns unit `()` does not return any value during
-execution.
+[タプルセクション](./primitive-types/tuples)で言及されたように、これらのタプル「値」はランタイム値としては存在しません。これは、単位型`()`を返す関数は実行中に任意の値を返さないことを意味します。
 
-### Function body
+### 関数本体
 
-A function's body is an expression block. The return value of the function is the last value in the
-sequence
+関数の本体は式ブロックです。関数の戻り値はシーケンスの最後の値です。
 
 ```move
 fun example(): u64 {
     let mut x = 0;
     x = x + 1;
-    x // returns 'x'
+    x // 'x'を返す
 }
 ```
 
-See [the section below for more information on returns](#returning-values)
+戻り値の詳細については[以下のセクション](#returning-values)を参照してください。
 
-For more information on expression blocks, see [Move variables](./variables).
+式ブロックの詳細については、[Move変数](./variables)を参照してください。
 
-### Native Functions
+### ネイティブ関数
 
-Some functions do not have a body specified, and instead have the body provided by the VM. These
-functions are marked `native`.
+一部の関数は本体が指定されておらず、代わりにVMによって本体が提供されます。これらの関数は`native`とマークされています。
 
-Without modifying the VM source code, a programmer cannot add new native functions. Furthermore, it
-is the intent that `native` functions are used for either standard library code or for functionality
-needed for the given Move environment.
+VMのソースコードを変更せずに、プログラマーは新しいネイティブ関数を追加することはできません。さらに、`native`関数は標準ライブラリコードまたは特定のMove環境に必要な機能のために使用されることが意図されています。
 
-Most `native` functions you will likely see are in standard library code, such as `vector`
+おそらく目にすることになるほとんどの`native`関数は、`vector`などの標準ライブラリコードにあります。
 
 ```move
 module std::vector {
@@ -293,9 +265,9 @@ module std::vector {
 }
 ```
 
-## Calling
+## 呼び出し
 
-When calling a function, the name can be specified either through an alias or fully qualified
+関数を呼び出すとき、名前はエイリアスまたは完全修飾した名前で指定できます。
 
 ```move
 module a::example {
@@ -305,7 +277,7 @@ module a::example {
 module b::other {
     use a::example::{Self, zero};
     fun call_zero() {
-        // With the `use` above all of these calls are equivalent
+        // 上記の`use`で、これらの呼び出しはすべて同等です
         a::example::zero();
         example::zero();
         zero();
@@ -313,7 +285,7 @@ module b::other {
 }
 ```
 
-When calling a function, an argument must be given for every parameter.
+関数を呼び出すときは、すべてのパラメータに引数を渡す必要があります。
 
 ```move
 module a::example {
@@ -333,7 +305,7 @@ module b::other {
 }
 ```
 
-Type arguments can be either specified or inferred. Both calls are equivalent.
+型引数は指定するか推論させるかのどちらかです。両方の呼び出しは同等です。
 
 ```move
 module a::example {
@@ -348,11 +320,11 @@ module b::other {
 }
 ```
 
-For more details, see [Move generics](./generics).
+詳細については、[Moveジェネリックス](./generics)を参照してください。
 
-## Returning values
+## 値の返し方
 
-The result of a function, its "return value", is the final value of its function body. For example
+関数の結果、つまり「戻り値」は、関数本体の最終値です。例えば
 
 ```move
 fun add(x: u64, y: u64): u64 {
@@ -360,11 +332,9 @@ fun add(x: u64, y: u64): u64 {
 }
 ```
 
-The return value here is the result of `x + y`.
+ここでの戻り値は`x + y`の結果です。
 
-[As mentioned above](#function-body), the function's body is an [expression block](./variables). The
-expression block can sequence various statements, and the final expression in the block will be
-the value of that block
+[上記で言及したように](#function-body)、関数の本体は[式ブロック](./variables)です。式ブロックはさまざまな文をシーケンスでき、ブロック内の最後の式がそのブロックの値になります。
 
 ```move
 fun double_and_add(x: u64, y: u64): u64 {
@@ -374,20 +344,18 @@ fun double_and_add(x: u64, y: u64): u64 {
 }
 ```
 
-The return value here is the result of `double_x + double_y`
+ここでの戻り値は`double_x + double_y`の結果です。
 
-### `return` expression
+### `return`式
 
-A function implicitly returns the value that its body evaluates to. However, functions can also use
-the explicit `return` expression:
+関数はその本体が評価される値を暗黙的に返します。ただし、関数は明示的な`return`式を使用することもできます：
 
 ```move
 fun f1(): u64 { return 0 }
 fun f2(): u64 { 0 }
 ```
 
-These two functions are equivalent. In this slightly more involved example, the function subtracts
-two `u64` values, but returns early with `0` if the second value is too large:
+これら二つの関数は同等です。もう少し複雑な例では、関数は二つの`u64`値を減算しますが、二番目の値が大きすぎる場合は`0`で早期リターンします：
 
 ```move
 fun safe_sub(x: u64, y: u64): u64 {
@@ -396,10 +364,9 @@ fun safe_sub(x: u64, y: u64): u64 {
 }
 ```
 
-Note that the body of this function could also have been written as `if (y > x) 0 else x - y`.
+この関数の本体は`if (y > x) 0 else x - y`として書くこともできたことに注意してください。
 
-However `return` really shines is in exiting deep within other control flow constructs. In this
-example, the function iterates through a vector to find the index of a given value:
+しかし、`return`が真に輝くのは、他の制御フロー構造の深い部分からの終了です。この例では、関数はベクターを反復して、指定された値のインデックスを見つけます：
 
 ```move
 fun index_of<T>(v: &vector<T>, target: &T): Option<u64> {
@@ -414,8 +381,7 @@ fun index_of<T>(v: &vector<T>, target: &T): Option<u64> {
 }
 ```
 
-Using `return` without an argument is shorthand for `return ()`. That is, the following two
-functions are equivalent:
+引数なしで`return`を使用するのは`return ()`のショートハンドです。つまり、以下の二つの関数は同等です：
 
 ```move
 fun foo() { return }

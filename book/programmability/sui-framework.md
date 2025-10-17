@@ -1,13 +1,13 @@
 # Sui Framework
 
-Sui Framework is a default dependency set in the [Package Manifest](./../concepts/manifest). It
-depends on the [Standard Library](./../move-basics/standard-library) and provides Sui-specific
-features, including the interaction with the storage, and Sui-specific native types and modules.
+Sui Frameworkは[Package Manifest](./../concepts/manifest)でデフォルトの依存関係セットです。
+[Standard Library](./../move-basics/standard-library)に依存し、ストレージとの相互作用や
+Sui固有のネイティブ型とモジュールを含む、Sui固有の機能を提供します。
 
-_For convenience, we grouped the modules in the Sui Framework into multiple categories. But they're
-still part of the same framework._
+_便宜上、Sui Frameworkのモジュールを複数のカテゴリにグループ化しました。しかし、
+それらは同じフレームワークの一部です。_
 
-## Core
+## コア
 
 <!-- Custom CSS addition in the theme/custom.css  -->
 <div class="modules-table">
@@ -28,23 +28,23 @@ still part of the same framework._
 
 </div>
 
-## Collections
+## コレクション
 
 <div class="modules-table">
 
 | Module                                                                         | Description                                                       | Chapter                                      |
 | ------------------------------------------------------------------------------ | ----------------------------------------------------------------- | -------------------------------------------- |
-| [sui::vec_set](https://docs.sui.io/references/framework/sui/vec_set)           | Implements a set type                                             | [Collections](./collections)                 |
-| [sui::vec_map](https://docs.sui.io/references/framework/sui/vec_map)           | Implements a map with vector keys                                 | [Collections](./collections)                 |
-| [sui::table](https://docs.sui.io/references/framework/sui/table)               | Implements the `Table` type and methods to interact with it       | [Dynamic Collections](./dynamic-collections) |
-| [sui::linked_table](https://docs.sui.io/references/framework/sui/linked_table) | Implements the `LinkedTable` type and methods to interact with it | [Dynamic Collections](./dynamic-collections) |
-| [sui::bag](https://docs.sui.io/references/framework/sui/bag)                   | Implements the `Bag` type and methods to interact with it         | [Dynamic Collections](./dynamic-collections) |
-| [sui::object_table](https://docs.sui.io/references/framework/sui/object_table) | Implements the `ObjectTable` type and methods to interact with it | [Dynamic Collections](./dynamic-collections) |
-| [sui::object_bag](https://docs.sui.io/references/framework/sui/object_bag)     | Implements the `ObjectBag` type and methods to interact with it   | [Dynamic Collections](./dynamic-collections) |
+| [sui::vec_set](https://docs.sui.io/references/framework/sui/vec_set)           | セット型を実装する                                               | [Collections](./collections)                 |
+| [sui::vec_map](https://docs.sui.io/references/framework/sui/vec_map)           | ベクターキーを持つマップを実装する                               | [Collections](./collections)                 |
+| [sui::table](https://docs.sui.io/references/framework/sui/table)               | `Table`型とそれと相互作用するメソッドを実装する                   | [Dynamic Collections](./dynamic-collections) |
+| [sui::linked_table](https://docs.sui.io/references/framework/sui/linked_table) | `LinkedTable`型とそれと相互作用するメソッドを実装する             | [Dynamic Collections](./dynamic-collections) |
+| [sui::bag](https://docs.sui.io/references/framework/sui/bag)                   | `Bag`型とそれと相互作用するメソッドを実装する                     | [Dynamic Collections](./dynamic-collections) |
+| [sui::object_table](https://docs.sui.io/references/framework/sui/object_table) | `ObjectTable`型とそれと相互作用するメソッドを実装する             | [Dynamic Collections](./dynamic-collections) |
+| [sui::object_bag](https://docs.sui.io/references/framework/sui/object_bag)     | `ObjectBag`型とそれと相互作用するメソッドを実装する               | [Dynamic Collections](./dynamic-collections) |
 
 </div>
 
-## Utilities
+## ユーティリティ
 
 <div class="modules-table">
 
@@ -57,23 +57,23 @@ still part of the same framework._
 
 </div>
 
-## Exported Addresses
+## エクスポートされたアドレス
 
-Sui Framework exports two named addresses: `sui = 0x2` and `std = 0x1` from the std dependency.
+Sui Frameworkは、std依存関係から`sui = 0x2`と`std = 0x1`の2つの名前付きアドレスをエクスポートします。
 
 ```toml
 [addresses]
 sui = "0x2"
 
-# Exported from the MoveStdlib dependency
+# MoveStdlib依存関係からエクスポート
 std = "0x1"
 ```
 
-## Implicit Imports
+## 暗黙的インポート
 
-Just like with [Standard Library](./../move-basics/standard-library#implicit-imports), some of the
-modules and types are imported implicitly in the Sui Framework. This is the list of modules and
-types that are available without explicit `use` import:
+[Standard Library](./../move-basics/standard-library#implicit-imports)と同様に、
+Sui Frameworkでは一部のモジュールと型が暗黙的にインポートされます。
+明示的な`use`インポートなしで利用可能なモジュールと型のリストは以下の通りです：
 
 - sui::object
 - sui::object::ID
@@ -82,10 +82,11 @@ types that are available without explicit `use` import:
 - sui::tx_context::TxContext
 - sui::transfer
 
-## Source Code
+## ソースコード
 
-The source code of the Sui Framework is available in the
-[Sui repository](https://github.com/MystenLabs/sui/tree/main/crates/sui-framework/packages/sui-framework/sources).
+Sui Frameworkのソースコードは
+[Sui repository](https://github.com/MystenLabs/sui/tree/main/crates/sui-framework/packages/sui-framework/sources)で
+利用可能です。
 
 <!--
 

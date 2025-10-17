@@ -1,78 +1,80 @@
-# Transaction Context
+# トランザクションコンテキスト
 
-Every transaction has the execution context. The context is a set of predefined variables that are
-available to the program during execution. For example, every transaction has a sender address, and
-the transaction context contains a variable that holds the sender address.
+すべてのトランザクションには実行コンテキストがあります。コンテキストは、実行中にプログラムに
+利用可能な事前定義された変数のセットです。例えば、すべてのトランザクションには送信者アドレスがあり、
+トランザクションコンテキストには送信者アドレスを保持する変数が含まれています。
 
-The transaction context is available to the program through the `TxContext` struct. The struct is
-defined in the [`sui::tx_context`][tx-context-framework] module and contains the following fields:
+トランザクションコンテキストは、`TxContext`構造体を通じてプログラムに利用可能です。
+この構造体は[`sui::tx_context`][tx-context-framework]モジュールで定義され、
+以下のフィールドを含みます：
 
 [tx-context-framework]: https://docs.sui.io/references/framework/sui/tx_context
 
 ```move
 module sui::tx_context;
 
-/// Information about the transaction currently being executed.
-/// This cannot be constructed by a transaction--it is a privileged object created by
-/// the VM and passed in to the entrypoint of the transaction as `&mut TxContext`.
+/// 現在実行されているトランザクションに関する情報。
+/// これはトランザクションによって構築することはできません - VMによって作成され、
+/// `&mut TxContext`としてトランザクションのエントリーポイントに渡される特権オブジェクトです。
 public struct TxContext has drop {
-    /// The address of the user that signed the current transaction
+    /// 現在のトランザクションに署名したユーザーのアドレス
     sender: address,
-    /// Hash of the current transaction
+    /// 現在のトランザクションのハッシュ
     tx_hash: vector<u8>,
-    /// The current epoch number
+    /// 現在のエポック番号
     epoch: u64,
-    /// Timestamp that the epoch started at
+    /// エポックが開始されたタイムスタンプ
     epoch_timestamp_ms: u64,
-    /// Counter recording the number of fresh id's created while executing
-    /// this transaction. Always 0 at the start of a transaction
+    /// このトランザクションの実行中に作成された新しいIDの数を記録するカウンター
+    /// トランザクションの開始時は常に0
     ids_created: u64
 }
 ```
 
-Transaction context cannot be constructed manually or directly modified. It is created by the system
-and passed to the function as a reference in a transaction. Any function called in a
-[Transaction](./../concepts/what-is-a-transaction) has access to the context and can pass it into
-the nested calls.
+トランザクションコンテキストは手動で構築したり直接変更したりすることはできません。
+システムによって作成され、トランザクション内で参照として関数に渡されます。
+[Transaction](./../concepts/what-is-a-transaction)で呼び出される任意の関数はコンテキストに
+アクセスでき、ネストされた呼び出しに渡すことができます。
 
-> `TxContext` has to be the last argument in the function signature.
+> `TxContext`は関数シグネチャの最後の引数である必要があります。
 
-## Reading the Transaction Context
+## トランザクションコンテキストの読み取り
 
-With only exception of the `ids_created`, all of the fields in the `TxContext` have getters. The
-getters are defined in the `sui::tx_context` module and are available to the program. The getters
-don't require `&mut` because they don't modify the context.
+`ids_created`を除いて、`TxContext`のすべてのフィールドにはゲッターがあります。
+ゲッターは`sui::tx_context`モジュールで定義され、プログラムに利用可能です。
+ゲッターはコンテキストを変更しないため、`&mut`を必要としません。
 
 ```move file=packages/samples/sources/programmability/transaction-context.move anchor=reading
 
 ```
 
-## Mutability
+## 可変性
 
-The `TxContext` is required to create new objects (or just `UID`s) in the system. New UIDs are
-derived from the transaction digest, and for the digest to be unique, there needs to be a changing
-parameter. Sui uses the `ids_created` field for that. Every time a new UID is created, the
-`ids_created` field is incremented by one. This way, the digest is always unique.
+`TxContext`は、システム内で新しいオブジェクト（または単に`UID`）を作成するために必要です。
+新しいUIDはトランザクションダイジェストから派生され、ダイジェストを一意にするために、
+変化するパラメータが必要です。Suiはそのために`ids_created`フィールドを使用します。
+新しいUIDが作成されるたびに、`ids_created`フィールドが1つ増加します。
+このようにして、ダイジェストは常に一意になります。
 
-Internally, it is represented as the `derive_id` function:
+内部的には、`derive_id`関数として表現されます：
 
 ```move
 native fun derive_id(tx_hash: vector<u8>, ids_created: u64): address;
 ```
 
-## Generating Unique Addresses
+## 一意のアドレスの生成
 
-The underlying `derive_id` function can also be utilized in your program to generate unique
-addresses. The function itself is not exposed, but a wrapper function `fresh_object_address` is
-available in the `sui::tx_context` module. It may be useful if you need to generate a unique
-identifier in your program.
+基盤となる`derive_id`関数は、プログラムで一意のアドレスを生成するためにも
+利用できます。関数自体は公開されていませんが、`sui::tx_context`モジュールで
+`fresh_object_address`ラッパー関数が利用可能です。プログラムで一意の識別子を
+生成する必要がある場合に役立つかもしれません。
 
 ```move
 module sui::tx_context;
 
-/// Create an `address` that has not been used. As it is an object address, it will never
-/// occur as the address for a user.
-/// In other words, the generated address is a globally unique object ID.
+/// 使用されていない`address`を作成します。これはオブジェクトアドレスであるため、
+/// ユーザーのアドレスとして発生することはありません。
+/// 言い換えれば、生成されたアドレスはグローバルに一意のオブジェクトIDです。
 public fun fresh_object_address(ctx: &mut TxContext): address {
     let ids_created = ctx.ids_created;
     let id = derive_id(*&ctx.tx_hash, ids_created);

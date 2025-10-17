@@ -1,9 +1,5 @@
-# Move Basics
+# Moveの基礎
 
-This chapter is all about the basic syntax of the Move language. It covers the basics of the
-language, such as types, modules, functions, and control flow. It focuses on the language without a
-storage model or a blockchain, and explains the essential concepts of the language. To learn
-features specific to Sui, such as storage functions and abilities, refer to the
-[Using Objects](./../storage/) chapter, however, it is recommended to start with this chapter first.
+この章では、Move言語の基本的な構文について説明します。型、モジュール、関数、制御フローなど、言語の基礎をカバーしています。ストレージモデルやブロックチェーンを使わない言語そのものに焦点を当て、言語の本質的な概念を説明します。ストレージ関数やアビリティなど、Sui固有の機能については[Using Objects](./../storage/)の章を参照してください。ただし、まずはこの章から始めることをお勧めします。
 
 <!-- TODO: cross link with Reference -->

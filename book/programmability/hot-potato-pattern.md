@@ -1,127 +1,127 @@
-# Pattern: Hot Potato
+# パターン：ホットポテト
 
-A case in the abilities system - a struct without any abilities - is called _hot potato_. It cannot
-be stored (not as [an object](./../storage/key-ability) nor as
-[a field in another struct](./../storage/store-ability)), it cannot be
-[copied](./../move-basics/copy-ability) or [discarded](./../move-basics/drop-ability). Hence, once
-constructed, it must be gracefully [unpacked by its module](./../move-basics/struct), or the
-transaction will abort due to unused value without drop.
+アビリティシステムのケース - アビリティを持たない構造体 - は_ホットポテト_と呼ばれます。
+格納できません（[オブジェクト](./../storage/key-ability)としても[他の構造体のフィールド](./../storage/store-ability)としても）、
+[コピー](./../move-basics/copy-ability)や[破棄](./../move-basics/drop-ability)もできません。
+したがって、一度構築されると、そのモジュールによって適切に[アンパック](./../move-basics/struct)されるか、
+ドロップなしの未使用値によりトランザクションがアボートします。
 
-> If you're familiar with languages that support _callbacks_, you can think of a hot potato as an
-> obligation to call a callback function. If you don't call it, the transaction will abort.
+> _コールバック_をサポートする言語に慣れている場合、ホットポテトをコールバック関数を
+> 呼び出す義務として考えることができます。呼び出さないと、トランザクションがアボートします。
 
-The name comes from the children's game where a ball is passed quickly between players, and none of
-the players want to be the last one holding it when the music stops, or they are out of the game.
-This is the best illustration of the pattern - the instance of a hot-potato struct is passed between
-calls, and none of the modules can keep it.
+名前は、ボールがプレイヤー間で素早く渡される子供のゲームから来ており、音楽が止まったときに
+最後にボールを持っているプレイヤーは誰もいません。そうでなければ、ゲームから外れます。
+これがパターンの最良の例です - ホットポテト構造体のインスタンスは呼び出し間で渡され、
+どのモジュールもそれを保持できません。
 
-## Defining a Hot Potato
+## ホットポテトの定義
 
-A hot potato can be any struct with no abilities. For example, the following struct is a hot potato:
+ホットポテトは、アビリティを持たない任意の構造体にすることができます。例えば、以下の構造体は
+ホットポテトです：
 
 ```move file=packages/samples/sources/programmability/hot-potato-pattern.move anchor=definition
 
 ```
 
-Because the `Request` has no abilities and cannot be stored or ignored, the module must provide a
-function to unpack it. For example:
+`Request`にはアビリティがなく、格納や無視ができないため、モジュールはそれをアンパックする
+関数を提供する必要があります。例えば：
 
 ```move file=packages/samples/sources/programmability/hot-potato-pattern.move anchor=new_request
 
 ```
 
-## Example Usage
+## 使用例
 
-In the following example, the `Promise` hot potato is used to ensure that the borrowed value, when
-taken from the container, is returned back to it. The `Promise` struct contains the ID of the
-borrowed object, and the ID of the container, ensuring that the borrowed value was not swapped for
-another and is returned to the correct container.
+以下の例では、`Promise`ホットポテトを使用して、借用された値がコンテナから取り出されたときに
+コンテナに返されることを保証しています。`Promise`構造体には借用されたオブジェクトのIDと
+コンテナのIDが含まれており、借用された値が他のものと交換されずに正しいコンテナに
+返されることを保証しています。
 
 ```move file=packages/samples/sources/programmability/hot-potato-pattern.move anchor=container_borrow
 
 ```
 
-## Applications
+## アプリケーション
 
-Below we list some of the common use cases for the hot potato pattern.
+以下に、ホットポテトパターンの一般的なユースケースをリストアップします。
 
-### Borrowing
+### 借用
 
-As shown in the [example above](#example-usage), the hot potato is very effective for borrowing with
-a guarantee that the borrowed value is returned to the correct container. While the example focuses
-on a value stored inside an `Option`, the same pattern can be applied to any other storage type, say
-a [dynamic field](./dynamic-fields).
+[上記の例](#example-usage)で示されているように、ホットポテトは借用された値が正しいコンテナに
+返されることを保証する借用に非常に効果的です。例は`Option`内に格納された値に焦点を当てていますが、
+同じパターンは他の任意のストレージ型、例えば[動的フィールド](./dynamic-fields)に適用できます。
 
-### Flash Loans
+### フラッシュローン
 
-Canonical example of the hot potato pattern is flash loans. A flash loan is a loan that is borrowed
-and repaid in the same transaction. The borrowed funds are used to perform some operations, and the
-repaid funds are returned to the lender. The hot potato pattern ensures that the borrowed funds are
-returned to the lender.
+ホットポテトパターンの典型的な例はフラッシュローンです。フラッシュローンは、同じトランザクションで
+借用され返済されるローンです。借用された資金は何らかの操作を実行するために使用され、
+返済された資金は貸し手に返されます。ホットポテトパターンは、借用された資金が貸し手に
+返されることを保証します。
 
-An example usage of this pattern may look like this:
+このパターンの使用例は以下のようになります：
 
 ```move
-// Borrow the funds from the lender.
+// 貸し手から資金を借用する。
 let (asset_a, potato) = lender.borrow(amount);
 
-// Perform some operations with the borrowed funds.
+// 借用された資金で何らかの操作を実行する。
 let asset_b = dex.trade(loan);
 let proceeds = another_contract::do_something(asset_b);
 
-// Keep the commission and return the rest to the lender.
+// 手数料を保持し、残りを貸し手に返す。
 let pay_back = proceeds.split(amount, ctx);
 lender.repay(pay_back, potato);
 transfer::public_transfer(proceeds, ctx.sender());
 ```
 
-### Variable-path Execution
+### 可変パス実行
 
-The hot potato pattern can be used to introduce variation in the execution path. For example, if
-there is a module which allows purchasing a `Phone` for some "Bonus Points" or for USD, the hot
-potato can be used to decouple the purchase from the payment. The approach is very similar to how
-some shops work - you take the item from the shelf, and then you go to the cashier to pay for it.
+ホットポテトパターンは、実行パスに変化を導入するために使用できます。例えば、
+「ボーナスポイント」またはUSDで`Phone`を購入できるモジュールがある場合、
+ホットポテトを使用して購入と支払いを分離できます。このアプローチは、一部の店舗の
+仕組みと非常によく似ています - 棚から商品を取り、その後レジで支払います。
 
 ```move file=packages/samples/sources/programmability/hot-potato-pattern.move anchor=phone_shop
 
 ```
 
-This decoupling technique allows separating the purchase logic from the payment logic, making the
-code more modular and easier to maintain. The `Ticket` could be split into its own module, providing
-a basic interface for the payment, and the shop implementation could be extended to support other
-goods without changing the payment logic.
+この分離技術により、購入ロジックと支払いロジックを分離でき、コードをよりモジュール化し、
+メンテナンスしやすくします。`Ticket`は独自のモジュールに分割でき、支払いのための
+基本的なインターフェースを提供し、店舗の実装は支払いロジックを変更することなく
+他の商品をサポートするように拡張できます。
 
-### Compositional Patterns
+### 合成パターン
 
-Hot potato can be used to link together different modules in a compositional way. Its module may
-define ways to interact with the hot potato, for example, stamp it with a type signature, or to
-extract some information from it. This way, the hot potato can be passed between different modules,
-and even different packages within the same transaction.
+ホットポテトは、異なるモジュールを合成的方法でリンクするために使用できます。
+そのモジュールは、ホットポテトと相互作用する方法を定義できます。例えば、
+型シグネチャでスタンプするか、そこから何らかの情報を抽出します。このようにして、
+ホットポテトは異なるモジュール間、さらには同じトランザクション内の異なるパッケージ間で
+渡すことができます。
 
 <!-- TODO: add [Request Pattern](./request-pattern)
 
 The most important compositional pattern is the Request Pattern, which we will cover in the next
 section. -->
 
-### Usage in the Sui Framework
+### Sui Frameworkでの使用
 
-The pattern is used in various forms in the Sui Framework. Here are some examples:
+このパターンは、Sui Frameworkで様々な形で使用されています。以下にいくつかの例を示します：
 
-- [sui::borrow][borrow-framework] - uses hot potato to ensure that the borrowed value is returned to
-  the correct container.
-- [sui::transfer_policy][transfer-policy-framework] - defines a `TransferRequest` - a hot potato
-  which can only be consumed if all conditions are met.
-- [sui::token][token-framework] - in the Closed Loop Token system, an `ActionRequest` carries the
-  information about the performed action and collects approvals similarly to `TransferRequest`.
+- [sui::borrow][borrow-framework] - 借用された値が正しいコンテナに返されることを保証するために
+  ホットポテトを使用します。
+- [sui::transfer_policy][transfer-policy-framework] - `TransferRequest`を定義します - すべての条件が
+  満たされた場合にのみ消費できるホットポテトです。
+- [sui::token][token-framework] - クローズドループトークンシステムでは、`ActionRequest`が
+  実行されたアクションに関する情報を運び、`TransferRequest`と同様に承認を収集します。
 
 [borrow-framework]: https://docs.sui.io/references/framework/sui-framework/borrow
 [transfer-policy-framework]: https://docs.sui.io/references/framework/sui-framework/transfer_policy
 [token-framework]: https://docs.sui.io/references/framework/sui-framework/token
 
-## Summary
+## まとめ
 
-- A hot potato is a struct without abilities, it must come with a way to create and destroy it.
-- Hot potatoes are used to ensure that some action is taken before the transaction ends, similar to
-  a callback.
-- Most common use cases for hot potato are borrowing, flash loans, variable-path execution, and
-  compositional patterns.
+- ホットポテトはアビリティを持たない構造体で、それを作成し破棄する方法と一緒に来る必要があります。
+- ホットポテトは、コールバックと同様に、トランザクションが終了する前に何らかのアクションが
+  実行されることを保証するために使用されます。
+- ホットポテトの最も一般的なユースケースは、借用、フラッシュローン、可変パス実行、
+  合成パターンです。

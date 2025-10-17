@@ -1,69 +1,72 @@
-# Pattern: Capability
+# パターン：ケーパビリティ
 
-In programming, a _capability_ is a token that gives the owner the right to perform a specific
-action. It is a pattern that is used to control access to resources and operations. A simple example
-of a capability is a key to a door. If you have the key, you can open the door. If you don't have
-the key, you can't open the door. A more practical example is an Admin Capability which allows the
-owner to perform administrative operations, which regular users cannot.
+プログラミングにおいて、_ケーパビリティ_は、所有者に特定のアクションを実行する権利を与える
+トークンです。これは、リソースと操作へのアクセスを制御するために使用されるパターンです。
+ケーパビリティの簡単な例は、ドアの鍵です。鍵を持っていれば、ドアを開けることができます。
+鍵を持っていなければ、ドアを開けることができません。より実用的な例は、所有者が
+通常のユーザーができない管理操作を実行することを可能にするAdmin Capabilityです。
 
-## Capability is an Object
+## ケーパビリティはオブジェクト
 
-In the [Sui Object Model](./../object/), capabilities are represented as objects. An owner of an
-object can pass this object to a function to prove that they have the right to perform a specific
-action. Due to strict typing, the function taking a capability as an argument can only be called
-with the correct capability.
+[Sui Object Model](./../object/)では、ケーパビリティはオブジェクトとして表現されます。
+オブジェクトの所有者は、このオブジェクトを関数に渡して、特定のアクションを実行する権利を
+持っていることを証明できます。厳密な型付けにより、ケーパビリティを引数として取る関数は
+正しいケーパビリティでのみ呼び出すことができます。
 
-> There's a convention to name capabilities with the `Cap` suffix, for example, `AdminCap` or
-> `KioskOwnerCap`.
+> ケーパビリティには`Cap`サフィックスを付ける慣例があります。例えば、`AdminCap`や
+> `KioskOwnerCap`です。
 
 ```move file=packages/samples/sources/programmability/capability.move anchor=main
 
 ```
 
-## Using `init` for Admin Capability
+## Admin Capabilityに`init`を使用する
 
-A very common practice is to create a single `AdminCap` object on package publish. This way, the
-application can have a setup phase where the admin account prepares the state of the application.
+非常に一般的な実践は、パッケージ公開時に単一の`AdminCap`オブジェクトを作成することです。
+このようにして、アプリケーションは管理者アカウントがアプリケーションの状態を準備する
+セットアップフェーズを持つことができます。
 
 ```move file=packages/samples/sources/programmability/capability-2.move anchor=admin_cap
 
 ```
 
-## Address Check vs Capability
+## アドレスチェック vs ケーパビリティ
 
-Utilizing objects as capabilities is a relatively new concept in blockchain programming. And in
-other smart-contract languages, authorization is often performed by checking the address of the
-sender. This pattern is still viable on Sui, however, overall recommendation is to use capabilities
-for better security, discoverability, and code organization.
+オブジェクトをケーパビリティとして使用することは、ブロックチェーンプログラミングでは
+比較的新しい概念です。他のスマートコントラクト言語では、認証は送信者のアドレスを
+チェックすることで行われることがよくあります。このパターンはSuiでも有効ですが、
+全体的な推奨事項は、より良いセキュリティ、発見可能性、コード組織のために
+ケーパビリティを使用することです。
 
-Let's look at how the `new` function that creates a user would look like if it was using the address
-check:
+ユーザーを作成する`new`関数がアドレスチェックを使用していた場合の様子を見てみましょう：
 
 ```move file=packages/samples/sources/programmability/capability-3.move anchor=with_address
 
 ```
 
-And now, let's see how the same function would look like with the capability:
+そして今度は、同じ関数がケーパビリティを使用した場合の様子を見てみましょう：
 
 ```move file=packages/samples/sources/programmability/capability-4.move anchor=with_capability
 
 ```
 
-Using capabilities has several advantages over the address check:
+ケーパビリティを使用することには、アドレスチェックよりもいくつかの利点があります：
 
-- Migration of admin rights is easier with capabilities due to them being objects. In case of
-  address, if the admin address changes, all the functions that check the address need to be
-  updated - hence, require a package upgrade.
-- Function signatures are more descriptive with capabilities. It is clear that the `new` function
-  requires the `AdminCap` to be passed as an argument. And this function can't be called without it.
-- Object Capabilities don't require extra checks in the function body, and hence, decrease the
-  chance of a developer mistake.
-- An owned Capability also serves in discovery. The owner of the AdminCap can see the object in
-  their account (via a Wallet or Explorer), and know that they have the admin rights. This is less
-  transparent with the address check.
+- ケーパビリティはオブジェクトであるため、管理者権限の移行が容易です。アドレスの場合、
+  管理者アドレスが変更されると、アドレスをチェックするすべての関数を更新する必要があります
+  - したがって、パッケージアップグレードが必要です。
+- ケーパビリティを使用すると、関数シグネチャがより説明的になります。`new`関数が
+  `AdminCap`を引数として渡す必要があることが明確です。そして、この関数はそれなしでは
+  呼び出すことができません。
+- オブジェクトケーパビリティは関数本体で追加のチェックを必要としないため、
+  開発者のミスの可能性を減らします。
+- 所有されたケーパビリティは発見にも役立ちます。AdminCapの所有者は、アカウント内の
+  オブジェクト（ウォレットやエクスプローラー経由）を見て、管理者権限を持っていることを
+  知ることができます。これはアドレスチェックではそれほど透明ではありません。
 
-However, the address approach has its own advantages. For example, if an address is multisig, and
-transaction building gets more complex, it might be easier to check the address. Also, if there's a
-central object of the application that is used in every function, it can store the admin address,
-and this would simplify migration. The central object approach is also valuable for revocable
-capabilities, where the admin can revoke the capability from the user.
+ただし、アドレスアプローチにも独自の利点があります。例えば、アドレスがマルチシグで、
+トランザクション構築がより複雑になる場合、アドレスをチェックする方が簡単かもしれません。
+また、すべての関数で使用されるアプリケーションの中央オブジェクトがある場合、
+管理者アドレスを保存でき、これにより移行が簡素化されます。中央オブジェクトアプローチは、
+管理者がユーザーからケーパビリティを取り消すことができる取り消し可能なケーパビリティにも
+価値があります。

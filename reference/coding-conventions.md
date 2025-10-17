@@ -1,8 +1,8 @@
 ---
-title: 'Coding Conventions | Reference'
+title: 'コーディング規約 | リファレンス'
 description: ''
 ---
 
-# Coding Conventions
+# コーディング規約
 
-See [Sui's Coding Conventions for Move](https://docs.sui.io/concepts/sui-move-concepts/conventions)
+[SuiのMoveコーディング規約](https://docs.sui.io/concepts/sui-move-concepts/conventions)を参照してください。

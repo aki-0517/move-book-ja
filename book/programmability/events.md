@@ -1,46 +1,46 @@
-# Events
+# イベント
 
-Events are a way to notify off-chain listeners about on-chain events. They are used to emit
-additional information about the transaction that is not stored - and, hence, can't be accessed -
-on-chain. Events are emitted by the `sui::event` module located in the
-[Sui Framework](./sui-framework).
+イベントは、オンチェーンイベントについてオフチェーンのリスナーに通知する方法です。
+これらは、格納されていない（したがって、オンチェーンでアクセスできない）トランザクションに関する
+追加情報を発行するために使用されます。イベントは[Sui Framework](./sui-framework)にある
+`sui::event`モジュールによって発行されます。
 
-> Any custom type with the [copy](./../move-basics/copy-ability) and
-> [drop](./../move-basics/drop-ability) abilities can be emitted as an event. Sui Verifier requires
-> the type to be internal to the module.
+> [copy](./../move-basics/copy-ability)と[drop](./../move-basics/drop-ability)アビリティを持つ
+> 任意のカスタム型をイベントとして発行できます。Sui Verifierは、型がモジュール内部であることを
+> 要求します。
 
 ```move
 module sui::event;
 
-/// Emit a custom Move event, sending the data off-chain.
+/// カスタムMoveイベントを発行し、データをオフチェーンに送信します。
 ///
-/// Used for creating custom indexes and tracking on-chain
-/// activity in a way that suits a specific application the most.
+/// カスタムインデックスの作成とオンチェーンアクティビティの追跡に使用され、
+/// 特定のアプリケーションに最も適した方法で行われます。
 ///
-/// The type `T` is the main way to index the event, and can contain
-/// phantom parameters, eg `emit(MyEvent<phantom T>)`.
+/// 型`T`はイベントをインデックスする主要な方法であり、
+/// ファントムパラメータを含むことができます（例：`emit(MyEvent<phantom T>)`）。
 public native fun emit<T: copy + drop>(event: T);
 ```
 
-## Emitting Events
+## イベントの発行
 
-Events are emitted using the `emit` function in the `sui::event` module. The function takes a single
-argument - the event to be emitted. The event data is passed by value,
+イベントは`sui::event`モジュールの`emit`関数を使用して発行されます。この関数は単一の
+引数を取ります - 発行されるイベントです。イベントデータは値で渡されます。
 
 ```move file=packages/samples/sources/programmability/events.move anchor=emit
 
 ```
 
-The Sui Verifier requires the type passed to the `emit` function to be _internal to the module_. So
-emitting a type from another module will result in a compilation error. Primitive types, although
-they match the _copy_ and _drop_ requirement, are not allowed to be emitted as events.
+Sui Verifierは、`emit`関数に渡される型が_モジュール内部_であることを要求します。
+したがって、他のモジュールの型を発行するとコンパイルエラーになります。プリミティブ型は、
+_copy_と_drop_の要件に一致しますが、イベントとして発行することは許可されません。
 
-## Event Structure
+## イベント構造
 
-Events are a part of the transaction result and are stored in the _transaction effects_. As such,
-they natively have the `sender` field which is the address which sent the transaction. So adding a
-"sender" field to the event is not necessary. Similarly, event metadata contains the timestamp. But
-it is important to note that the timestamp is relative to the node and may vary a little from node
-to node.
+イベントはトランザクション結果の一部であり、_トランザクション効果_に格納されます。
+そのため、トランザクションを送信したアドレスである`sender`フィールドをネイティブに持っています。
+したがって、イベントに「sender」フィールドを追加する必要はありません。同様に、
+イベントメタデータにはタイムスタンプが含まれています。ただし、タイムスタンプはノードに
+相対的であり、ノードによって少し異なる可能性があることに注意することが重要です。
 
 <!-- ## Reliability -->

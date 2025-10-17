@@ -1,16 +1,17 @@
-# Publisher Authority
+# パブリッシャー権限
 
-In application design and development, it is often needed to prove publisher authority. This is
-especially important in the context of digital assets, where the publisher may enable or disable
-certain features for their assets. The Publisher Object is an object, defined in the
-[Sui Framework](./sui-framework), that allows the publisher to prove their _authority over a type_.
+アプリケーションの設計と開発では、パブリッシャー権限を証明する必要がよくあります。
+これは、デジタルアセットの文脈で特に重要です。パブリッシャーはアセットの特定の機能を
+有効または無効にできるからです。Publisher Objectは[Sui Framework](./sui-framework)で
+定義されたオブジェクトで、パブリッシャーが_型に対する権限_を証明することを可能にします。
 
-## Definition
+## 定義
 
-The Publisher object is defined in the `sui::package` module of the Sui Framework. It is a very
-simple, non-generic object that can be initialized once per module (and multiple times per package)
-and is used to prove the authority of the publisher over a type. To claim a Publisher object, the
-publisher must present a [One Time Witness](./one-time-witness) to the `package::claim` function.
+Publisherオブジェクトは、Sui Frameworkの`sui::package`モジュールで定義されています。
+これは非常にシンプルな非ジェネリックオブジェクトで、モジュールごとに一度（パッケージごとに
+複数回）初期化でき、型に対するパブリッシャーの権限を証明するために使用されます。
+Publisherオブジェクトを要求するには、パブリッシャーは`package::claim`関数に
+[One Time Witness](./one-time-witness)を提示する必要があります。
 
 ```move
 module sui::package;
@@ -22,48 +23,47 @@ public struct Publisher has key, store {
 }
 ```
 
-> If you're not familiar with the One Time Witness, you can read more about it
-> [here](./one-time-witness).
+> One Time Witnessに慣れていない場合は、[こちら](./one-time-witness)で詳しく読むことができます。
 
-Here's a simple example of claiming a `Publisher` object in a module:
+以下は、モジュールで`Publisher`オブジェクトを要求する簡単な例です：
 
 ```move file=packages/samples/sources/programmability/publisher.move anchor=publisher
 
 ```
 
-## Usage
+## 使用法
 
-The Publisher object has two functions associated with it which are used to prove the publisher's
-authority over a type:
+Publisherオブジェクトには、型に対するパブリッシャーの権限を証明するために使用される
+2つの関数が関連付けられています：
 
 ```move file=packages/samples/sources/programmability/publisher.move anchor=use_publisher
 
 ```
 
-## Publisher as Admin Role
+## 管理者ロールとしてのPublisher
 
-For small applications or simple use cases, the Publisher object can be used as an admin
-[capability](./capability). While in the broader context, the Publisher object has control over
-system configurations, it can also be used to manage the application's state.
+小さなアプリケーションやシンプルなユースケースでは、Publisherオブジェクトを管理者
+[ケーパビリティ](./capability)として使用できます。より広い文脈では、Publisherオブジェクトは
+システム設定を制御しますが、アプリケーションの状態を管理するためにも使用できます。
 
 ```move file=packages/samples/sources/programmability/publisher.move anchor=publisher_as_admin
 
 ```
 
-However, Publisher misses some native properties of [Capabilities](./capability), such as type
-safety and expressiveness. The signature for the `admin_action` is not very explicit, can be called
-by anyone else. And due to `Publisher` object being standard, there is now a risk of unauthorized
-access if the `from_module` check is not performed. So it's important to be cautious when using the
-`Publisher` object as an admin role.
+ただし、Publisherは型安全性や表現力など、[ケーパビリティ](./capability)の一部の
+ネイティブプロパティが欠けています。`admin_action`のシグネチャはそれほど明示的ではなく、
+他の誰でも呼び出すことができます。そして、`Publisher`オブジェクトが標準であるため、
+`from_module`チェックが実行されない場合、不正アクセスのリスクがあります。
+したがって、`Publisher`オブジェクトを管理者ロールとして使用する際は注意が必要です。
 
-## Role on Sui
+## Suiでの役割
 
-Publisher is required for certain features on Sui. [Object Display](./display) can be created only
-by the Publisher, and TransferPolicy - an important component of the Kiosk system - also requires
-the Publisher object to prove ownership of the type.
+Publisherは、Suiの特定の機能に必要です。[Object Display](./display)はPublisherによってのみ
+作成でき、Kioskシステムの重要なコンポーネントであるTransferPolicyも、型の所有権を証明するために
+Publisherオブジェクトを必要とします。
 
-## Next Steps
+## 次のステップ
 
-In the next chapter we will cover the first feature that requires the Publisher object - Object
-Display - a way to describe objects for clients, and standardize metadata. A must-have for
-user-friendly applications.
+次の章では、Publisherオブジェクトを必要とする最初の機能 - Object Display - について説明します。
+これは、クライアント用にオブジェクトを記述し、メタデータを標準化する方法です。
+ユーザーフレンドリーなアプリケーションには必須です。

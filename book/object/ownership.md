@@ -1,79 +1,40 @@
-# Ownership
+# 所有権
 
-Sui introduces four distinct ownership types for objects: single owner, shared state, immutable
-shared state, and object-owner. Each model offers unique characteristics and suits different use
-cases, enhancing flexibility and control in object management.
+Suiは、オブジェクトに対して4つの異なる所有権タイプを導入しています：単一所有者、共有状態、不変共有状態、オブジェクト所有者。各モデルは独自の特性を提供し、異なるユースケースに適しており、オブジェクト管理における柔軟性と制御を向上させます。
 
-Note that ownership does not control the confidentiality of an object &mdash; it is always possible
-to read the contents of an on-chain object from outside of Move. You should never store unencrypted
-secrets inside of objects.
+所有権はオブジェクトの機密性を制御しないことに注意してください &mdash; Move外部からオンチェーンオブジェクトの内容を読み取ることは常に可能です。暗号化されていない秘密をオブジェクト内に保存すべきではありません。
 
-See the [Storage Functions](../storage/storage-functions.md) chapter for details on how to change
-the owner or ownership type of an object.
+オブジェクトの所有者や所有権タイプを変更する方法の詳細については、[Storage Functions](../storage/storage-functions.md)の章を参照してください。
 
-## Account Owner (or Single Owner)
+## アカウント所有者（または単一所有者）
 
-The account owner, also known as the _single owner_ model, is the foundational ownership type in
-Sui. Here, an object is owned by a single account, granting that account exclusive control over the
-object within the behaviors associated with its type. This model embodies the concept of _true
-ownership_, where the account possesses complete authority over the object, making it inaccessible
-to others for modification or transfer. This level of ownership clarity is a significant advantage
-over other blockchain systems, where ownership definitions can be more ambiguous, and smart
-contracts may have the ability to alter or transfer assets without the owner's consent.
+アカウント所有者は、_単一所有者_モデルとしても知られ、Suiにおける基本的な所有権タイプです。ここでは、オブジェクトは単一のアカウントによって所有され、そのアカウントがそのタイプに関連する動作の範囲内でオブジェクトに対する排他的制御を付与されます。このモデルは_真の所有権_の概念を体現し、アカウントがオブジェクトに対する完全な権限を持ち、他者による修正や転送を不可能にします。この所有権の明確さのレベルは、所有権の定義がより曖昧で、スマートコントラクトが所有者の同意なしに資産を変更または転送する能力を持つ可能性がある他のブロックチェーンシステムに対する重要な利点です。
 
-Just like your private mobile phone, you own it, you can easily unlock and operate it, but others cannot.
-Sui is designed to prevent things like cracking someone else's phone password (bypassing permission
-checks to use objects that do not belong to others). Therefore, no one can use your assets unless
-authorized by you.
+あなたの個人用携帯電話のように、あなたがそれを所有し、簡単にロックを解除して操作できますが、他の人はできません。Suiは、他人の電話のパスワードを破る（他人に属さないオブジェクトを使用するための許可チェックを回避する）ようなことを防ぐように設計されています。したがって、あなたが許可しない限り、誰もあなたの資産を使用することはできません。
 
-## Shared State
+## 共有状態
 
-Single owner model has its limitations: for example, it is very tricky to implement a marketplace
-for digital assets without a shared state. For a generic marketplace scenario, imagine that Alice
-owns an asset X, and she wants to sell it by putting it into a shared marketplace. Then Bob can come
-and buy the asset directly from the marketplace. The reason why this is tricky is that it is
-impossible to write a smart contract that would "lock" the asset in Alice's account and take it out
-when Bob buys it. First, it will be a violation of the single owner model, and second, it requires a
-shared access to the asset.
+単一所有者モデルには限界があります：例えば、共有状態なしにデジタル資産のマーケットプレイスを実装することは非常に困難です。一般的なマーケットプレイスのシナリオを想像してみてください。アリスが資産Xを所有し、それを共有マーケットプレイスに出品して販売したいとします。そして、ボブがマーケットプレイスから直接その資産を購入できます。これが困難な理由は、アリスのアカウントで資産を「ロック」し、ボブが購入したときにそれを取り出すスマートコントラクトを書くことが不可能だからです。第一に、それは単一所有者モデルの違反であり、第二に、資産への共有アクセスが必要になります。
 
-To facilitate a problem of shared data access, Sui has introduced a shared ownership model. In this
-model, an object can be shared with the network. Shared objects can be read and modified by any
-account on the network, and the rules of interaction are defined by the implementation of the
-object. Typical uses for shared objects are: marketplaces, shared resources, escrows, and other
-scenarios where multiple accounts need access to the same state.
+共有データアクセスの問題を解決するため、Suiは共有所有権モデルを導入しました。このモデルでは、オブジェクトをネットワークと共有できます。共有オブジェクトは、ネットワーク上の任意のアカウントによって読み取りおよび修正でき、相互作用のルールはオブジェクトの実装によって定義されます。共有オブジェクトの典型的な用途は、マーケットプレイス、共有リソース、エスクロー、および複数のアカウントが同じ状態にアクセスする必要があるその他のシナリオです。
 
-## Immutable (Frozen) State
+## 不変（凍結）状態
 
-Sui also offers the _frozen object_ model, where an object becomes permanently read-only. These
-immutable objects, while readable, cannot be modified or moved, providing a stable and constant
-state accessible to all network participants. Frozen objects are ideal for public data, reference
-materials, and other use cases where the state permanence is desirable.
+Suiは_凍結オブジェクト_モデルも提供し、オブジェクトが永続的に読み取り専用になります。これらの不変オブジェクトは、読み取り可能ですが、修正や移動はできず、すべてのネットワーク参加者がアクセス可能な安定した一定の状態を提供します。凍結オブジェクトは、公開データ、参考資料、および状態の永続性が望ましいその他のユースケースに理想的です。
 
-## Object Owner
+## オブジェクト所有者
 
-The last ownership model in Sui is the _object owner_. In this model, an object is owned by another
-object. This feature allows creating complex relationships between objects, storing large
-heterogeneous collections, and implementing extensible and modular systems. Practically speaking,
-since the transactions are initiated by accounts, the transaction still accesses the parent object,
-but it can then access the child objects through the parent object.
+Suiの最後の所有権モデルは_オブジェクト所有者_です。このモデルでは、オブジェクトは別のオブジェクトによって所有されます。この機能により、オブジェクト間の複雑な関係の作成、大規模で異種のコレクションの保存、拡張可能でモジュラーなシステムの実装が可能になります。実際的に言えば、トランザクションはアカウントによって開始されるため、トランザクションは依然として親オブジェクトにアクセスしますが、その後親オブジェクトを通じて子オブジェクトにアクセスできます。
 
-A use case we love to mention is a game character. Alice can own the Hero object from a game, and
-the Hero can own items: also represented as objects, like a "Map", or a "Compass". Alice may take
-the "Map" from the "Hero" object, and then send it to Bob, or sell it on a marketplace. With object
-owner, it becomes very natural to imagine how the assets can be structured and managed in relation
-to each other.
+私たちが言及するのが好きなユースケースは、ゲームキャラクターです。アリスはゲームからHeroオブジェクトを所有でき、Heroはアイテムを所有できます：これらも「Map」や「Compass」のようなオブジェクトとして表現されます。アリスは「Hero」オブジェクトから「Map」を取り出し、それをボブに送ったり、マーケットプレイスで販売したりできます。オブジェクト所有者により、資産が互いに関連してどのように構造化され管理されるかを想像することが非常に自然になります。
 
-## Summary
+## まとめ
 
-- **Single Owner:** Objects are owned by a single account, granting exclusive control over the
-  object.
-- **Shared State:** Objects can be shared with the network, allowing multiple accounts to read and
-  modify the object.
-- **Immutable State:** Objects become permanently read-only, providing a stable and constant state.
-- **Object Owner:** Objects can own other objects, enabling complex relationships and modular
-  systems.
+- **単一所有者：** オブジェクトは単一のアカウントによって所有され、オブジェクトに対する排他的制御が付与されます。
+- **共有状態：** オブジェクトはネットワークと共有でき、複数のアカウントがオブジェクトを読み取りおよび修正できます。
+- **不変状態：** オブジェクトは永続的に読み取り専用になり、安定した一定の状態を提供します。
+- **オブジェクト所有者：** オブジェクトは他のオブジェクトを所有でき、複雑な関係とモジュラーシステムを可能にします。
 
-## Next Steps
+## 次のステップ
 
-In the next section we will talk about transaction execution paths in Sui, and how the ownership
-models affect the transaction execution.
+次のセクションでは、Suiにおけるトランザクション実行パスと、所有権モデルがトランザクション実行にどのように影響するかについて説明します。

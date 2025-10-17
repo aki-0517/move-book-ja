@@ -1,4 +1,4 @@
-# Module
+# モジュール
 
 <!--
 
@@ -12,9 +12,7 @@ Notes:
 
  -->
 
-A module is the base unit of code organization in Move. Modules are used to group and isolate code,
-and all members of the module are private to the module by default. In this section you will learn
-how to define a module, declare its members, and access it from other modules.
+モジュールはMoveにおけるコード組織の基本単位です。モジュールはコードをグループ化して分離するために使用され、モジュールのすべてのメンバーはデフォルトでモジュールプライベートです。このセクションでは、モジュールの定義方法、メンバーの宣言方法、および他のモジュールからのアクセス方法を学びます。
 
 ## Module Declaration
 

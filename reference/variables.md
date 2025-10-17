@@ -1,32 +1,30 @@
 ---
-title: 'Local Variables and Scope | Reference'
+title: 'ローカル変数とスコープ | リファレンス'
 description: ''
 ---
 
-# Local Variables and Scope
+# ローカル変数とスコープ
 
-Local variables in Move are lexically (statically) scoped. New variables are introduced with the
-keyword `let`, which will shadow any previous local with the same name. Locals marked as `mut` are
-mutable and can be updated both directly and via a mutable reference.
+Moveのローカル変数は字句的（静的）にスコープされます。新しい変数は`let`キーワードで導入され、同じ名前の以前のローカル変数をシャドウします。`mut`とマークされたローカル変数は可変であり、直接的に、または可変参照を通じて更新できます。
 
-## Declaring Local Variables
+## ローカル変数の宣言
 
-### `let` bindings
+### `let`バインディング
 
-Move programs use `let` to bind variable names to values:
+Moveプログラムは`let`を使用して変数名を値にバインドします：
 
 ```move
 let x = 1;
 let y = x + x;
 ```
 
-`let` can also be used without binding a value to the local.
+`let`は値をローカル変数にバインドせずに使用することもできます。
 
 ```move
 let x;
 ```
 
-The local can then be assigned a value later.
+ローカル変数は後で値を代入することができます。
 
 ```move
 let x;
@@ -37,8 +35,7 @@ if (cond) {
 }
 ```
 
-This can be very helpful when trying to extract a value from a loop when a default value cannot be
-provided.
+これは、デフォルト値を提供できない場合にループから値を抽出しようとする際に非常に便利です。
 
 ```move
 let x;
@@ -53,8 +50,7 @@ loop {
 }
 ```
 
-To modify a local variable _after_ it is assigned, or to borrow it mutably (`&mut`), it must be
-declared as `mut`.
+ローカル変数を代入_後_に変更したり、可変参照（`&mut`）として借用したりするには、`mut`として宣言する必要があります。
 
 ```move
 let mut x = 0;
@@ -62,40 +58,38 @@ if (cond) x = x + 1;
 foo(&mut x);
 ```
 
-For more details see the section on [assignments](#assignments) below.
+詳細については、以下の[代入](#assignments)セクションを参照してください。
 
-### Variables must be assigned before use
+### 変数は使用前に代入する必要があります
 
-Move's type system prevents a local variable from being used before it has been assigned.
+Moveの型システムは、ローカル変数が代入される前に使用されることを防ぎます。
 
 ```move
 let x;
 // highlight-error
-x + x // ERROR! x is used before being assigned
+x + x // ERROR! xが代入される前に使用されています
 ```
 
 ```move
 let x;
 if (cond) x = 0;
 // highlight-error
-x + x // ERROR! x does not have a value in all cases
+x + x // ERROR! xはすべてのケースで値を持たない
 ```
 
 ```move
 let x;
 while (cond) x = 0;
 // highlight-error
-x + x // ERROR! x does not have a value in all cases
+x + x // ERROR! xはすべてのケースで値を持たない
 ```
 
-### Valid variable names
+### 有効な変数名
 
-Variable names can contain underscores `_`, letters `a` to `z`, letters `A` to `Z`, and digits `0`
-to `9`. Variable names must start with either an underscore `_` or a letter `a` through `z`. They
-_cannot_ start with uppercase letters.
+変数名にはアンダースコア`_`、`a`から`z`の文字、`A`から`Z`の文字、および`0`から`9`の数字を含めることができます。変数名はアンダースコア`_`または`a`から`z`の文字で始まる必要があります。大文字で始めることは_できません_。
 
 ```move
-// all valid
+// すべて有効
 let x = e;
 let _x = e;
 let _A = e;
@@ -103,24 +97,22 @@ let x0 = e;
 let xA = e;
 let foobar_123 = e;
 
-// all invalid
+// すべて無効
 // highlight-error-start
 let X = e; // ERROR!
 let Foo = e; // ERROR!
 // highlight-error-end
 ```
 
-### Type annotations
+### 型注釈
 
-The type of a local variable can almost always be inferred by Move's type system. However, Move
-allows explicit type annotations that can be useful for readability, clarity, or debuggability. The
-syntax for adding a type annotation is:
+ローカル変数の型は、Moveの型システムによってほぼ常に推論できます。ただし、Moveでは可読性、明確性、またはデバッグのために有用な明示的な型注釈を許可しています。型注釈を追加する構文は以下の通りです：
 
 ```move
-let x: T = e; // "Variable x of type T is initialized to expression e"
+let x: T = e; // "型Tの変数xは式eで初期化される"
 ```
 
-Some examples of explicit type annotations:
+明示的な型注釈の例：
 
 ```move
 module 0::example;
@@ -136,34 +128,28 @@ fun annotated() {
 }
 ```
 
-Note that the type annotations must always be to the right of the pattern:
+型注釈は常にパターンの右側に配置する必要があることに注意してください：
 
 ```move
 // highlight-error-start
-// ERROR! should be let (x, y): (&u64, &mut u64) = ...
+// ERROR! let (x, y): (&u64, &mut u64) = ... である必要があります
 let (x: &u64, y: &mut u64) = (&0, &mut 1);
 // highlight-error-end
 ```
 
-### When annotations are necessary
+### 注釈が必要な場合
 
-In some cases, a local type annotation is required if the type system cannot infer the type. This
-commonly occurs when the type argument for a generic type cannot be inferred. For example:
+型システムが型を推論できない場合、ローカル型注釈が必要になることがあります。これは、ジェネリック型の型引数を推論できない場合によく発生します。例えば：
 
 ```move
 // highlight-error-start
 let _v1 = vector[]; // ERROR!
-//        ^^^^^^^^ Could not infer this type. Try adding an annotation
+//        ^^^^^^^^ この型を推論できませんでした。注釈を追加してください
 // highlight-error-end
-let v2: vector<u64> = vector[]; // no error
+let v2: vector<u64> = vector[]; // エラーなし
 ```
 
-In a rarer case, the type system might not be able to infer a type for divergent code (where all the
-following code is unreachable). Both [`return`](./functions#return-expression) and
-[`abort`](./abort-and-assert) are expressions and can have any type. A
-[`loop`](./control-flow/loops) has type `()` if it has a `break` (or `T` if has a `break e` where
-`e: T`), but if there is no break out of the `loop`, it could have any type. If these types cannot
-be inferred, a type annotation is required. For example, this code:
+より稀なケースでは、型システムが発散コード（その後のすべてのコードが到達不可能なコード）の型を推論できない場合があります。[`return`](./functions#return-expression)と[`abort`](./abort-and-assert)はどちらも式であり、任意の型を持つことができます。[`loop`](./control-flow/loops)は`break`がある場合は型`()`を持ちます（または`break e`がある場合、`e: T`なら型`T`を持ちます）が、`loop`からのbreakがない場合は任意の型を持つことができます。これらの型が推論できない場合、型注釈が必要です。例えば、このコード：
 
 ```move
 let a: u8 = return ();
@@ -172,21 +158,19 @@ let c: signer = loop ();
 
 // highlight-error-start
 let x = return (); // ERROR!
-//  ^ Could not infer this type. Try adding an annotation
+//  ^ この型を推論できませんでした。注釈を追加してください
 let y = abort 0; // ERROR!
-//  ^ Could not infer this type. Try adding an annotation
+//  ^ この型を推論できませんでした。注釈を追加してください
 let z = loop (); // ERROR!
-//  ^ Could not infer this type. Try adding an annotation
+//  ^ この型を推論できませんでした。注釈を追加してください
 // highlight-error-end
 ```
 
-Adding type annotations to this code will expose other errors about dead code or unused local
-variables, but the example is still helpful for understanding this problem.
+このコードに型注釈を追加すると、デッドコードや未使用のローカル変数に関する他のエラーが露呈されますが、この例はこの問題を理解するのに依然として役立ちます。
 
-### Multiple declarations with tuples
+### タプルを使用した複数宣言
 
-`let` can introduce more than one local at a time using tuples. The locals declared inside the
-parenthesis are initialized to the corresponding values from the tuple.
+`let`はタプルを使用して一度に複数のローカル変数を導入できます。括弧内で宣言されたローカル変数は、タプルからの対応する値で初期化されます。
 
 ```move
 let () = ();
@@ -195,7 +179,7 @@ let (y0, y1, y2) = (0, 1, 2);
 let (z0, z1, z2, z3) = (0, 1, 2, 3);
 ```
 
-The type of the expression must match the arity of the tuple pattern exactly.
+式の型はタプルパターンのアリティと正確に一致する必要があります。
 
 ```move
 // highlight-error
@@ -204,25 +188,23 @@ let (x, y) = (0, 1, 2); // ERROR!
 let (x, y, z, q) = (0, 1, 2); // ERROR!
 ```
 
-You cannot declare more than one local with the same name in a single `let`.
+単一の`let`で同じ名前の複数のローカル変数を宣言することはできません。
 
 ```move
 // highlight-error
 let (x, x) = 0; // ERROR!
 ```
 
-The mutability of the local variables declared can be mixed.
+宣言されるローカル変数の可変性は混在させることができます。
 
 ```move
 let (mut x, y) = (0, 1);
 x = 1;
 ```
 
-### Multiple declarations with structs
+### 構造体を使用した複数宣言
 
-`let` can also introduce more than one local variables at a time when destructuring (or matching
-against) a struct. In this form, the `let` creates a set of local variables that are initialized to
-the values of the fields from a struct. The syntax looks like this:
+`let`は構造体を分解（またはマッチング）する際に、一度に複数のローカル変数を導入することもできます。この形式では、`let`は構造体のフィールドの値で初期化されるローカル変数のセットを作成します。構文は以下のようになります：
 
 ```move
 public struct T { f1: u64, f2: u64 }
@@ -234,13 +216,13 @@ let T { f1: local1, f2: local2 } = T { f1: 1, f2: 2 };
 // local2: u64
 ```
 
-Similarly for positional structs
+位置構造体でも同様です
 
 ```move
 public struct P(u64, u64)
 ```
 
-and
+そして
 
 ```move
 let P (local1, local2) = P ( 1, 2 );
@@ -248,7 +230,7 @@ let P (local1, local2) = P ( 1, 2 );
 // local2: u64
 ```
 
-Here is a more complicated example:
+より複雑な例を以下に示します：
 
 ```move
 module 0::example;
@@ -267,48 +249,45 @@ fun example() {
     let Y { x1: X(f1), x2: X(f2) } = Y { x1: new_x(), x2: new_x() };
     assert!(f1 + f2 == 2, 42);
 
-    // `struct X` without `drop` ability and needs to be destroyed manually
+    // `struct X`は`drop`アビリティを持たず、手動で破棄する必要があります
     let X(_) = x2;
 }
 ```
 
-Fields of structs can serve double duty, identifying the field to bind _and_ the name of the
-variable. This is sometimes referred to as punning.
+構造体のフィールドは二重の役割を果たし、バインドするフィールドを識別し_かつ_変数の名前を識別します。これは時々パニングと呼ばれます。
 
 ```move
 let Y { x1, x2 } = e;
 ```
 
-is equivalent to:
+これは以下と同等です：
 
 ```move
 let Y { x1: x1, x2: x2 } = e;
 ```
 
-As shown with tuples, you cannot declare more than one local with the same name in a single `let`.
+タプルで示されたように、単一の`let`で同じ名前の複数のローカル変数を宣言することはできません。
 
 ```move
 // highlight-error
 let Y { x1: x, x2: x } = e; // ERROR!
 ```
 
-And as with tuples, the mutability of the local variables declared can be mixed.
+そしてタプルと同様に、宣言されるローカル変数の可変性は混在させることができます。
 
 ```move
 let Y { x1: mut x1, x2 } = e;
 ```
 
-Furthermore, the mutability of annotation can be applied to the punned fields. Giving the equivalent
-example
+さらに、可変性の注釈はパニングされたフィールドに適用することができます。同等の例を示すと
 
 ```move
 let Y { mut x1, x2 } = e;
 ```
 
-### Destructuring against references
+### 参照に対する分解
 
-In the examples above for structs, the bound value in the let was moved, destroying the struct value
-and binding its fields.
+上記の構造体の例では、letでバインドされた値はムーブされ、構造体の値を破棄してそのフィールドをバインドします。
 
 ```move
 public struct T { f1: u64, f2: u64 }
@@ -320,10 +299,9 @@ let T { f1: local1, f2: local2 } = T { f1: 1, f2: 2 };
 // local2: u64
 ```
 
-In this scenario the struct value `T { f1: 1, f2: 2 }` no longer exists after the `let`.
+このシナリオでは、構造体の値`T { f1: 1, f2: 2 }`は`let`の後にはもう存在しません。
 
-If you wish instead to not move and destroy the struct value, you can borrow each of its fields. For
-example:
+代わりに構造体の値をムーブして破棄したくない場合は、その各フィールドを借用することができます。例えば：
 
 ```move
 let t = T { f1: 1, f2: 2 };
@@ -332,7 +310,7 @@ let T { f1: local1, f2: local2 } = &t;
 // local2: &u64
 ```
 
-And similarly with mutable references:
+同様に可変参照でも：
 
 ```move
 let mut t = T { f1: 1, f2: 2 };
@@ -369,10 +347,9 @@ fun example() {
 }
 ```
 
-### Ignoring Values
+### 値の無視
 
-In `let` bindings, it is often helpful to ignore some values. Local variables that start with `_`
-will be ignored and not introduce a new variable
+`let`バインディングでは、一部の値を無視することがしばしば役立ちます。`_`で始まるローカル変数は無視され、新しい変数を導入しません。
 
 ```move
 fun three(): (u64, u64, u64) {
@@ -386,26 +363,23 @@ let (x2, _y, z2) = three();
 assert!(x1 + z1 == x2 + z2, 42);
 ```
 
-This can be necessary at times as the compiler will warn on unused local variables
+コンパイラは未使用のローカル変数に対して警告を発するため、時々これが必要になることがあります。
 
 ```move
 let (x1, y, z1) = three(); // WARNING!
-//       ^ unused local 'y'
+//       ^ 未使用のローカル 'y'
 ```
 
-### General `let` grammar
+### 一般的な`let`文法
 
-All of the different structures in `let` can be combined! With that we arrive at this general
-grammar for `let` statements:
+`let`のすべての異なる構造を組み合わせることができます！これにより、`let`文の一般的な文法に到達します：
 
 > _let-binding_ → **let** _pattern-or-list_ _type-annotation_<sub>_opt_</sub> >
 > _initializer_<sub>_opt_</sub> > _pattern-or-list_ → _pattern_ | **(** _pattern-list_ **)** >
 > _pattern-list_ → _pattern_ **,**<sub>_opt_</sub> | _pattern_ **,** _pattern-list_ >
 > _type-annotation_ → **:** _type_ _initializer_ → **=** _expression_
 
-The general term for the item that introduces the bindings is a _pattern_. The pattern serves to
-both destructure data (possibly recursively) and introduce the bindings. The pattern grammar is as
-follows:
+バインディングを導入する項目の一般的な用語は_パターン_です。パターンはデータを分解し（可能であれば再帰的に）、バインディングを導入する役割を果たします。パターンの文法は以下の通りです：
 
 > _pattern_ -> _local-variable_ | _struct-type_ **\{** _field-binding-list_ **\}** >
 > _field-binding-list_ → _field-binding_ **,**<sub>_opt_</sub> | _field-binding_ **,** >
@@ -441,26 +415,23 @@ A few concrete examples with this grammar applied:
 //  ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ let-binding
 ```
 
-## Mutations
+## 変更
 
-### Assignments
+### 代入
 
-After the local is introduced (either by `let` or as a function parameter), a `mut` local can be
-modified via an assignment:
+ローカル変数が導入された後（`let`または関数パラメータとして）、`mut`ローカル変数は代入を通じて変更することができます：
 
 ```move
 x = e
 ```
 
-Unlike `let` bindings, assignments are expressions. In some languages, assignments return the value
-that was assigned, but in Move, the type of any assignment is always `()`.
+`let`バインディングとは異なり、代入は式です。一部の言語では代入は代入された値を返しますが、Moveでは任意の代入の型は常に`()`です。
 
 ```move
 (x = e: ())
 ```
 
-Practically, assignments being expressions means that they can be used without adding a new
-expression block with braces (`{`...`}`).
+実用的には、代入が式であることは、ブレース（`{`...`}`）で新しい式ブロックを追加せずに使用できることを意味します。
 
 ```move
 let x;
@@ -539,12 +510,11 @@ assert!(*vector::borrow(&v, 0) == 100, 42);
 
 For more details, see [Move references](./primitive-types/references).
 
-## Scopes
+## スコープ
 
-Any local declared with `let` is available for any subsequent expression, _within that scope_.
-Scopes are declared with expression blocks, `{`...`}`.
+`let`で宣言されたローカル変数は、_そのスコープ内_の任意の後続式で使用できます。スコープは式ブロック`{`...`}`で宣言されます。
 
-Locals cannot be used outside of the declared scope.
+ローカル変数は宣言されたスコープの外では使用できません。
 
 ```move
 let x = 0;
@@ -553,17 +523,17 @@ let x = 0;
 };
 // highlight-error-start
 x + y // ERROR!
-//  ^ unbound local 'y'
+//  ^ アンバインドローカル 'y'
 // highlight-error-end
 ```
 
-But, locals from an outer scope _can_ be used in a nested scope.
+しかし、外側スコープのローカル変数はネストしたスコープで使用_できます_。
 
 ```move
 {
     let x = 0;
     {
-        let y = x + 1; // valid
+        let y = x + 1; // 有効
     }
 }
 ```
@@ -673,26 +643,25 @@ let my_vector: vector<vector<u8>> = {
 
 (The type annotation is not needed in this example and only added for clarity.)
 
-### Shadowing
+### シャドウイング
 
-If a `let` introduces a local variable with a name already in scope, that previous variable can no
-longer be accessed for the rest of this scope. This is called _shadowing_.
+`let`が既にスコープ内にある名前のローカル変数を導入する場合、以前の変数はこのスコープの残りの部分でアクセスできなくなります。これを_シャドウイング_と呼びます。
 
 ```move
 let x = 0;
 assert!(x == 0, 42);
 
-let x = 1; // x is shadowed
+let x = 1; // xはシャドウされる
 assert!(x == 1, 42);
 ```
 
-When a local is shadowed, it does not need to retain the same type as before.
+ローカル変数がシャドウされた場合、以前と同じ型を保持する必要はありません。
 
 ```move
 let x = 0;
 assert!(x == 0, 42);
 
-let x = b"hello"; // x is shadowed
+let x = b"hello"; // xはシャドウされる
 assert!(x == b"hello", 42);
 ```
 
@@ -741,16 +710,11 @@ let x = 0;
 assert!(x == 0, 42);
 ```
 
-## Move and Copy
+## ムーブとコピー
 
-All local variables in Move can be used in two ways, either by `move` or `copy`. If one or the other
-is not specified, the Move compiler is able to infer whether a `copy` or a `move` should be used.
-This means that in all of the examples above, a `move` or a `copy` would be inserted by the
-compiler. A local variable cannot be used without the use of `move` or `copy`.
+Moveのすべてのローカル変数は、`move`または`copy`のどちらかの方法で使用できます。どちらかが指定されていない場合、Moveコンパイラは`copy`または`move`のどちらを使用するかを推論できます。これは、上記のすべての例で、コンパイラによって`move`または`copy`が挿入されることを意味します。ローカル変数は`move`または`copy`を使用せずに使用することはできません。
 
-`copy` will likely feel the most familiar coming from other programming languages, as it creates a
-new copy of the value inside of the variable to use in that expression. With `copy`, the local
-variable can be used more than once.
+`copy`は他のプログラミング言語から来た人にとって最も馴染み深いと感じられるでしょう。これは、その式で使用するために変数内の値の新しいコピーを作成します。`copy`では、ローカル変数を複数回使用できます。
 
 ```move
 let x = 0;
@@ -758,19 +722,17 @@ let y = copy x + 1;
 let z = copy x + 2;
 ```
 
-Any value with the `copy` [ability](./abilities) can be copied in this way, and will be copied
-implicitly unless a `move` is specified.
+`copy`[アビリティ](./abilities)を持つ任意の値はこの方法でコピーでき、`move`が指定されない限り暗黙的にコピーされます。
 
-`move` takes the value out of the local variable _without_ copying the data. After a `move` occurs,
-the local variable is unavailable, even if the value's type has the `copy` [ability](./abilities).
+`move`はデータをコピー_せずに_ローカル変数から値を取り出します。`move`が発生した後、たとえ値の型が`copy`[アビリティ](./abilities)を持っていても、ローカル変数は使用不可能になります。
 
 ```move
 let x = 1;
 // highlight-error-start
 let y = move x + 1;
-//      ------ Local was moved here
+//      ------ ローカルはここでムーブされました
 let z = move x + 2; // Error!
-//      ^^^^^^ Invalid usage of local 'x'
+//      ^^^^^^ ローカル 'x' の無効な使用
 // highlight-error-end
 y + z
 ```

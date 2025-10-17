@@ -1,18 +1,13 @@
 ---
-title: 'Pattern Matching | Reference'
+title: 'パターンマッチング | リファレンス'
 description: ''
 ---
 
-# Pattern Matching
+# パターンマッチング
 
-A `match` expression is a powerful control structure that allows you to compare a value against a
-series of patterns and then execute code based on which pattern matches first. Patterns can be
-anything from simple literals to complex, nested struct and enum definitions. As opposed to `if`
-expressions, which change control flow based on a `bool`-typed test expression, a `match` expression
-operates over a value of any type and selects one of many arms.
+`match`式は、値を一連のパターンと比較し、最初にマッチするパターンに基づいてコードを実行することを可能にする強力な制御構造です。パターンは、単純なリテラルから複雑なネストした構造体や列挙型定義まで何でも可能です。`bool`型のテスト式に基づいて制御フローを変更する`if`式とは対照的に、`match`式は任意の型の値に対して動作し、多くの分岐から1つを選択します。
 
-A `match` expression can match Move values as well as mutable or immutable references, binding
-sub-patterns accordingly.
+`match`式は、Move値だけでなく、可変または不変の参照もマッチでき、それに応じてサブパターンをバインドします。
 
 For example:
 

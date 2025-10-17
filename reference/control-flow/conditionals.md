@@ -1,54 +1,51 @@
 ---
-title: 'Conditional Expressions | Reference'
+title: '条件式 | リファレンス'
 description: ''
 ---
 
-# Conditional `if` Expressions
+# 条件式 `if`
 
-An `if` expression specifies that some code should only be evaluated if a certain condition is true.
-For example:
+`if`式は、特定の条件が真の場合にのみコードが評価されることを指定します。
+例えば：
 
 ```move
 if (x > 5) x = x - 5
 ```
 
-The condition must be an expression of type `bool`.
+条件は`bool`型の式である必要があります。
 
-An `if` expression can optionally include an `else` clause to specify another expression to evaluate
-when the condition is false.
+`if`式は、条件が偽の場合に評価する別の式を指定するために、オプションで`else`句を含むことができます。
 
 ```move
 if (y <= 10) y = y + 1 else y = 10
 ```
 
-Either the "true" branch or the "false" branch will be evaluated, but not both. Either branch can be
-a single expression or an expression block.
+「真」の分岐または「偽」の分岐のいずれかが評価されますが、両方ではありません。どちらの分岐も単一の式または式ブロックにすることができます。
 
-The conditional expressions may produce values so that the `if` expression has a result.
+条件式は値を生成する可能性があるため、`if`式は結果を持ちます。
 
 ```move
 let z = if (x < 100) x else 100;
 ```
 
-If the `else` clause is not specified, the false branch defaults to the unit value. The following
-are equivalent:
+`else`句が指定されていない場合、偽の分岐はデフォルトでユニット値になります。以下は同等です：
 
 ```move
-if (condition) true_branch // implied default: else ()
+if (condition) true_branch // 暗黙のデフォルト: else ()
 if (condition) true_branch else ()
 ```
 
-The expressions in the true and false branches must have compatible types. For example:
+真と偽の分岐の式は互換性のある型である必要があります。例えば：
 
 ```move
-// x and y must be u64 integers
+// xとyはu64整数である必要があります
 let maximum: u64 = if (x > y) x else y;
 
 // highlight-error-start
-// ERROR! branches different types
+// ERROR! 分岐の型が異なります
 let z = if (maximum < 10) 10u8 else 100u64;
 
-// ERROR! branches different types, as default false-branch is () not u64
+// ERROR! 分岐の型が異なります。デフォルトの偽分岐は()でありu64ではありません
 let y = if (maximum >= 10) maximum;
 // highlight-error-end
 ```

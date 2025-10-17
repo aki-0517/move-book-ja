@@ -1,44 +1,43 @@
-# Move 2024 Migration Guide
+# Move 2024 移行ガイド
 
-Move 2024 is the new edition of the Move language that is maintained by Mysten Labs. This guide is
-intended to help you understand the differences between the 2024 edition and the previous version of
-the Move language.
+Move 2024は、Mysten LabsによってメンテナンスされているMove言語の新しいエディションです。このガイドは
+2024エディションと以前のバージョンのMove言語の違いを理解するのに役立ちます。
 
-> This guide provides a high-level overview of the changes in the new edition. For a more detailed
-> and exhaustive list of changes, refer to the
-> [Sui Documentation](https://docs.sui.io/guides/developer/advanced/move-2024-migration).
+> このガイドは、新しいエディションの変更点の概要を提供します。より詳細で
+> 網羅的な変更点のリストについては、
+> [Sui Documentation](https://docs.sui.io/guides/developer/advanced/move-2024-migration)を参照してください。
 
-## Using the New Edition
+## 新しいエディションの使用
 
-To use the new edition, you need to specify the edition in the `move` file. The edition is specified
-in the `move` file using the `edition` keyword. Currently, the only available edition is
-`2024.beta`.
+新しいエディションを使用するには、`move`ファイルでエディションを指定する必要があります。エディションは
+`move`ファイルで`edition`キーワードを使用して指定されます。現在、利用可能なエディションは
+`2024.beta`のみです。
 
 ```ini
 edition = "2024"
-# alternatively, for new features:
+# または、新機能の場合：
 edition = "2024.beta"
 ```
 
-## Migration Tool
+## 移行ツール
 
-The Move CLI has a migration tool that updates the code to the new edition. To use the migration
-tool, run the following command:
+Move CLIには、コードを新しいエディションに更新する移行ツールがあります。移行ツールを
+使用するには、次のコマンドを実行してください：
 
 ```bash
 $ sui move migrate
 ```
 
-The migration tool will update the code to use the `let mut` syntax, the new `public` modifier for
-structs, and the `public(package)` function visibility instead of `friend` declarations.
+移行ツールは、`let mut`構文、構造体の新しい`public`修飾子、
+`friend`宣言の代わりに`public(package)`関数の可視性を使用するようにコードを更新します。
 
-## Mutable Bindings with `let mut`
+## `let mut`による可変バインディング
 
-Move 2024 introduces `let mut` syntax to declare mutable variables. The `let mut` syntax is used to
-declare a mutable variable that can be changed after it is declared.
+Move 2024では、可変変数を宣言するための`let mut`構文が導入されました。`let mut`構文は
+宣言後に変更可能な可変変数を宣言するために使用されます。
 
-> `let mut` declaration is now required for mutable variables. Compiler will emit an error if you
-> try to reassign a variable without the `mut` keyword.
+> 可変変数には`let mut`宣言が必要になりました。`mut`キーワードなしで変数を再代入しようとすると、
+> コンパイラはエラーを出力します。
 
 ```move
 // Move 2020
@@ -50,34 +49,33 @@ let mut x: u64 = 10;
 x = 20;
 ```
 
-Additionally, the `mut` keyword is used in tuple destructuring and function arguments to declare
-mutable variables.
+さらに、`mut`キーワードは、タプルの分割代入と関数引数で可変変数を宣言するために使用されます。
 
 ```move
-// takes by value and mutates
+// 値で受け取り、変更する
 fun takes_by_value_and_mutates(mut v: Value): Value {
     v.field = 10;
     v
 }
 
-// `mut` should be placed before the variable name
+// `mut`は変数名の前に配置する必要があります
 fun destruct() {
     let (x, y) = point::get_point();
     let (mut x, y) = point::get_point();
     let (mut x, mut y) = point::get_point();
 }
 
-// in struct unpack
+// 構造体のアンパック
 fun unpack() {
     let Point { x, mut y } = point::get_point();
     let Point { mut x, mut y } = point::get_point();
 }
 ```
 
-## Friends are Deprecated
+## Friendsは非推奨
 
-In Move 2024, the `friend` keyword is deprecated. Instead, you can use the `public(package)`
-visibility modifier to make functions visible to other modules in the same package.
+Move 2024では、`friend`キーワードは非推奨になりました。代わりに、`public(package)`
+可視性修飾子を使用して、同じパッケージ内の他のモジュールから関数を参照できるようにできます。
 
 ```move
 // Move 2020
@@ -88,10 +86,10 @@ public(friend) fun protected_function() {}
 public(package) fun protected_function_2024() {}
 ```
 
-## Struct Visibility
+## 構造体の可視性
 
-In Move 2024, structs get a visibility modifier. Currently, the only available visibility modifier
-is `public`.
+Move 2024では、構造体に可視性修飾子が追加されました。現在、利用可能な可視性修飾子は
+`public`のみです。
 
 ```move
 // Move 2020
@@ -101,15 +99,15 @@ struct Book {}
 public struct Book {}
 ```
 
-## Method Syntax
+## メソッド構文
 
-In the new edition, functions which have a struct as the first argument are associated with the
-struct. This means that the function can be called using the dot notation. Methods defined in the
-same module with the type are automatically exported.
+新しいエディションでは、最初の引数として構造体を持つ関数は、その構造体に関連付けられます。
+これは、関数がドット記法を使用して呼び出せることを意味します。型と同じモジュールで定義された
+メソッドは自動的にエクスポートされます。
 
-> Methods are automatically exported if the type is defined in the same module as the method. It is
-> impossible to export methods for types defined in other modules. However, you can create
-> [custom aliases](#method-aliases) for methods in the module scope.
+> メソッドが定義されているモジュールと同じモジュールで型が定義されている場合、メソッドは自動的にエクスポートされます。
+> 他のモジュールで定義された型のメソッドをエクスポートすることはできません。ただし、
+> モジュールスコープでメソッドの[カスタムエイリアス](#method-aliases)を作成できます。
 
 ```move
 public fun count(c: &Counter): u64 { /* ... */ }
@@ -123,10 +121,10 @@ fun use_counter() {
 }
 ```
 
-## Methods for Built-in Types
+## 組み込み型のメソッド
 
-In Move 2024, some of the native and standard types received associated methods. For example, the
-`vector` type has a `to_string` method that converts the vector into a UTF8 string.
+Move 2024では、一部のネイティブ型と標準型に関連メソッドが追加されました。例えば、
+`vector`型には、ベクターをUTF8文字列に変換する`to_string`メソッドがあります。
 
 ```move
 fun aliases() {
@@ -139,25 +137,25 @@ fun aliases() {
 }
 ```
 
-For the full list of built-in aliases, refer to the
-[Standard Library](./../move-basics/standard-library#source-code) and
-[Sui Framework](./../programmability/sui-framework#source-code) source code.
+組み込みエイリアスの完全なリストについては、
+[Standard Library](./../move-basics/standard-library#source-code)と
+[Sui Framework](./../programmability/sui-framework#source-code)のソースコードを参照してください。
 
-## Borrowing Operator
+## 借用演算子
 
-Some of the built-in types support borrowing operators. The borrowing operator is used to get a
-reference to the element at the specified index. The borrowing operator is defined as `[]`.
+一部の組み込み型は借用演算子をサポートしています。借用演算子は、指定されたインデックスの要素への
+参照を取得するために使用されます。借用演算子は`[]`として定義されています。
 
 ```move
 fun play_vec() {
     let v = vector[1,2,3,4];
-    let first = &v[0];         // calls vector::borrow(v, 0)
-    let first_mut = &mut v[0]; // calls vector::borrow_mut(v, 0)
-    let first_copy = v[0];     // calls *vector::borrow(v, 0)
+    let first = &v[0];         // vector::borrow(v, 0)を呼び出し
+    let first_mut = &mut v[0]; // vector::borrow_mut(v, 0)を呼び出し
+    let first_copy = v[0];     // *vector::borrow(v, 0)を呼び出し
 }
 ```
 
-Types that support the borrowing operator are:
+借用演算子をサポートする型は以下の通りです：
 
 - `vector`
 - `sui::vec_map::VecMap`
@@ -167,8 +165,8 @@ Types that support the borrowing operator are:
 - `sui::object_bag::ObjectBag`
 - `sui::linked_table::LinkedTable`
 
-To implement the borrowing operator for a custom type, you need to add a `#[syntax(index)]`
-attribute to the methods.
+カスタム型で借用演算子を実装するには、メソッドに`#[syntax(index)]`
+属性を追加する必要があります。
 
 ```move
 #[syntax(index)]
@@ -178,18 +176,18 @@ public fun borrow(c: &List<T>, key: String): &T { /* ... */ }
 public fun borrow_mut(c: &mut List<T>, key: String): &mut T { /* ... */ }
 ```
 
-## Method Aliases
+## メソッドエイリアス
 
-In Move 2024, methods can be associated with types. The alias can be defined for any type locally to
-the module; or publicly, if the type is defined in the same module.
+Move 2024では、メソッドを型に関連付けることができます。エイリアスは、モジュールに対してローカルに
+任意の型に対して定義できます。または、型が同じモジュールで定義されている場合は、公開できます。
 
 ```move
 // my_module.move
-// Local: type is foreign to the module
+// ローカル：型はモジュール外部のものです
 use fun my_custom_function as vector.do_magic;
 
 // sui-framework/kiosk/kiosk.move
-// Exported: type is defined in the same module
+// エクスポート：型は同じモジュールで定義されています
 public use fun kiosk_owner_cap_for as KioskOwnerCap.kiosk;
 ```
 

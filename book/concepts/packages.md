@@ -1,4 +1,4 @@
-# Package
+# パッケージ（Package）
 
 <!--
 
@@ -16,16 +16,15 @@
 
 -->
 
-Move is a language for writing smart contracts - programs that are stored and run on the blockchain.
-A single program is organized into a package. A package is published on the blockchain and is
-identified by an [address](./address). A published package can be interacted with by sending
-[transactions](./what-is-a-transaction) calling its functions. It can also act as a dependency for
-other packages.
+Moveはスマートコントラクト（ブロックチェーン上に格納され実行されるプログラム）を書くための言語です。
+1つのプログラムはパッケージに組織化されます。パッケージはブロックチェーン上に公開され、
+[アドレス](./address)で識別されます。公開されたパッケージは、その関数を呼び出す
+[トランザクション](./what-is-a-transaction)を送信することで操作できます。また、他のパッケージの依存関係としても機能できます。
 
-> To create a new package, use the `sui move new` command. To learn more about the command, run
-> `sui move new --help`.
+> 新しいパッケージを作成するには、`sui move new`コマンドを使用します。コマンドについて詳しく知るには、
+> `sui move new --help`を実行してください。
 
-Package consists of modules - separate scopes that contain functions, types, and other items.
+パッケージはモジュールで構成されます。モジュールは関数、型、その他のアイテムを含む個別のスコープです。
 
 ```
 package 0x...
@@ -37,11 +36,11 @@ package 0x...
         fun hello_package()
 ```
 
-## Package Structure
+## パッケージ構造
 
-Locally, a package is a directory with a `Move.toml` file and a `sources` directory. The `Move.toml`
-file - called the "package manifest" - contains metadata about the package, and the `sources`
-directory contains the source code for the modules. Package usually looks like this:
+ローカルでは、パッケージは`Move.toml`ファイルと`sources`ディレクトリを持つディレクトリです。`Move.toml`
+ファイル（「パッケージマニフェスト」と呼ばれる）にはパッケージに関するメタデータが含まれ、`sources`
+ディレクトリにはモジュールのソースコードが含まれます。パッケージは通常次のような構造になります：
 
 ```
 sources/
@@ -55,16 +54,15 @@ examples/
 Move.toml
 ```
 
-The `tests` directory is optional and contains tests for the package. Code placed into the `tests`
-directory is not published on-chain and is only available in tests. The `examples` directory can be
-used for code examples, and is also not published on-chain.
+`tests`ディレクトリはオプションで、パッケージのテストが含まれます。`tests`
+ディレクトリに配置されたコードはオンチェーンに公開されず、テストでのみ利用可能です。`examples`ディレクトリは
+コード例に使用でき、これもオンチェーンに公開されません。
 
-## Published Package
+## 公開されたパッケージ
 
-During development, package doesn't have an address and it needs to be set to `0x0`. Once a package
-is published, it gets a single unique [address](./address) on the blockchain containing its modules'
-bytecode. A published package becomes _immutable_ and can be interacted with by sending
-transactions.
+開発中は、パッケージにアドレスがなく、`0x0`に設定する必要があります。パッケージが公開されると、
+ブロックチェーン上でモジュールのバイトコードを含む単一の一意の[アドレス](./address)を取得します。
+公開されたパッケージは_不変_となり、トランザクションを送信することで操作できます。
 
 ```
 0x...
@@ -72,8 +70,8 @@ transactions.
     another_module: <bytecode>
 ```
 
-## Links
+## リンク
 
-- [Package Manifest](./manifest)
-- [Address](./address)
-- [Packages](./../../reference/packages) in the Move Reference.
+- [パッケージマニフェスト](./manifest)
+- [アドレス](./address)
+- Move リファレンスの[パッケージ](./../../reference/packages)

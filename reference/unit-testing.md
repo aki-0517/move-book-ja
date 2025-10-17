@@ -1,20 +1,17 @@
 ---
-title: 'Unit Tests | Reference'
+title: 'ユニットテスト | リファレンス'
 description: ''
 ---
 
-# Unit Tests
+# ユニットテスト
 
-Unit testing for Move uses three annotations in the Move source language:
+Moveのユニットテストは、Moveソース言語で3つの注釈を使用します：
 
-- `#[test]` marks a function as a test;
-- `#[expected_failure]` marks that a test is expected to fail;
-- `#[test_only]` marks a module or module member ([`use`](./uses), [function](./functions),
-  [struct](./structs), or [constant](./constants)) as code to be included for testing only.
+- `#[test]`は関数をテストとしてマークします；
+- `#[expected_failure]`はテストが失敗することが期待されることをマークします；
+- `#[test_only]`はモジュールまたはモジュールメンバー（[`use`](./uses)、[function](./functions)、[struct](./structs)、または[constant](./constants)）をテスト専用のコードとしてマークします。
 
-These annotations can be placed on any appropriate form with any visibility. Whenever a module or
-module member is annotated as `#[test_only]` or `#[test]`, it will not be included in the compiled
-bytecode unless it is compiled for testing.
+これらの注釈は、任意の可視性を持つ任意の適切な形式に配置できます。モジュールまたはモジュールメンバーが`#[test_only]`または`#[test]`として注釈されている場合、テスト用にコンパイルされない限り、コンパイルされたバイトコードに含まれません。
 
 ## Test Annotations
 

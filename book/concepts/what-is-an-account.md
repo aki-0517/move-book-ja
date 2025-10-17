@@ -1,4 +1,4 @@
-# Account
+# アカウント（Account）
 
 <!--
 
@@ -15,22 +15,18 @@
 
  -->
 
-An account is a way to identify a user. An account is generated from a private key, and is
-identified by an address. An account can own objects, and can send transactions. Every transaction
-has a sender, and the sender is identified by an [address](./address).
+アカウントはユーザーを識別する方法です。アカウントは秘密鍵から生成され、
+アドレスによって識別されます。アカウントはオブジェクトを所有でき、トランザクションを送信できます。すべてのトランザクション
+には送信者があり、送信者は[アドレス](./address)によって識別されます。
 
-Sui supports multiple cryptographic algorithms for account generation. The two supported curves are
-ed25519, secp256k1, and there is also a special way of generating an account - zklogin. The
-cryptographic agility - the unique feature of Sui - allows for flexibility in the account
-generation.
+Suiはアカウント生成のために複数の暗号化アルゴリズムをサポートしています。サポートされている2つの曲線は
+ed25519とsecp256k1で、またアカウントを生成する特別な方法であるzkloginもあります。
+暗号化アジリティ（Suiの独自機能）により、アカウント生成の柔軟性が可能になります。
 
 <!-- The cryptographic agility allows for flexibility in the account generation -->
 
-## Further Reading
+## 関連資料
 
-- [Cryptography in Sui](https://blog.sui.io/wallet-cryptography-specifications/) in the
-  [Sui Blog](https://blog.sui.io)
-- [Keys and Addresses](https://docs.sui.io/concepts/cryptography/transaction-auth/keys-addresses) in
-  the [Sui Docs](https://docs.sui.io)
-- [Signatures](https://docs.sui.io/concepts/cryptography/transaction-auth/signatures) in the
-  [Sui Docs](https://docs.sui.io)
+- [Sui Blog](https://blog.sui.io)の[Cryptography in Sui](https://blog.sui.io/wallet-cryptography-specifications/)
+- [Sui Docs](https://docs.sui.io)の[Keys and Addresses](https://docs.sui.io/concepts/cryptography/transaction-auth/keys-addresses)
+- [Sui Docs](https://docs.sui.io)の[Signatures](https://docs.sui.io/concepts/cryptography/transaction-auth/signatures)

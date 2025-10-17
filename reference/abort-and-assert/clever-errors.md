@@ -1,30 +1,18 @@
 ---
-title: 'Clever Errors | Reference'
+title: 'Clever Errors | リファレンス'
 description:
-  Clever errors are a feature that allows for more informative error messages when an assertion
-  fails or an abort is raised
+  Clever errorsは、アサーションが失敗した場合やabortが発生した場合により情報豊富なエラーメッセージを可能にする機能です
 ---
 
 # Clever Errors
 
-Clever errors are a feature that allows for more informative error messages when an assertion fails
-or an abort is raised. They are a source feature and compile to a `u64` abort code value that
-contains the information needed to access the line number, constant name, and constant value given
-the clever error code and the module that the clever error constant was declared in. Because of this
-compilation, post-processing is required to go from the `u64` abort code value to a human-readable
-error message. The post-processing is automatically performed by the Sui GraphQL server, as well as
-the Sui CLI. If you want to manually decode a clever abort code, you can use the process outlined in
-[Inflating Clever Abort Codes](#inflating-clever-abort-codes) to do so.
+Clever errorsは、アサーションが失敗した場合やabortが発生した場合により情報豊富なエラーメッセージを可能にする機能です。これらはソース機能であり、clever errorコードとclever error定数が宣言されたモジュールが与えられた場合に、行番号、定数名、定数値にアクセスするために必要な情報を含む`u64` abortコード値にコンパイルされます。このコンパイルのため、`u64` abortコード値から人間が読めるエラーメッセージに変換するには後処理が必要です。後処理はSui GraphQLサーバーとSui CLIによって自動的に実行されます。clever abortコードを手動でデコードしたい場合は、[Clever Abortコードの展開](#inflating-clever-abort-codes)で概説されたプロセスを使用できます。
 
-> Clever errors include source line information amongst other data. Because of this their value may
-> change due to any changes in the source file (e.g., due to auto-formatting, adding a new module
-> member, or adding a newline).
+> Clever errorsには他のデータの中でもソース行情報が含まれます。このため、ソースファイルの変更（例：自動フォーマット、新しいモジュールメンバーの追加、改行の追加）により、その値が変更される可能性があります。
 
-## Clever Abort Codes
+## Clever Abortコード
 
-Clever abort codes allow you to use non-u64 constants as abort codes as long as the constants are
-annotated with the `#[error]` attribute. They can be used both in assertions, and as codes to
-`abort`.
+Clever abortコードにより、定数が`#[error]`属性で注釈されている限り、非u64定数をabortコードとして使用できます。これらはアサーションと`abort`のコードの両方で使用できます。
 
 ```move
 module 0x42::a_module;
@@ -32,58 +20,51 @@ module 0x42::a_module;
 #[error]
 const EIsThree: vector<u8> = b"The value is three";
 
-// Will abort with `EIsThree` if `x` is 3
+// `x`が3の場合、`EIsThree`でabortします
 public fun double_except_three(x: u64): u64 {
     assert!(x != 3, EIsThree);
     x * x
 }
 
-// Will always abort with `EIsThree`
+// 常に`EIsThree`でabortします
 public fun clever_abort() {
     abort EIsThree
 }
 ```
 
-In this example, the `EIsThree` constant is a `vector<u8>`, which is not a `u64`. However, the
-`#[error]` attribute allows the constant to be used as an abort code, and will at runtime produce a
-`u64` abort code value that holds:
+この例では、`EIsThree`定数は`vector<u8>`であり、`u64`ではありません。しかし、`#[error]`属性により、定数をabortコードとして使用でき、実行時に以下を保持する`u64` abortコード値を生成します：
 
-1. A set tag-bit that indicates that the abort code is a clever abort code.
-2. The line number of where the abort occurred in the source file (e.g., 7).
-3. The index in the module's identifier table for the constant's name (e.g., `EIsThree`).
-4. The index of the constant's value in the module's constant table (e.g., `b"The value is three"`).
+1. abortコードがclever abortコードであることを示す設定されたタグビット。
+2. ソースファイルでabortが発生した行番号（例：7）。
+3. 定数名のモジュールの識別子テーブル内のインデックス（例：`EIsThree`）。
+4. モジュールの定数テーブル内の定数値のインデックス（例：`b"The value is three"`）。
 
-In hex, if `double_except_three(3)` is called, it will abort with a `u64` abort code as follows:
+16進数では、`double_except_three(3)`が呼び出された場合、以下の`u64` abortコードでabortします：
 
 ```
 0x8000_0007_0001_0000
   ^       ^    ^    ^
   |       |    |    |
   |       |    |    |
-  |       |    |    +-- Constant value index = 0 (b"The value is three")
-  |       |    +-- Constant name index = 1 (EIsThree)
-  |       +-- Line number = 7 (line of the assertion)
-  +-- Tag bit = 0b1000_0000_0000_0000
+  |       |    |    +-- 定数値インデックス = 0 (b"The value is three")
+  |       |    +-- 定数名インデックス = 1 (EIsThree)
+  |       +-- 行番号 = 7 (アサーションの行)
+  +-- タグビット = 0b1000_0000_0000_0000
 ```
 
-And could be rendered as a human-readable error message as (e.g.)
+そして、人間が読めるエラーメッセージとして以下のようにレンダリングできます（例）：
 
 ```
 Error from '0x42::a_module::double_except_three' (line 7), abort 'EIsThree': "The value is three"
 ```
 
-The exact formatting of this message may vary depending on the tooling used to decode the clever
-error however all of the information needed to generate a human-readable error message like the
-above is present in the `u64` abort code when coupled with the module where the error occurred.
+このメッセージの正確なフォーマットは、clever errorをデコードするために使用されるツールによって異なる場合がありますが、上記のような人間が読めるエラーメッセージを生成するために必要なすべての情報が、エラーが発生したモジュールと組み合わせて`u64` abortコードに存在します。
 
-> Clever abort code values do _not_ need to be a `vector<u8>` -- it can be any valid constant type
-> in Move.
+> Clever abortコード値は`vector<u8>`である必要は_ありません_ -- Moveの任意の有効な定数型にすることができます。
 
-## Assertions with no Abort Codes
+## Abortコードなしのアサーション
 
-Assertions and `abort` statements without an abort code will automatically derive an abort code from
-the source line number and will be encoded in the clever error format with the constant name and
-constant value information will be filled with sentinel values of `0xffff` each. E.g.,
+abortコードなしのアサーションと`abort`文は、ソース行番号から自動的にabortコードを導出し、定数名と定数値の情報がそれぞれ`0xffff`のセンチネル値で埋められたclever error形式でエンコードされます。例えば：
 
 ```move
 module 0x42::a_module;
@@ -99,14 +80,12 @@ fun abort_no_code() {
 }
 ```
 
-Both of these will produce a `u64` abort code value that holds:
+これら両方は以下を保持する`u64` abortコード値を生成します：
 
-1. A set tag-bit that indicates that the abort code is a clever abort code.
-2. The line number of where the abort occurred in the source file (e.g., 6).
-3. A sentinel value of `0xffff` for the index into the module's identifier table for the constant's
-   name.
-4. A sentinel value of `0xffff` for the index of the constant's value in the module's constant
-   table.
+1. abortコードがclever abortコードであることを示す設定されたタグビット。
+2. ソースファイルでabortが発生した行番号（例：6）。
+3. 定数名のモジュールの識別子テーブルへのインデックスのセンチネル値`0xffff`。
+4. モジュールの定数テーブル内の定数値のインデックスのセンチネル値`0xffff`。
 
 In hex, if `assert_false(3)` is called, it will abort with a `u64` abort code as follows:
 

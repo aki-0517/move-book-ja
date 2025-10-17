@@ -1,57 +1,40 @@
-# Pattern: Wrapper type
+# パターン：ラッパー型
 
-Sometimes, there’s a need to create a new type that behaves similarly to an existing type but with
-certain modifications or restrictions. For example, you might want to create a
-[collection type](./collections) that behaves like a vector but doesn’t allow modifying the elements
-after they’ve been inserted. The wrapper type pattern is an effective way to achieve this.
+既存の型と同様の動作をするが、特定の変更や制限を持つ新しい型を作成する必要がある場合があります。例えば、要素が挿入された後に変更を許可しない、ベクターのように動作する[コレクション型](./collections)を作成したい場合があります。ラッパー型パターンは、これを実現する効果的な方法です。
 
-## Definition
+## 定義
 
-The wrapper type pattern is a design pattern in which you create a new type that wraps an existing
-type. The wrapper type is distinct from the original but can be converted to and from it.
+ラッパー型パターンは、既存の型をラップする新しい型を作成するデザインパターンです。ラッパー型は元の型とは異なりますが、それとの間で変換できます。
 
-Often, it is implemented as a positional struct with a single field.
+多くの場合、単一のフィールドを持つ位置構造体として実装されます。
 
 ```move file=packages/samples/sources/programmability/wrapper-type-pattern.move anchor=main
 
 ```
 
-## Common Practices
+## 一般的な実践
 
-In cases where the goal is to extend the behavior of an existing type, it is common to provide
-accessors for the wrapped type. This approach allows users to access the underlying type directly
-when needed. For example, in the following code, we provide the `inner()`, `inner_mut()`, and
-`into_inner()` methods for the Stack type.
+既存の型の動作を拡張することが目標の場合、ラップされた型のアクセサを提供することが一般的です。このアプローチにより、ユーザーは必要に応じて基盤となる型に直接アクセスできます。例えば、以下のコードでは、Stack型に対して`inner()`、`inner_mut()`、`into_inner()`メソッドを提供しています。
 
 ```move file=packages/samples/sources/programmability/wrapper-type-pattern.move anchor=common
 
 ```
 
-## Advantages
+## 利点
 
-The wrapper type pattern offers several benefits:
+ラッパー型パターンにはいくつかの利点があります：
 
-- Custom Functions: It allows you to define custom functions for an existing type.
-- Robust Function Signatures: It constrains function signatures to the new type, thereby making the
-  code more robust.
-- Improved Readability: It often increases the readability of the code by providing a more
-  descriptive type name.
+- カスタム関数：既存の型に対してカスタム関数を定義できます。
+- 堅牢な関数シグネチャ：関数シグネチャを新しい型に制約することで、コードをより堅牢にします。
+- 可読性の向上：より説明的な型名を提供することで、コードの可読性を向上させることがよくあります。
 
-## Disadvantages
+## 欠点
 
-The wrapper type pattern is powerful in two scenarios—when you want to limit the behavior of an
-existing type while providing a custom interface to the same data structure, and when you want to
-extend the behavior of an existing type. However, it does have some limitations:
+ラッパー型パターンは、既存の型の動作を制限しながら同じデータ構造にカスタムインターフェースを提供したい場合と、既存の型の動作を拡張したい場合の2つのシナリオで強力です。しかし、いくつかの制限があります：
 
-- Verbosity: It can be verbose to implement, especially if you want to expose all the methods of the
-  wrapped type.
-- Sparse Implementation: The implementation can be quite minimal, as it often just forwards calls to
-  the wrapped type.
+- 冗長性：特にラップされた型のすべてのメソッドを公開したい場合、実装が冗長になる可能性があります。
+- 疎な実装：実装は非常に最小限になることがあり、多くの場合、ラップされた型への呼び出しを転送するだけです。
 
-## Next Steps
+## 次のステップ
 
-The wrapper type pattern is very useful, particularly when used in conjunction with collection
-types, as demonstrated in the previous section. In the next section, we will cover
-[Dynamic Fields](./dynamic-fields) — an important primitive that enables
-[Dynamic Collections](./dynamic-collections), a way to store large collections of data in a more
-flexible, albeit more expensive, way.
+ラッパー型パターンは非常に有用で、特に前のセクションで示したように、コレクション型と組み合わせて使用する場合に特に有効です。次のセクションでは、[動的コレクション](./dynamic-collections)を可能にする重要なプリミティブである[動的フィールド](./dynamic-fields)について説明します。これは、より柔軟で（ただしより高価な）方法で大量のデータコレクションを保存する方法です。

@@ -1,49 +1,31 @@
-# What is an Object?
+# オブジェクトとは何か？
 
-The Object Model in Sui can be viewed as a high-level abstraction representing digital assets as
-_objects_. These objects have their own type and associated behaviors, a unique identifier, and
-support native storage operations like _transfer_ and _share_. Designed to be intuitive and easy to
-use, the Object Model enables a wide range of use cases to be implemented with ease.
+SuiのObject Modelは、デジタルアセットを_オブジェクト_として表現する高レベルの抽象化として見ることができます。これらのオブジェクトは独自のタイプと関連する動作、一意の識別子を持ち、_transfer_や_share_などのネイティブストレージ操作をサポートします。直感的で使いやすく設計されたObject Modelは、幅広いユースケースを簡単に実装できるようにします。
 
-Objects in Sui have the following properties:
+Suiのオブジェクトには次の特性があります：
 
-- **Type:** Every object has a type, defining the structure and behavior of the object. Objects of
-  different types cannot be mixed or used interchangeably, ensuring objects are used correctly
-  according to their type system.
+- **タイプ：** すべてのオブジェクトにはタイプがあり、オブジェクトの構造と動作を定義します。異なるタイプのオブジェクトは混在させたり、互換的に使用したりすることはできず、オブジェクトがタイプシステムに従って正しく使用されることを保証します。
 
-- **Unique ID:** Each object has a unique identifier, distinguishing it from other objects. This ID
-  is generated upon the object's creation and is immutable. It's used to track and identify objects
-  within the system.
+- **一意のID：** 各オブジェクトには一意の識別子があり、他のオブジェクトと区別されます。このIDはオブジェクトの作成時に生成され、不変です。システム内でオブジェクトを追跡し、識別するために使用されます。
 
 <!-- Note: consider "shared across many entities" -->
 
-- **Owner:** Every object is associated with an owner, who has control over changes to the object.
-  Ownership on Sui can be exclusive to an account, shared across the network, or frozen, allowing
-  read-only access without modification or transfer capabilities. We will discuss ownership in more
-  detail in the following sections.
+- **所有者：** すべてのオブジェクトは所有者に関連付けられ、所有者はオブジェクトの変更を制御できます。Suiの所有権は、アカウント専用、ネットワーク全体で共有、または凍結（修正や転送機能なしの読み取り専用アクセスを許可）が可能です。所有権についてはfollowing sectionsでより詳しく説明します。
 
-  Note that ownership does not control the confidentiality of an object &mdash; it is always
-  possible to read the contents of an on-chain object from outside of Move. You should never store
-  unencrypted secrets inside of objects.
+  所有権はオブジェクトの機密性を制御しないことに注意してください &mdash; Move外部からオンチェーンオブジェクトの内容を読み取ることは常に可能です。暗号化されていない秘密をオブジェクト内に保存すべきではありません。
 
-- **Data:** Objects encapsulate their data, simplifying management and manipulation. The data
-  structure and operations are defined by the object's type.
+- **データ：** オブジェクトはそのデータをカプセル化し、管理と操作を簡素化します。データ構造と操作は、オブジェクトのタイプによって定義されます。
 
-- **Version:** The transition from accounts to objects is facilitated by object versioning.
-  Traditionally, blockchains use a _nonce_ to prevent replay attacks. In Sui, the object's version
-  acts as a nonce, preventing replay attacks for each object.
+- **バージョン：** アカウントからオブジェクトへの移行は、オブジェクトのバージョニングによって促進されます。従来、ブロックチェーンはリプレイアタックを防ぐために_nonce_を使用していました。Suiでは、オブジェクトのバージョンがnonceとして機能し、各オブジェクトのリプレイアタックを防ぎます。
 
-- **Digest:** Every object has a digest, which is a hash of the object's data. The digest is used to
-  cryptographically verify the integrity of the object's data and ensures that it has not been
-  tampered with. The digest is calculated when the object is created and is updated whenever the
-  object's data changes.
+- **ダイジェスト：** すべてのオブジェクトにはダイジェストがあり、これはオブジェクトのデータのハッシュです。ダイジェストは、オブジェクトのデータの整合性を暗号的に検証し、改ざんされていないことを保証するために使用されます。ダイジェストはオブジェクトの作成時に計算され、オブジェクトのデータが変更されるたびに更新されます。
 
-## Summary
+## まとめ
 
-- Objects in Sui are high-level abstractions representing digital assets.
-- Objects have a type, unique ID, owner, data, version, and digest.
-- The Object Model simplifies asset management and enables a wide range of use cases.
+- Suiのオブジェクトは、デジタルアセットを表現する高レベルの抽象化です。
+- オブジェクトには、タイプ、一意のID、所有者、データ、バージョン、ダイジェストがあります。
+- Object Modelは、アセット管理を簡素化し、幅広いユースケースを可能にします。
 
-## Further Reading
+## 参考文献
 
-- [Object Model](https://docs.sui.io/concepts/object-model) in Sui Documentation.
+- Sui Documentationの[Object Model](https://docs.sui.io/concepts/object-model)
