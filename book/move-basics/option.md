@@ -1,4 +1,4 @@
-# Option
+# Option型
 
 `Option`は、存在するかしないかのオプションの値を表す型です。Moveの`Option`の概念はRustから借用されており、Moveで非常に有用なプリミティブです。`Option`は[標準ライブラリ](./standard-library)で定義されており、以下のように定義されています：
 
@@ -11,58 +11,52 @@ public struct Option<Element> has copy, drop, store {
 }
 ```
 
-_See [full documentation for std::option][option-stdlib] module._
+_std::option モジュールの[完全なドキュメントはこちら][option-stdlib]を参照してください。_
 
-> The 'std::option' module is implicitly imported in every module, so you don't need to add an
-> explicit import.
+> `std::option` モジュールはすべてのモジュールに暗黙的にインポートされます。明示的な `use` は不要です。
 
-The `Option` type is a generic type with an `Element` type parameter. It contains a single field,
-`vec`, which is a `vector` of `Element`. The vector can have a length of 0 or 1, representing the
-absence or presence of a value, respectively.
+`Option` 型はジェネリック型で、型パラメータ `Element` を持ちます。内部には `vec` という
+単一のフィールドがあり、これは `Element` の `vector` です。このベクターの長さが 0 または 1 となることで、
+それぞれ値が存在しない／存在することを表します。
 
-> Note: You might be surprised that `Option` is a `struct` containing a `vector` instead of an
-> [enum][enum-reference]. This is for historical reasons: `Option` was added to Move before it had
-> support for enums.
+> 注意: `Option` が [enum][enum-reference] ではなく、`vector` を含む `struct` として定義されているのは
+> 歴史的な理由によるものです。`Option` は Move に enum が導入される以前に追加されました。
 
-The `Option` type has two variants: `Some` and `None`. The `Some` variant contains a value, while
-the `None` variant represents the absence of a value. The `Option` type is used to represent the
-absence of a value in a type-safe way, avoiding the need for empty or `undefined` values.
+`Option` 型には `Some` と `None` の 2 つのバリアントがあります。`Some` は値を保持し、`None` は値の
+不在を表します。`Option` は、空文字や `undefined` のような曖昧な表現を避け、型安全に「値がない」状態を
+表すために用いられます。
 
-## In Practice
+## 実際の使い方
 
-To showcase why the `Option` type is necessary, let's look at an example. Consider an application
-which takes a user input and stores it in a variable. Some fields are required, and some are
-optional. For example, a user's middle name is optional. While we could use an empty string to
-represent the absence of a middle name, it would require extra checks to differentiate between an
-empty string and a missing middle name. Instead, we can use the `Option` type to represent the
-middle name.
+`Option` 型が必要な理由を示すために、例を考えてみましょう。ユーザー入力を受け取り変数に保存する
+アプリケーションでは、必須のフィールドもあれば任意のフィールドもあります。たとえばミドルネームは
+任意です。ミドルネームがないことを空文字列で表すこともできますが、その場合、空文字列と未入力を
+区別するための追加のチェックが必要になります。代わりに、ミドルネームを `Option` 型で表現できます。
 
 ```move file=packages/samples/sources/move-basics/option.move anchor=registry
 
 ```
 
-In the previous example, the `middle_name` field is of type `Option<String>`. This means that the
-`middle_name` field can either contain a String value, wrapped in Some, or be explicitly empty,
-represented by None. Using the `Option` type makes the optional nature of the field clear, avoiding
-ambiguity and the need for extra checks to differentiate between an empty string and a missing
-middle name.
+上の例では、`middle_name` フィールドは `Option<String>` 型です。これは、`middle_name` フィールドが
+`Some` に包まれた `String` 値を持つか、`None` によって明示的に空であるかのいずれかであることを意味します。
+`Option` を使うことで、そのフィールドが任意であることが明確になり、空文字列と未入力を区別するための
+曖昧さや余分なチェックを避けられます。
 
-## Creating and Using Option values
+## Option値の作成と利用
 
-The `Option` type, along with the `std::option` module, is implicitly imported in Move. This means
-you can use the `Option` type directly without needing a `use` statement.
+`Option` 型（および `std::option` モジュール）は Move では暗黙的にインポートされます。つまり、
+`use` 文なしで直接 `Option` 型を使えます。
 
-To create a value of the `Option` type, you can use the `option::some` or `option::none` methods.
-`Option` values also support several operations (borrowing will be discussed in the
-[references](references#references-1) chapter):
+`Option` 型の値は、`option::some` または `option::none` を使って作成できます。`Option` の値は
+いくつかの操作もサポートしています（借用については[参照](references#references-1)の章で扱います）。
 
 ```move file=packages/samples/sources/move-basics/option.move anchor=usage
 
 ```
 
-## Further Reading
+## 参考資料
 
-- [std::option][option-stdlib] in the standard library
+- 標準ライブラリの [std::option][option-stdlib]
 
 [enum-reference]: ./../../reference/enums
 [option-stdlib]: https://docs.sui.io/references/framework/std/option
