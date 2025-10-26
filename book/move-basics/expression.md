@@ -18,41 +18,39 @@
 
 ```
 
-## Operators
+## 演算子
 
-Arithmetic, logical, and bitwise operators are used to perform operations on values. Since these
-operations produce values, they are considered expressions.
+算術・論理・ビット演算子は、値に対して操作を行うために使用されます。これらの操作は値を
+生成するため、式と見なされます。
 
 ```move file=packages/samples/sources/move-basics/expression.move anchor=operators
 
 ```
 
-## Blocks
+## ブロック
 
-A block is a sequence of statements and expressions enclosed in curly braces `{}`. It returns the
-value of the last expression in the block (note that this final expression must not have an ending
-semicolon). A block is an expression, so it can be used anywhere an expression is expected.
+ブロックは、中括弧 `{}` で囲まれた文と式の並びです。ブロックは、ブロック内の最後の式の値を
+返します（この最後の式には末尾のセミコロンが付いていてはいけません）。ブロック自体も式
+なので、式が期待されるあらゆる場所で使用できます。
 
 ```move file=packages/samples/sources/move-basics/expression.move anchor=block
 
 ```
 
-## Function Calls
+## 関数呼び出し
 
-We go into detail about functions in the [Functions](./function) section. However, we have already
-used function calls in previous sections, so it's worth mentioning them here. A function call is an
-expression that calls a function and returns the value of the last expression in the function body,
-provided the last expression does not have a terminating semi-colon.
+関数についての詳細は [関数](./function) セクションで説明します。ただし、これまでのセクションでも
+既に関数呼び出しを使用しているため、ここで簡単に触れておきます。関数呼び出しは関数を呼び出し、
+その関数本体の最後の式の値を返す式です（最後の式にセミコロンが付いていない場合）。
 
 ```move file=packages/samples/sources/move-basics/expression.move anchor=fun_call
 
 ```
 
-## Control Flow Expressions
+## 制御フロー式
 
-Control flow expressions are used to control the flow of the program. They are also expressions, so
-they return a value. We cover control flow expressions in the [Control Flow](./control-flow)
-section. Here's a very brief overview:
+制御フロー式はプログラムの流れを制御するために使用されます。これらも式であるため、値を返します。
+[制御フロー](./control-flow) セクションで詳しく扱います。以下はごく簡単な概要です。
 
 ```move file=packages/samples/sources/move-basics/expression.move anchor=control_flow
 
